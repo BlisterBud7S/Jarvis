@@ -2,13 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jarvis">
 <meta name="theme-color" content="#0a0a0f">
 <link rel="manifest" href="/manifest.json">
-<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%230a0a1a' width='100' height='100' rx='20'/><circle cx='50' cy='45' r='18' fill='none' stroke='%2300e5ff' stroke-width='2'/><circle cx='50' cy='45' r='6' fill='%2300e5ff'/><path d='M30 75 Q50 65 70 75' stroke='%2300e5ff' stroke-width='2' fill='none'/></svg>">
 <title>J.A.R.V.I.S.</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -23,81 +22,116 @@
 }
 html, body { height: 100%; overflow: hidden; }
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', system-ui, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'Segoe UI', system-ui, sans-serif;
   background: var(--bg); color: var(--text);
-  -webkit-user-select: none; user-select: none;
-  -webkit-tap-highlight-color: transparent;
 }
 
-/* Layout */
+/* Desktop sidebar + main layout */
 #app {
-  display: flex; flex-direction: column;
-  height: 100%; height: 100dvh;
-  padding-top: var(--safe-top);
-  padding-bottom: var(--safe-bottom);
+  display: flex; height: 100%; height: 100dvh;
 }
 
-/* Header */
-.header {
-  display: flex; align-items: center; gap: 12px;
-  padding: 12px 20px;
+/* Sidebar — visible on desktop, hidden on mobile */
+.sidebar {
+  width: 260px; flex-shrink: 0;
   background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.sidebar-header {
+  padding: 20px; display: flex; align-items: center; gap: 12px;
   border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
 }
 .orb {
   width: 36px; height: 36px; border-radius: 50%;
   background: radial-gradient(circle, var(--cyan) 0%, transparent 70%);
-  animation: pulse 2s ease-in-out infinite;
-  flex-shrink: 0;
+  animation: pulse 2s ease-in-out infinite; flex-shrink: 0;
 }
 @keyframes pulse {
   0%, 100% { opacity: 0.6; transform: scale(1); }
   50% { opacity: 1; transform: scale(1.1); }
 }
 .orb.processing { animation: spin 1s linear infinite; }
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.sidebar-header h1 { font-size: 16px; font-weight: 700; color: var(--cyan); letter-spacing: 2px; }
+.sidebar-header .status { font-size: 11px; color: var(--text2); }
+
+.sidebar-nav { flex: 1; overflow-y: auto; padding: 8px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 10px;
+  cursor: pointer; color: var(--text2);
+  font-size: 14px; transition: all 0.15s;
+  margin-bottom: 2px;
 }
-.header-text { flex: 1; }
-.header-text h1 { font-size: 18px; font-weight: 700; color: var(--cyan); letter-spacing: 2px; }
-.header-text .status { font-size: 12px; color: var(--text2); }
+.nav-item:hover { background: var(--surface2); color: var(--text); }
+.nav-item.active { background: var(--cyan-glow); color: var(--cyan); }
+.nav-item .nav-icon { font-size: 18px; width: 24px; text-align: center; }
+.nav-item .nav-shortcut {
+  margin-left: auto; font-size: 11px; color: var(--border);
+  background: var(--bg); padding: 2px 6px; border-radius: 4px;
+}
+
+.sidebar-footer {
+  padding: 12px; border-top: 1px solid var(--border);
+  font-size: 11px; color: var(--text2); text-align: center;
+}
+
+/* Main content */
+.main {
+  flex: 1; display: flex; flex-direction: column;
+  min-width: 0;
+}
+
+/* Mobile header — hidden on desktop */
+.mobile-header {
+  display: none; align-items: center; gap: 12px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.mobile-header h1 { font-size: 16px; font-weight: 700; color: var(--cyan); letter-spacing: 2px; flex: 1; }
 .header-btn {
   width: 36px; height: 36px; border-radius: 50%;
   background: var(--surface2); border: 1px solid var(--border);
   color: var(--text2); font-size: 16px; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
 }
-.header-btn:active { background: var(--border); }
+.header-btn:hover { background: var(--border); }
 
-/* Tab bar */
+/* Mobile tabs — hidden on desktop */
 .tabs {
-  display: flex; background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
+  display: none; background: var(--surface);
+  border-bottom: 1px solid var(--border); flex-shrink: 0;
 }
 .tab {
   flex: 1; padding: 10px 0; text-align: center;
   font-size: 12px; color: var(--text2); cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: all 0.2s;
+  border-bottom: 2px solid transparent; transition: all 0.2s;
 }
 .tab.active { color: var(--cyan); border-bottom-color: var(--cyan); }
 .tab-icon { font-size: 18px; display: block; margin-bottom: 2px; }
 
+/* Panels */
+.panel { display: none; flex: 1; overflow-y: auto; flex-direction: column; }
+.panel.active { display: flex; }
+
 /* Chat */
 .chat-area {
-  flex: 1; overflow-y: auto; padding: 16px;
+  flex: 1; overflow-y: auto; padding: 20px;
   scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
+}
+.chat-messages {
+  max-width: 900px; margin: 0 auto; width: 100%;
 }
 .message {
-  max-width: 85%; margin-bottom: 12px;
-  padding: 12px 16px; border-radius: var(--radius);
-  font-size: 15px; line-height: 1.5;
+  max-width: 75%; margin-bottom: 14px;
+  padding: 14px 18px; border-radius: var(--radius);
+  font-size: 15px; line-height: 1.6;
   word-wrap: break-word; white-space: pre-wrap;
-  -webkit-user-select: text; user-select: text;
+  user-select: text;
 }
 .message.jarvis {
   background: var(--surface2); border: 1px solid var(--border);
@@ -113,13 +147,13 @@ body {
   max-width: 100%; font-style: italic;
 }
 .message.thinking {
-  background: rgba(255,171,64,0.1); border: 1px solid rgba(255,171,64,0.3);
+  background: rgba(255,171,64,0.08); border: 1px solid rgba(255,171,64,0.2);
   color: var(--orange); font-size: 13px; font-style: italic;
 }
 .message .actions-list {
   margin-top: 8px; padding-top: 8px;
   border-top: 1px solid rgba(255,255,255,0.1);
-  font-size: 13px; color: var(--text2);
+  font-size: 13px;
 }
 .action-tag {
   display: inline-block; padding: 2px 8px; margin: 2px;
@@ -129,76 +163,82 @@ body {
 
 /* Input area */
 .input-area {
-  padding: 12px 16px;
+  padding: 16px 20px;
   background: var(--surface);
   border-top: 1px solid var(--border);
   flex-shrink: 0;
 }
-.input-row {
-  display: flex; gap: 8px; align-items: flex-end;
+.input-wrap {
+  max-width: 900px; margin: 0 auto;
 }
+.input-row { display: flex; gap: 10px; align-items: flex-end; }
 .input-field {
-  flex: 1; padding: 12px 16px;
+  flex: 1; padding: 12px 18px;
   background: var(--surface2); border: 1px solid var(--border);
   border-radius: 24px; color: var(--text);
-  font-size: 16px; outline: none; resize: none;
-  font-family: inherit; min-height: 44px; max-height: 120px;
+  font-size: 15px; outline: none; resize: none;
+  font-family: inherit; min-height: 46px; max-height: 160px;
+  line-height: 1.5;
 }
 .input-field::placeholder { color: var(--text2); }
-.input-field:focus { border-color: var(--cyan); }
+.input-field:focus { border-color: var(--cyan); box-shadow: 0 0 0 2px rgba(0,229,255,0.1); }
 .send-btn, .voice-btn {
-  width: 44px; height: 44px; border-radius: 50%;
+  width: 46px; height: 46px; border-radius: 50%;
   border: none; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  font-size: 20px; flex-shrink: 0;
+  font-size: 20px; flex-shrink: 0; transition: all 0.15s;
 }
-.send-btn {
-  background: var(--cyan); color: #000;
-}
-.send-btn:disabled { opacity: 0.4; }
-.voice-btn {
-  background: var(--surface2); border: 1px solid var(--border); color: var(--text2);
-}
+.send-btn { background: var(--cyan); color: #000; }
+.send-btn:hover:not(:disabled) { background: #33ecff; transform: scale(1.05); }
+.send-btn:disabled { opacity: 0.3; cursor: default; }
+.voice-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--text2); }
+.voice-btn:hover { background: var(--border); color: var(--text); }
 .voice-btn.listening {
   background: var(--red); color: white; border-color: var(--red);
   animation: pulse 1s ease-in-out infinite;
 }
+.input-hint {
+  text-align: center; font-size: 11px; color: var(--border);
+  margin-top: 6px;
+}
 
 /* Quick actions panel */
-.panel { display: none; flex: 1; overflow-y: auto; padding: 16px; }
-.panel.active { display: block; }
-
+.actions-panel { padding: 24px; overflow-y: auto; }
+.actions-panel-inner { max-width: 1000px; margin: 0 auto; }
 .actions-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 10px;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
 }
 .action-card {
-  padding: 16px 12px; text-align: center;
+  padding: 20px 14px; text-align: center;
   background: var(--surface2); border: 1px solid var(--border);
   border-radius: var(--radius); cursor: pointer;
   transition: all 0.2s;
 }
-.action-card:active { background: var(--cyan-glow); border-color: var(--cyan); }
-.action-card .icon { font-size: 28px; margin-bottom: 6px; }
-.action-card .label { font-size: 12px; color: var(--text2); }
+.action-card:hover { background: var(--cyan-glow); border-color: var(--cyan); transform: translateY(-2px); }
+.action-card .icon { font-size: 30px; margin-bottom: 8px; }
+.action-card .label { font-size: 13px; color: var(--text2); }
 
 /* Settings panel */
+.settings-panel { padding: 24px; overflow-y: auto; }
+.settings-inner { max-width: 600px; margin: 0 auto; }
 .settings-group {
   background: var(--surface2); border: 1px solid var(--border);
-  border-radius: var(--radius); margin-bottom: 12px; overflow: hidden;
+  border-radius: var(--radius); margin-bottom: 16px; overflow: hidden;
 }
 .settings-row {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--border);
+  padding: 14px 18px; border-bottom: 1px solid var(--border);
 }
 .settings-row:last-child { border-bottom: none; }
 .settings-row label { font-size: 14px; }
 .settings-row input[type="text"], .settings-row input[type="password"] {
   background: var(--bg); border: 1px solid var(--border);
-  color: var(--text); padding: 8px 12px; border-radius: 8px;
-  font-size: 14px; width: 200px; text-align: right;
+  color: var(--text); padding: 8px 14px; border-radius: 8px;
+  font-size: 14px; width: 260px; text-align: right;
+  outline: none; transition: border 0.2s;
 }
+.settings-row input:focus { border-color: var(--cyan); }
 .toggle {
   width: 50px; height: 28px; border-radius: 14px;
   background: var(--border); border: none; cursor: pointer;
@@ -214,44 +254,104 @@ body {
 .btn {
   padding: 12px 24px; border-radius: 12px;
   font-size: 14px; font-weight: 600; cursor: pointer;
-  border: none; width: 100%; margin-top: 8px;
+  border: none; width: 100%; margin-top: 8px; transition: opacity 0.2s;
 }
+.btn:hover { opacity: 0.9; }
 .btn-cyan { background: var(--cyan); color: #000; }
 .btn-red { background: var(--red); color: white; }
-.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
 .section-title {
   font-size: 12px; color: var(--text2); text-transform: uppercase;
-  letter-spacing: 1px; padding: 16px 4px 8px; font-weight: 600;
+  letter-spacing: 1px; padding: 20px 4px 10px; font-weight: 600;
 }
 
-/* Plan steps */
-.plan-container {
-  background: var(--surface2); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 12px; margin-bottom: 12px;
+/* Laptop actions — open apps, run terminal, etc */
+.laptop-section { margin-top: 16px; }
+.laptop-cmd {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 10px;
+  margin-bottom: 6px; cursor: pointer; transition: all 0.2s;
+  font-size: 13px; color: var(--text2);
 }
-.plan-step {
-  display: flex; align-items: center; gap: 8px;
-  padding: 6px 0; font-size: 13px; color: var(--text2);
+.laptop-cmd:hover { border-color: var(--cyan); color: var(--text); }
+.laptop-cmd .cmd-icon { font-size: 18px; }
+
+/* Responsive — mobile */
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .mobile-header { display: flex; }
+  .tabs { display: flex; }
+  .message { max-width: 88%; font-size: 14px; padding: 12px 14px; }
+  .actions-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
+  .action-card { padding: 14px 10px; }
+  .settings-row input[type="text"], .settings-row input[type="password"] { width: 180px; }
+  .input-hint { display: none; }
 }
-.plan-step.done { color: var(--green); }
-.plan-step.running { color: var(--cyan); }
-.plan-step.failed { color: var(--red); }
+
+/* Large desktop */
+@media (min-width: 1200px) {
+  .sidebar { width: 280px; }
+  .actions-grid { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+}
 </style>
 </head>
 <body>
 <div id="app">
-  <!-- Header -->
-  <div class="header">
-    <div class="orb" id="orb"></div>
-    <div class="header-text">
-      <h1>J.A.R.V.I.S.</h1>
-      <div class="status" id="statusText">Ready</div>
+  <!-- Sidebar (desktop) -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="orb" id="orb"></div>
+      <div>
+        <h1>J.A.R.V.I.S.</h1>
+        <div class="status" id="statusText">Ready</div>
+      </div>
     </div>
-    <button class="header-btn" onclick="clearChat()" title="Clear">&#x1f5d1;</button>
+    <div class="sidebar-nav">
+      <div class="nav-item active" onclick="switchTab(0)" id="nav0">
+        <span class="nav-icon">&#x1f4ac;</span> Chat
+        <span class="nav-shortcut">1</span>
+      </div>
+      <div class="nav-item" onclick="switchTab(1)" id="nav1">
+        <span class="nav-icon">&#x26a1;</span> Quick Actions
+        <span class="nav-shortcut">2</span>
+      </div>
+      <div class="nav-item" onclick="switchTab(2)" id="nav2">
+        <span class="nav-icon">&#x2699;&#xfe0f;</span> Settings
+        <span class="nav-shortcut">3</span>
+      </div>
+
+      <div style="padding:16px 12px 6px;font-size:11px;color:var(--border);text-transform:uppercase;letter-spacing:1px">Quick Launch</div>
+      <div class="nav-item" onclick="quickAction('check the weather')">
+        <span class="nav-icon">&#x26c5;</span> Weather
+      </div>
+      <div class="nav-item" onclick="quickAction('check the news')">
+        <span class="nav-icon">&#x1f4f0;</span> News
+      </div>
+      <div class="nav-item" onclick="quickAction('create a presentation')">
+        <span class="nav-icon">&#x1f4ca;</span> Presentation
+      </div>
+      <div class="nav-item" onclick="quickAction('create a document')">
+        <span class="nav-icon">&#x1f4c4;</span> Document
+      </div>
+      <div class="nav-item" onclick="quickAction('run system diagnostics')">
+        <span class="nav-icon">&#x1f50d;</span> Diagnostics
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <span onclick="clearChat()" style="cursor:pointer;color:var(--text2)">Clear Chat</span>
+      &nbsp;·&nbsp; v2.0 Web
+    </div>
   </div>
 
-  <!-- Tabs -->
-  <div class="tabs">
+  <!-- Mobile header -->
+  <div class="mobile-header" id="mobileHeader">
+    <div class="orb" id="orbMobile"></div>
+    <h1>J.A.R.V.I.S.</h1>
+    <button class="header-btn" onclick="clearChat()">&#x1f5d1;</button>
+  </div>
+
+  <!-- Mobile tabs -->
+  <div class="tabs" id="mobileTabs">
     <div class="tab active" onclick="switchTab(0)" id="tab0">
       <span class="tab-icon">&#x1f4ac;</span>Chat
     </div>
@@ -263,147 +363,192 @@ body {
     </div>
   </div>
 
-  <!-- Chat Panel -->
-  <div class="chat-area panel active" id="panel0">
-    <div id="messages"></div>
-  </div>
-
-  <!-- Quick Actions Panel -->
-  <div class="panel" id="panel1">
-    <div class="section-title">Communication</div>
-    <div class="actions-grid">
-      <div class="action-card" onclick="quickAction('send a text message')">
-        <div class="icon">&#x1f4ac;</div><div class="label">Send Text</div>
+  <!-- Main area -->
+  <div class="main">
+    <!-- Chat Panel -->
+    <div class="panel active" id="panel0" style="flex-direction:column">
+      <div class="chat-area">
+        <div class="chat-messages" id="messages"></div>
       </div>
-      <div class="action-card" onclick="quickAction('send an email')">
-        <div class="icon">&#x2709;</div><div class="label">Send Email</div>
-      </div>
-      <div class="action-card" onclick="quickAction('make a phone call')">
-        <div class="icon">&#x1f4de;</div><div class="label">Call</div>
-      </div>
-      <div class="action-card" onclick="quickAction('start a FaceTime call')">
-        <div class="icon">&#x1f4f9;</div><div class="label">FaceTime</div>
+      <div class="input-area" id="inputArea">
+        <div class="input-wrap">
+          <div class="input-row">
+            <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()" title="Voice input (V)">&#x1f3a4;</button>
+            <textarea class="input-field" id="inputField" placeholder="Ask Jarvis anything..." rows="1"
+              onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+            <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled title="Send (Enter)">&#x27a4;</button>
+          </div>
+          <div class="input-hint">Enter to send · Shift+Enter for new line · V for voice · 1/2/3 to switch tabs</div>
+        </div>
       </div>
     </div>
 
-    <div class="section-title">Productivity</div>
-    <div class="actions-grid">
-      <div class="action-card" onclick="quickAction('create a note')">
-        <div class="icon">&#x1f4dd;</div><div class="label">New Note</div>
-      </div>
-      <div class="action-card" onclick="quickAction('set a reminder')">
-        <div class="icon">&#x23f0;</div><div class="label">Reminder</div>
-      </div>
-      <div class="action-card" onclick="quickAction('create a presentation')">
-        <div class="icon">&#x1f4ca;</div><div class="label">Presentation</div>
-      </div>
-      <div class="action-card" onclick="quickAction('create a document')">
-        <div class="icon">&#x1f4c4;</div><div class="label">Document</div>
+    <!-- Quick Actions Panel -->
+    <div class="panel actions-panel" id="panel1">
+      <div class="actions-panel-inner">
+        <div class="section-title">Communication</div>
+        <div class="actions-grid">
+          <div class="action-card" onclick="quickAction('send a text message')">
+            <div class="icon">&#x1f4ac;</div><div class="label">Send Text</div>
+          </div>
+          <div class="action-card" onclick="quickAction('send an email')">
+            <div class="icon">&#x2709;</div><div class="label">Send Email</div>
+          </div>
+          <div class="action-card" onclick="quickAction('make a phone call')">
+            <div class="icon">&#x1f4de;</div><div class="label">Call</div>
+          </div>
+          <div class="action-card" onclick="quickAction('start a FaceTime call')">
+            <div class="icon">&#x1f4f9;</div><div class="label">FaceTime</div>
+          </div>
+        </div>
+
+        <div class="section-title">Productivity</div>
+        <div class="actions-grid">
+          <div class="action-card" onclick="quickAction('create a note')">
+            <div class="icon">&#x1f4dd;</div><div class="label">New Note</div>
+          </div>
+          <div class="action-card" onclick="quickAction('set a reminder')">
+            <div class="icon">&#x23f0;</div><div class="label">Reminder</div>
+          </div>
+          <div class="action-card" onclick="quickAction('create a presentation')">
+            <div class="icon">&#x1f4ca;</div><div class="label">Presentation</div>
+          </div>
+          <div class="action-card" onclick="quickAction('create a document')">
+            <div class="icon">&#x1f4c4;</div><div class="label">Document</div>
+          </div>
+          <div class="action-card" onclick="quickAction('create a spreadsheet')">
+            <div class="icon">&#x1f4c8;</div><div class="label">Spreadsheet</div>
+          </div>
+        </div>
+
+        <div class="section-title">Information</div>
+        <div class="actions-grid">
+          <div class="action-card" onclick="quickAction('check the weather')">
+            <div class="icon">&#x26c5;</div><div class="label">Weather</div>
+          </div>
+          <div class="action-card" onclick="quickAction('check the news')">
+            <div class="icon">&#x1f4f0;</div><div class="label">News</div>
+          </div>
+          <div class="action-card" onclick="quickAction('translate hello to spanish')">
+            <div class="icon">&#x1f310;</div><div class="label">Translate</div>
+          </div>
+          <div class="action-card" onclick="quickAction('run system diagnostics')">
+            <div class="icon">&#x1f50d;</div><div class="label">Diagnostics</div>
+          </div>
+        </div>
+
+        <div class="section-title">Utilities</div>
+        <div class="actions-grid">
+          <div class="action-card" onclick="quickAction('flip a coin')">
+            <div class="icon">&#x1fa99;</div><div class="label">Coin Flip</div>
+          </div>
+          <div class="action-card" onclick="quickAction('roll a dice')">
+            <div class="icon">&#x1f3b2;</div><div class="label">Roll Dice</div>
+          </div>
+          <div class="action-card" onclick="quickAction('generate a password')">
+            <div class="icon">&#x1f510;</div><div class="label">Password</div>
+          </div>
+          <div class="action-card" onclick="quickAction('what song is playing')">
+            <div class="icon">&#x1f3b5;</div><div class="label">Identify Song</div>
+          </div>
+          <div class="action-card" onclick="quickAction('search YouTube for music')">
+            <div class="icon">&#x25b6;&#xfe0f;</div><div class="label">YouTube</div>
+          </div>
+          <div class="action-card" onclick="quickAction('search google for latest tech news')">
+            <div class="icon">&#x1f50e;</div><div class="label">Web Search</div>
+          </div>
+        </div>
+
+        <div class="section-title">Smart Home</div>
+        <div class="actions-grid">
+          <div class="action-card" onclick="quickAction('turn on the lights')">
+            <div class="icon">&#x1f4a1;</div><div class="label">Lights On</div>
+          </div>
+          <div class="action-card" onclick="quickAction('turn off the lights')">
+            <div class="icon">&#x1f319;</div><div class="label">Lights Off</div>
+          </div>
+          <div class="action-card" onclick="quickAction('set thermostat to 72')">
+            <div class="icon">&#x1f321;</div><div class="label">Thermostat</div>
+          </div>
+          <div class="action-card" onclick="quickAction('run good night scene')">
+            <div class="icon">&#x1f3e0;</div><div class="label">Scenes</div>
+          </div>
+        </div>
+
+        <div class="section-title">Laptop Controls</div>
+        <div class="actions-grid">
+          <div class="action-card" onclick="quickAction('open google.com in a new tab')">
+            <div class="icon">&#x1f310;</div><div class="label">Open Website</div>
+          </div>
+          <div class="action-card" onclick="quickAction('search google for how to code in python')">
+            <div class="icon">&#x1f4bb;</div><div class="label">Search Web</div>
+          </div>
+          <div class="action-card" onclick="quickAction('write a python script that prints hello world')">
+            <div class="icon">&#x1f40d;</div><div class="label">Write Code</div>
+          </div>
+          <div class="action-card" onclick="quickAction('explain how to use git')">
+            <div class="icon">&#x1f4d6;</div><div class="label">Explain</div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="section-title">Device</div>
-    <div class="actions-grid">
-      <div class="action-card" onclick="quickAction('run system diagnostics')">
-        <div class="icon">&#x1f50d;</div><div class="label">Diagnostics</div>
-      </div>
-      <div class="action-card" onclick="quickAction('check battery status')">
-        <div class="icon">&#x1f50b;</div><div class="label">Battery</div>
-      </div>
-      <div class="action-card" onclick="quickAction('check the weather')">
-        <div class="icon">&#x26c5;</div><div class="label">Weather</div>
-      </div>
-      <div class="action-card" onclick="quickAction('check the news')">
-        <div class="icon">&#x1f4f0;</div><div class="label">News</div>
-      </div>
-    </div>
+    <!-- Settings Panel -->
+    <div class="panel settings-panel" id="panel2">
+      <div class="settings-inner">
+        <div class="section-title">Server Connection</div>
+        <div class="settings-group">
+          <div class="settings-row">
+            <label>Server URL</label>
+            <input type="text" id="serverURL" placeholder="http://localhost:3000" value="">
+          </div>
+          <div class="settings-row">
+            <label>API Key</label>
+            <input type="password" id="apiKey" placeholder="Optional">
+          </div>
+          <div class="settings-row">
+            <label>Status</label>
+            <span id="connStatus" style="color:var(--text2)">Not connected</span>
+          </div>
+        </div>
+        <button class="btn btn-cyan" onclick="testConnection()">Test Connection</button>
 
-    <div class="section-title">Utilities</div>
-    <div class="actions-grid">
-      <div class="action-card" onclick="quickAction('flip a coin')">
-        <div class="icon">&#x1fa99;</div><div class="label">Coin Flip</div>
-      </div>
-      <div class="action-card" onclick="quickAction('roll a dice')">
-        <div class="icon">&#x1f3b2;</div><div class="label">Roll Dice</div>
-      </div>
-      <div class="action-card" onclick="quickAction('generate a password')">
-        <div class="icon">&#x1f510;</div><div class="label">Password</div>
-      </div>
-      <div class="action-card" onclick="quickAction('what song is playing')">
-        <div class="icon">&#x1f3b5;</div><div class="label">Identify Song</div>
-      </div>
-    </div>
+        <div class="section-title" style="margin-top:24px">Voice</div>
+        <div class="settings-group">
+          <div class="settings-row">
+            <label>Voice Output (Text-to-Speech)</label>
+            <button class="toggle" id="voiceToggle" onclick="toggleSetting('voice')"></button>
+          </div>
+          <div class="settings-row">
+            <label>Auto-listen after reply</label>
+            <button class="toggle" id="autoListenToggle" onclick="toggleSetting('autoListen')"></button>
+          </div>
+        </div>
 
-    <div class="section-title">Smart Home</div>
-    <div class="actions-grid">
-      <div class="action-card" onclick="quickAction('turn on the lights')">
-        <div class="icon">&#x1f4a1;</div><div class="label">Lights On</div>
-      </div>
-      <div class="action-card" onclick="quickAction('turn off the lights')">
-        <div class="icon">&#x1f319;</div><div class="label">Lights Off</div>
-      </div>
-      <div class="action-card" onclick="quickAction('set thermostat to 72')">
-        <div class="icon">&#x1f321;</div><div class="label">Thermostat</div>
-      </div>
-      <div class="action-card" onclick="quickAction('run good night scene')">
-        <div class="icon">&#x1f3e0;</div><div class="label">Scenes</div>
-      </div>
-    </div>
-  </div>
+        <div class="section-title">Keyboard Shortcuts</div>
+        <div class="settings-group">
+          <div class="settings-row"><label>Send message</label><span style="color:var(--text2)">Enter</span></div>
+          <div class="settings-row"><label>New line</label><span style="color:var(--text2)">Shift + Enter</span></div>
+          <div class="settings-row"><label>Voice input</label><span style="color:var(--text2)">V (when not typing)</span></div>
+          <div class="settings-row"><label>Switch tabs</label><span style="color:var(--text2)">1 / 2 / 3</span></div>
+          <div class="settings-row"><label>Focus chat</label><span style="color:var(--text2)">/ or Ctrl+L</span></div>
+          <div class="settings-row"><label>Clear chat</label><span style="color:var(--text2)">Ctrl+Shift+K</span></div>
+        </div>
 
-  <!-- Settings Panel -->
-  <div class="panel" id="panel2">
-    <div class="section-title">Server Connection</div>
-    <div class="settings-group">
-      <div class="settings-row">
-        <label>Server URL</label>
-        <input type="text" id="serverURL" placeholder="http://your-mac:3000" value="">
-      </div>
-      <div class="settings-row">
-        <label>API Key</label>
-        <input type="password" id="apiKey" placeholder="Optional">
-      </div>
-      <div class="settings-row">
-        <label>Status</label>
-        <span id="connStatus" style="color:var(--text2)">Not connected</span>
-      </div>
-    </div>
-    <button class="btn btn-cyan" onclick="testConnection()">Test Connection</button>
+        <div class="section-title">About</div>
+        <div class="settings-group">
+          <div class="settings-row">
+            <label>Version</label>
+            <span style="color:var(--text2)">2.0.0 Web — Works on iPad, Laptop, Desktop</span>
+          </div>
+          <div class="settings-row">
+            <label>Add to Home Screen (iPad)</label>
+            <span style="color:var(--text2);font-size:12px">Share &#x2794; Add to Home Screen</span>
+          </div>
+        </div>
 
-    <div class="section-title" style="margin-top:20px">Voice</div>
-    <div class="settings-group">
-      <div class="settings-row">
-        <label>Voice Output</label>
-        <button class="toggle" id="voiceToggle" onclick="toggleSetting('voice')"></button>
+        <button class="btn btn-red" onclick="clearAllData()" style="margin-top:16px">Reset All Data</button>
       </div>
-      <div class="settings-row">
-        <label>Auto-listen after reply</label>
-        <button class="toggle" id="autoListenToggle" onclick="toggleSetting('autoListen')"></button>
-      </div>
-    </div>
-
-    <div class="section-title">About</div>
-    <div class="settings-group">
-      <div class="settings-row">
-        <label>Version</label>
-        <span style="color:var(--text2)">2.0.0 Web</span>
-      </div>
-      <div class="settings-row">
-        <label>Add to Home Screen</label>
-        <span style="color:var(--text2);font-size:12px">Share &#x2794; Add to Home Screen</span>
-      </div>
-    </div>
-
-    <button class="btn btn-red" onclick="clearAllData()" style="margin-top:12px">Reset All Data</button>
-  </div>
-
-  <!-- Input area (chat only) -->
-  <div class="input-area" id="inputArea">
-    <div class="input-row">
-      <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()">&#x1f3a4;</button>
-      <textarea class="input-field" id="inputField" placeholder="Ask Jarvis anything..." rows="1"
-        onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
-      <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>&#x27a4;</button>
     </div>
   </div>
 </div>
@@ -415,7 +560,6 @@ let history = [];
 let isProcessing = false;
 let isListening = false;
 let recognition = null;
-// Auto-detect server when served from same origin
 const autoURL = window.location.origin;
 let settings = {
   serverURL: localStorage.getItem('jarvis_serverURL') || autoURL,
@@ -429,8 +573,9 @@ document.getElementById('serverURL').value = settings.serverURL;
 document.getElementById('apiKey').value = settings.apiKey;
 updateToggles();
 addMessage('jarvis', greetingMessage());
+document.getElementById('inputField').focus();
 
-// Save settings on change
+// Save settings
 document.getElementById('serverURL').addEventListener('change', e => {
   settings.serverURL = e.target.value.replace(/\/+$/, '');
   localStorage.setItem('jarvis_serverURL', settings.serverURL);
@@ -443,19 +588,53 @@ document.getElementById('apiKey').addEventListener('change', e => {
 function greetingMessage() {
   const h = new Date().getHours();
   const g = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
-  return `Good ${g}. I'm Jarvis. Tell me what you need — I can write documents, create presentations, do calculations, control smart home devices, check the weather, and handle complex multi-step tasks. What shall I do?`;
+  const device = /iPad|iPhone/.test(navigator.userAgent) ? 'iPad' :
+                 /Mac/.test(navigator.userAgent) ? 'Mac' :
+                 /Windows/.test(navigator.userAgent) ? 'PC' : 'device';
+  return `Good ${g}. I'm Jarvis — your AI assistant. I'm running on your ${device} and ready for anything. I can create documents and presentations, do calculations, search the web, check the weather and news, translate text, generate passwords, control smart home devices, and handle complex multi-step tasks. What do you need?`;
 }
+
+// Keyboard shortcuts (laptop-friendly)
+document.addEventListener('keydown', e => {
+  const active = document.activeElement;
+  const typing = active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT');
+
+  // Ctrl+Shift+K — clear chat
+  if (e.ctrlKey && e.shiftKey && e.key === 'K') { e.preventDefault(); clearChat(); return; }
+  // Ctrl+L or / — focus input
+  if ((e.ctrlKey && e.key === 'l') || (e.key === '/' && !typing)) {
+    e.preventDefault();
+    switchTab(0);
+    document.getElementById('inputField').focus();
+    return;
+  }
+
+  if (typing) return; // Don't hijack when typing
+
+  // 1/2/3 — switch tabs
+  if (e.key === '1') { switchTab(0); return; }
+  if (e.key === '2') { switchTab(1); return; }
+  if (e.key === '3') { switchTab(2); return; }
+  // V — voice
+  if (e.key === 'v' || e.key === 'V') { toggleVoice(); return; }
+  // Escape — stop agent
+  if (e.key === 'Escape' && isProcessing) { isProcessing = false; setStatus('Stopped'); return; }
+});
 
 // Tabs
 function switchTab(idx) {
+  // Desktop nav
+  document.querySelectorAll('.nav-item').forEach((n, i) => { if (i < 3) n.classList.toggle('active', i === idx); });
+  // Mobile tabs
   document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === idx));
+  // Panels
   document.querySelectorAll('.panel').forEach((p, i) => p.classList.toggle('active', i === idx));
-  document.getElementById('inputArea').style.display = idx === 0 ? '' : 'none';
+  if (idx === 0) setTimeout(() => document.getElementById('inputField').focus(), 100);
 }
 
 // Messages
-function addMessage(role, content, actions, thinking) {
-  const msg = { role, content, actions, thinking, id: Date.now() };
+function addMessage(role, content, actions) {
+  const msg = { role, content, actions, id: Date.now() };
   messages.push(msg);
   renderMessage(msg);
   scrollToBottom();
@@ -464,23 +643,18 @@ function addMessage(role, content, actions, thinking) {
 function renderMessage(msg) {
   const el = document.createElement('div');
   el.className = `message ${msg.role}`;
-
   let html = escapeHtml(msg.content);
-
   if (msg.actions && msg.actions.length > 0) {
     html += '<div class="actions-list">';
-    msg.actions.forEach(a => {
-      html += `<span class="action-tag">${escapeHtml(a.type)}</span>`;
-    });
+    msg.actions.forEach(a => { html += `<span class="action-tag">${escapeHtml(a.type)}</span>`; });
     html += '</div>';
   }
-
   el.innerHTML = html;
   document.getElementById('messages').appendChild(el);
 }
 
 function scrollToBottom() {
-  const area = document.getElementById('panel0');
+  const area = document.querySelector('.chat-area');
   requestAnimationFrame(() => area.scrollTop = area.scrollHeight);
 }
 
@@ -491,15 +665,12 @@ function escapeHtml(s) {
 
 // Input
 function handleKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
-  }
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
 }
 
 function autoResize(el) {
   el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+  el.style.height = Math.min(el.scrollHeight, 160) + 'px';
   document.getElementById('sendBtn').disabled = !el.value.trim();
 }
 
@@ -508,154 +679,118 @@ async function sendMessage() {
   const input = document.getElementById('inputField');
   const text = input.value.trim();
   if (!text || isProcessing) return;
-
-  input.value = '';
-  input.style.height = 'auto';
+  input.value = ''; input.style.height = 'auto';
   document.getElementById('sendBtn').disabled = true;
-
   addMessage('user', text);
   history.push({ role: 'user', content: text });
-
   await processCommand(text);
 }
 
 function quickAction(text) {
   switchTab(0);
-  processQuickAction(text);
-}
-
-async function processQuickAction(text) {
   if (isProcessing) return;
   addMessage('user', text);
   history.push({ role: 'user', content: text });
-  await processCommand(text);
+  processCommand(text);
 }
 
 async function processCommand(command) {
   isProcessing = true;
   setStatus('Thinking...');
-  document.getElementById('orb').classList.add('processing');
+  setOrb(true);
 
-  // Try local parsing first
+  // Try local first
   const local = parseOnDevice(command);
-  if (local && !settings.serverURL) {
-    showResult(local);
-    isProcessing = false;
-    setStatus('Ready');
-    document.getElementById('orb').classList.remove('processing');
-    return;
-  }
   if (local && !needsServer(command)) {
     showResult(local);
-    isProcessing = false;
-    setStatus('Ready');
-    document.getElementById('orb').classList.remove('processing');
+    isProcessing = false; setStatus('Ready'); setOrb(false);
     return;
   }
   if (!settings.serverURL) {
     if (local) showResult(local);
-    else addMessage('jarvis', 'Set your server URL in Settings to enable full AI capabilities.');
-    isProcessing = false;
-    setStatus('Ready');
-    document.getElementById('orb').classList.remove('processing');
+    else addMessage('jarvis', 'Set your server URL in Settings to unlock full AI capabilities.');
+    isProcessing = false; setStatus('Ready'); setOrb(false);
     return;
   }
 
-  // Agent loop
-  let currentCommand = command;
-  let isFollowUp = false;
-  let previousResult = null;
-  let iterations = 0;
-
+  // Server agent loop
+  let currentCommand = command, isFollowUp = false, previousResult = null, iterations = 0;
   while (iterations < 10) {
     iterations++;
-    setStatus(`Planning step ${iterations}...`);
-
+    setStatus(`Step ${iterations}...`);
     const response = await callServer(currentCommand, isFollowUp, previousResult);
-    if (!response) {
-      addMessage('system', 'Lost connection to server.');
-      break;
-    }
-
+    if (!response) { addMessage('system', 'Lost connection to server. Check Settings.'); break; }
     showResult(response);
     history.push({ role: 'assistant', content: response.message });
-
     if (response.isDone) break;
-
     if (response.needsScreenAfter) {
       await sleep(500);
       currentCommand = 'Continue the task.';
       isFollowUp = true;
       previousResult = response.actions?.map(a => `[${a.type}] executed`).join('\n') || '';
-    } else {
-      break;
-    }
+    } else break;
   }
-
-  isProcessing = false;
-  setStatus('Ready');
-  document.getElementById('orb').classList.remove('processing');
+  isProcessing = false; setStatus('Ready'); setOrb(false);
 }
 
 function showResult(response) {
-  if (response.thought) {
-    addMessage('thinking', response.thought);
-  }
+  if (response.thought) addMessage('thinking', response.thought);
   if (response.message) {
     addMessage('jarvis', response.message, response.actions);
     if (settings.voice) speak(response.message);
   }
-  // Handle action results from server (generated files, URLs, etc.)
   if (response.actionResults) {
     for (const ar of response.actionResults) {
       if (ar.url) {
         addMessage('system', `File ready: ${ar.message}`);
-        // Auto-open generated files
         window.open(ar.url, '_blank');
       }
     }
   }
 }
 
+function setOrb(processing) {
+  document.getElementById('orb').classList.toggle('processing', processing);
+  const m = document.getElementById('orbMobile');
+  if (m) m.classList.toggle('processing', processing);
+}
+
 async function callServer(command, isFollowUp, previousResult) {
   try {
     const headers = { 'Content-Type': 'application/json' };
     if (settings.apiKey) headers['Authorization'] = `Bearer ${settings.apiKey}`;
-
     let enrichedCommand = command;
-    if (isFollowUp && previousResult) {
-      enrichedCommand = `[CONTINUING TASK]\n${previousResult}\n\n${command}`;
-    }
+    if (isFollowUp && previousResult) enrichedCommand = `[CONTINUING TASK]\n${previousResult}\n\n${command}`;
+
+    // Detect platform for device info
+    const platform = /iPad|iPhone/.test(navigator.userAgent) ? 'iPad (Web)' :
+                     /Mac/.test(navigator.userAgent) ? 'MacBook (Web)' :
+                     /Windows/.test(navigator.userAgent) ? 'Windows PC (Web)' :
+                     /Linux/.test(navigator.userAgent) ? 'Linux (Web)' : 'Browser';
 
     const res = await fetch(`${settings.serverURL}/api/agent`, {
-      method: 'POST',
-      headers,
+      method: 'POST', headers,
       body: JSON.stringify({
         command: enrichedCommand,
         screenshot: null,
         deviceInfo: {
-          model: 'iPad (Web)',
-          os: navigator.userAgent,
-          screenW: screen.width * devicePixelRatio,
-          screenH: screen.height * devicePixelRatio,
-          battery: 100,
-          charging: false,
+          model: platform,
+          os: navigator.platform,
+          screenW: screen.width * (devicePixelRatio || 1),
+          screenH: screen.height * (devicePixelRatio || 1),
+          battery: 100, charging: false,
           time: new Date().toLocaleString(),
         },
         history: history.slice(-20),
-        isFollowUp,
-        previousResult,
+        isFollowUp, previousResult,
       }),
     });
-
     if (!res.ok) return null;
     return await res.json();
-  } catch {
-    return null;
-  }
+  } catch { return null; }
 }
 
-// On-device parser (works without server)
+// On-device parser
 function parseOnDevice(text) {
   const t = text.toLowerCase().trim();
 
@@ -664,85 +799,75 @@ function parseOnDevice(text) {
   for (const p of mathPrefixes) {
     if (t.startsWith(p)) {
       const expr = t.slice(p.length)
-        .replace(/plus/g, '+').replace(/minus/g, '-')
-        .replace(/times/g, '*').replace(/multiplied by/g, '*')
-        .replace(/divided by/g, '/').replace(/over/g, '/');
+        .replace(/plus/g,'+').replace(/minus/g,'-').replace(/times/g,'*')
+        .replace(/multiplied by/g,'*').replace(/divided by/g,'/').replace(/over/g,'/');
       try {
-        const result = Function('"use strict"; return (' + expr.replace(/[^0-9+\-*/().%\s]/g, '') + ')')();
-        if (typeof result === 'number' && isFinite(result)) {
-          return reply(`The answer is ${result}.`);
-        }
+        const result = Function('"use strict"; return (' + expr.replace(/[^0-9+\-*/().%\s]/g,'') + ')')();
+        if (typeof result === 'number' && isFinite(result)) return reply(`The answer is ${result}.`);
       } catch {}
     }
   }
 
   // Coin flip
-  if (t.includes('flip a coin') || t.includes('coin flip') || t.includes('heads or tails')) {
+  if (t.includes('flip a coin') || t.includes('coin flip') || t.includes('heads or tails'))
     return reply(`Coin flip: ${Math.random() < 0.5 ? 'Heads' : 'Tails'}.`);
-  }
 
   // Dice
   if (t.includes('roll a di') || t.includes('roll dice')) {
     let sides = 6;
-    if (t.includes('d20')) sides = 20;
-    else if (t.includes('d12')) sides = 12;
-    else if (t.includes('d10')) sides = 10;
-    else if (t.includes('d8')) sides = 8;
-    const result = Math.floor(Math.random() * sides) + 1;
-    return reply(`Rolled a ${result} (d${sides}).`);
+    if (t.includes('d20')) sides = 20; else if (t.includes('d12')) sides = 12;
+    else if (t.includes('d10')) sides = 10; else if (t.includes('d8')) sides = 8;
+    return reply(`Rolled a ${Math.floor(Math.random()*sides)+1} (d${sides}).`);
   }
 
   // Password
   if (t.includes('password')) {
     const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*';
-    let pw = '';
-    for (let i = 0; i < 16; i++) pw += chars[Math.floor(Math.random() * chars.length)];
+    let pw = ''; for (let i = 0; i < 16; i++) pw += chars[Math.floor(Math.random()*chars.length)];
     navigator.clipboard?.writeText(pw);
     return reply(`Generated password: ${pw}\n(Copied to clipboard)`);
   }
 
-  // Time
-  if (t === 'what time is it' || t === "what's the time" || t.includes('current time')) {
+  // Time/Date
+  if (t === 'what time is it' || t === "what's the time" || t.includes('current time'))
     return reply(`It's ${new Date().toLocaleTimeString()}.`);
-  }
-
-  // Date
-  if (t === "what's the date" || t === 'what date is it' || t.includes('today\'s date') || t === "what's today") {
-    return reply(`Today is ${new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}.`);
-  }
+  if (t.includes("what's the date") || t.includes('what date') || t.includes("today's date") || t === "what's today")
+    return reply(`Today is ${new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}.`);
 
   // Weather
   if (t.includes('weather') || t.includes('temperature') || t.includes('going to rain')) {
-    window.open('https://weather.com', '_blank');
+    window.open('https://weather.com','_blank');
     return reply('Pulling up the weather for you.');
   }
 
   // News
   if (t.includes('news') || t.includes('headlines') || t.startsWith("what's happening")) {
-    const topic = t.replace(/news about |show me news|check the news|what's the latest news/g, '').trim();
-    const url = topic ? `https://news.google.com/search?q=${encodeURIComponent(topic)}` : 'https://news.google.com';
-    window.open(url, '_blank');
+    const topic = t.replace(/news about |show me news|check the news|what's the latest news/g,'').trim();
+    window.open(topic ? `https://news.google.com/search?q=${encodeURIComponent(topic)}` : 'https://news.google.com','_blank');
     return reply('Opening the latest news.');
   }
 
   // Translate
   if (t.startsWith('translate ')) {
-    const text = t.slice(10);
-    window.open(`https://translate.google.com/?sl=auto&tl=en&text=${encodeURIComponent(text)}`, '_blank');
+    const rest = t.slice(10);
+    let src = 'auto', tgt = 'en', txt = rest;
+    const toMatch = rest.match(/(.+?)\s+to\s+(\w+)$/);
+    if (toMatch) { txt = toMatch[1]; tgt = toMatch[2]; }
+    window.open(`https://translate.google.com/?sl=${src}&tl=${tgt}&text=${encodeURIComponent(txt)}`,'_blank');
     return reply('Opening the translator.');
   }
 
   // Web search
   if (t.startsWith('search ') || t.startsWith('google ') || t.startsWith('look up ')) {
-    const q = t.replace(/^(search for |search |google |look up )/, '');
-    window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`, '_blank');
+    const q = t.replace(/^(search for |search |google |look up )/,'');
+    window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`,'_blank');
     return reply(`Searching for "${q}".`);
   }
 
-  // YouTube search
+  // YouTube
   if (t.includes('youtube') && (t.includes('search') || t.includes('play') || t.includes('watch'))) {
-    const q = t.replace(/search youtube for |youtube search |search on youtube |play on youtube |watch /g, '').trim();
-    window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`, '_blank');
+    const q = t.replace(/search youtube for |youtube search |search on youtube |play on youtube |watch /g,'').trim();
+    window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`,'_blank');
     return reply(`Searching YouTube for "${q}".`);
   }
 
@@ -750,106 +875,101 @@ function parseOnDevice(text) {
   if (t.includes('http://') || t.includes('https://') || t.includes('www.')) {
     const match = t.match(/(https?:\/\/[^\s]+|www\.[^\s]+)/);
     if (match) {
-      const url = match[0].startsWith('http') ? match[0] : 'https://' + match[0];
-      window.open(url, '_blank');
+      const url = match[0].startsWith('http') ? match[0] : 'https://'+match[0];
+      window.open(url,'_blank');
       return reply('Opening that link.');
     }
   }
 
-  // Maps
-  if (t.startsWith('directions to ') || t.startsWith('navigate to ') || (t.includes('map') && t.includes('of '))) {
-    const q = t.replace(/directions to |navigate to |show me a map of |map of /g, '').trim();
-    window.open(`https://maps.google.com/maps?q=${encodeURIComponent(q)}`, '_blank');
+  // Maps/directions
+  if (t.startsWith('directions to ') || t.startsWith('navigate to ') || (t.includes('map') && t.includes(' of '))) {
+    const q = t.replace(/directions to |navigate to |show me a map of |map of /g,'').trim();
+    window.open(`https://maps.google.com/maps?q=${encodeURIComponent(q)}`,'_blank');
     return reply(`Looking up "${q}" on Maps.`);
   }
 
-  // Unit conversion (basic)
+  // Open websites by name (laptop feature)
+  const sites = {
+    'gmail': 'https://mail.google.com', 'email': 'https://mail.google.com',
+    'google docs': 'https://docs.google.com', 'google sheets': 'https://sheets.google.com',
+    'google slides': 'https://slides.google.com', 'google drive': 'https://drive.google.com',
+    'github': 'https://github.com', 'twitter': 'https://twitter.com', 'x': 'https://x.com',
+    'reddit': 'https://reddit.com', 'instagram': 'https://instagram.com',
+    'facebook': 'https://facebook.com', 'linkedin': 'https://linkedin.com',
+    'amazon': 'https://amazon.com', 'netflix': 'https://netflix.com',
+    'spotify': 'https://open.spotify.com', 'discord': 'https://discord.com/app',
+    'notion': 'https://notion.so', 'slack': 'https://app.slack.com',
+    'chatgpt': 'https://chat.openai.com', 'claude': 'https://claude.ai',
+    'wikipedia': 'https://wikipedia.org', 'stackoverflow': 'https://stackoverflow.com',
+  };
+  for (const [name, url] of Object.entries(sites)) {
+    if (t === `open ${name}` || t === `go to ${name}` || t === `launch ${name}`) {
+      window.open(url, '_blank');
+      return reply(`Opening ${name.charAt(0).toUpperCase()+name.slice(1)}.`);
+    }
+  }
+
+  // Unit conversion
   const convertMatch = t.match(/(?:convert\s+)?([\d.]+)\s+(\w+)\s+(?:to|in)\s+(\w+)/);
   if (convertMatch) {
-    const [, val, from, to] = convertMatch;
+    const [,val,from,to] = convertMatch;
     const v = parseFloat(val);
-    const lengthM = {m:1,km:1000,cm:0.01,mm:0.001,mi:1609.344,mile:1609.344,miles:1609.344,ft:0.3048,feet:0.3048,in:0.0254,inch:0.0254,inches:0.0254,yd:0.9144};
-    const weightKg = {kg:1,g:0.001,mg:0.000001,lb:0.453592,lbs:0.453592,oz:0.0283495};
-    for (const table of [lengthM, weightKg]) {
-      if (table[from] && table[to]) {
-        const result = (v * table[from] / table[to]).toPrecision(4);
-        return reply(`${val} ${from} = ${result} ${to}`);
-      }
+    const len = {m:1,km:1000,cm:0.01,mm:0.001,mi:1609.344,mile:1609.344,miles:1609.344,ft:0.3048,feet:0.3048,in:0.0254,inch:0.0254,inches:0.0254,yd:0.9144};
+    const wt = {kg:1,g:0.001,mg:0.000001,lb:0.453592,lbs:0.453592,oz:0.0283495};
+    for (const table of [len,wt]) {
+      if (table[from] && table[to]) return reply(`${val} ${from} = ${(v*table[from]/table[to]).toPrecision(4)} ${to}`);
     }
-    // Temperature
     if ('cfk'.includes(from[0]) && 'cfk'.includes(to[0])) {
-      let c = from[0]==='f' ? (v-32)*5/9 : from[0]==='k' ? v-273.15 : v;
-      let r = to[0]==='f' ? c*9/5+32 : to[0]==='k' ? c+273.15 : c;
+      let c = from[0]==='f'?(v-32)*5/9:from[0]==='k'?v-273.15:v;
+      let r = to[0]==='f'?c*9/5+32:to[0]==='k'?c+273.15:c;
       return reply(`${val} ${from} = ${r.toFixed(1)} ${to}`);
     }
   }
 
-  // Fallback — if server is available from same origin, try it
-  if (settings.serverURL) {
-    return null; // will be caught by caller
-  }
-
-  return reply(
-    `I understand you want me to "${text}". Connect me to the server in Settings for full autonomous control. ` +
-    `For now, try: calculations ("what's 15 * 23"), "flip a coin", "roll a dice", "generate a password", "search YouTube for cats", or "what time is it".`
-  );
+  // Fallback for server
+  if (settings.serverURL) return null;
+  return reply(`I understand you want me to "${text}". Connect to the server in Settings for full AI. Try: "what's 15 * 23", "flip a coin", "search YouTube for cats", "open gmail", or "translate hello to french".`);
 }
 
 function reply(message, actions) {
-  return { thought: '', message, actions: actions || [], needsScreenAfter: false, isDone: true, plan: null };
+  return { thought:'', message, actions:actions||[], needsScreenAfter:false, isDone:true, plan:null };
 }
 
 function needsServer(text) {
   const t = text.toLowerCase();
-  // Complex tasks that benefit from full AI
-  const serverKeywords = ['presentation', 'document', 'write a ', 'compose', 'draft', 'spreadsheet',
-    'multi-step', 'research', 'summarize', 'analyze', 'explain', 'help me', 'create a plan',
-    'smart home', 'turn on', 'turn off', 'thermostat', 'remind me'];
-  return serverKeywords.some(k => t.includes(k));
+  const kw = ['presentation','document','write a ','compose','draft','spreadsheet','research',
+    'summarize','analyze','explain','help me','create a plan','smart home','turn on','turn off',
+    'thermostat','remind me','create a note','set a reminder','make a '];
+  return kw.some(k => t.includes(k));
 }
 
 // Voice
 function toggleVoice() {
-  if (isListening) {
-    stopListening();
-  } else {
-    startListening();
-  }
+  if (isListening) stopListening(); else startListening();
 }
 
 function startListening() {
-  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-    addMessage('system', 'Voice input not supported in this browser. Use Safari on iPad.');
-    return;
-  }
-
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  recognition = new SpeechRecognition();
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { addMessage('system','Voice not supported in this browser. Try Chrome or Safari.'); return; }
+  recognition = new SR();
   recognition.continuous = false;
   recognition.interimResults = true;
   recognition.lang = 'en-US';
-
   recognition.onstart = () => {
     isListening = true;
     document.getElementById('voiceBtn').classList.add('listening');
     setStatus('Listening...');
   };
-
-  recognition.onresult = (e) => {
-    let final = '';
-    let interim = '';
+  recognition.onresult = e => {
+    let final = '', interim = '';
     for (let i = 0; i < e.results.length; i++) {
       if (e.results[i].isFinal) final += e.results[i][0].transcript;
       else interim += e.results[i][0].transcript;
     }
     document.getElementById('inputField').value = final || interim;
-    document.getElementById('sendBtn').disabled = !(final || interim).trim();
-    if (final) {
-      stopListening();
-      sendMessage();
-    }
+    document.getElementById('sendBtn').disabled = !(final||interim).trim();
+    if (final) { stopListening(); sendMessage(); }
   };
-
   recognition.onerror = () => stopListening();
   recognition.onend = () => stopListening();
   recognition.start();
@@ -859,25 +979,22 @@ function stopListening() {
   isListening = false;
   document.getElementById('voiceBtn').classList.remove('listening');
   setStatus('Ready');
-  if (recognition) { try { recognition.stop(); } catch {} }
+  if (recognition) try { recognition.stop(); } catch {}
 }
 
 // TTS
 function speak(text) {
   if (!settings.voice || !window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
-  const utter = new SpeechSynthesisUtterance(text);
-  utter.rate = 1.0;
-  utter.pitch = 0.9;
-  // Try to find a British voice for Jarvis feel
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate = 1.0; u.pitch = 0.9;
   const voices = speechSynthesis.getVoices();
-  const british = voices.find(v => v.lang === 'en-GB' && v.name.includes('Daniel')) ||
-                  voices.find(v => v.lang === 'en-GB') ||
-                  voices.find(v => v.lang.startsWith('en'));
-  if (british) utter.voice = british;
-  speechSynthesis.speak(utter);
+  const v = voices.find(v => v.lang==='en-GB' && v.name.includes('Daniel')) ||
+            voices.find(v => v.lang==='en-GB') ||
+            voices.find(v => v.lang.startsWith('en'));
+  if (v) u.voice = v;
+  speechSynthesis.speak(u);
 }
-// Preload voices
 speechSynthesis?.getVoices();
 speechSynthesis?.addEventListener?.('voiceschanged', () => {});
 
@@ -887,36 +1004,23 @@ function toggleSetting(key) {
   localStorage.setItem(`jarvis_${key}`, settings[key]);
   updateToggles();
 }
-
 function updateToggles() {
   document.getElementById('voiceToggle').classList.toggle('on', settings.voice);
   document.getElementById('autoListenToggle').classList.toggle('on', settings.autoListen);
 }
 
 async function testConnection() {
-  // Save current values
-  settings.serverURL = document.getElementById('serverURL').value.replace(/\/+$/, '');
+  settings.serverURL = document.getElementById('serverURL').value.replace(/\/+$/,'');
   settings.apiKey = document.getElementById('apiKey').value;
   localStorage.setItem('jarvis_serverURL', settings.serverURL);
   localStorage.setItem('jarvis_apiKey', settings.apiKey);
-
   const el = document.getElementById('connStatus');
-  el.textContent = 'Testing...';
-  el.style.color = 'var(--orange)';
-
+  el.textContent = 'Testing...'; el.style.color = 'var(--orange)';
   try {
     const res = await fetch(`${settings.serverURL}/api/health`);
-    if (res.ok) {
-      el.textContent = 'Connected';
-      el.style.color = 'var(--green)';
-    } else {
-      el.textContent = `Error ${res.status}`;
-      el.style.color = 'var(--red)';
-    }
-  } catch {
-    el.textContent = 'Cannot reach server';
-    el.style.color = 'var(--red)';
-  }
+    if (res.ok) { el.textContent = 'Connected'; el.style.color = 'var(--green)'; }
+    else { el.textContent = `Error ${res.status}`; el.style.color = 'var(--red)'; }
+  } catch { el.textContent = 'Cannot reach server'; el.style.color = 'var(--red)'; }
 }
 
 function setStatus(text) {
@@ -924,20 +1028,20 @@ function setStatus(text) {
 }
 
 function clearChat() {
-  messages = [];
-  history = [];
+  messages = []; history = [];
   document.getElementById('messages').innerHTML = '';
   addMessage('jarvis', 'Cleared. What do you need?');
+  document.getElementById('inputField').focus();
 }
 
 function clearAllData() {
-  if (confirm('Reset all Jarvis data?')) {
-    localStorage.clear();
-    location.reload();
-  }
+  if (confirm('Reset all Jarvis data?')) { localStorage.clear(); location.reload(); }
 }
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// Auto-test connection on load
+setTimeout(() => testConnection(), 1000);
 </script>
 </body>
 </html>
