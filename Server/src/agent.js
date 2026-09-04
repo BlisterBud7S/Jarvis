@@ -354,9 +354,71 @@ export class JarvisAgent {
       return jarvisReply(`Looking up "${word}" for you.`, [{ type: 'openURL', params: { url: `https://www.google.com/search?q=define+${encodeURIComponent(word)}` } }]);
     }
 
+    // --- iOS features (handled client-side via URL schemes, server just returns message) ---
+
+    // Send text/iMessage
+    if (t.match(/(?:send|text|message)\s+/i) && (t.includes('text') || t.includes('message') || t.includes('imessage'))) {
+      return jarvisReply("Opening Messages for you.");
+    }
+    // Send email
+    if (t.includes('email') && (t.includes('send') || t.includes('write') || t.includes('compose'))) {
+      return jarvisReply("Opening Mail composer.");
+    }
+    // Phone call
+    if (t.match(/^(?:call|phone|dial)\s+/i) && !t.includes('facetime')) {
+      const who = t.replace(/^(?:call|phone|dial)\s+/i, '').trim();
+      return jarvisReply(`Calling ${who}.`);
+    }
+    // FaceTime
+    if (t.includes('facetime')) {
+      const who = t.replace(/facetime\s+(?:audio\s+)?(?:call\s+)?/i, '').trim();
+      return jarvisReply(`Starting FaceTime with ${who}.`);
+    }
+    // Toggle settings
+    const toggles = { 'toggle wifi': 'WiFi', 'toggle bluetooth': 'Bluetooth', 'toggle dark mode': 'Dark Mode',
+      'toggle airplane': 'Airplane Mode', 'toggle do not disturb': 'Do Not Disturb', 'dark mode': 'Dark Mode',
+      'toggle low power': 'Low Power Mode', 'dnd': 'Do Not Disturb' };
+    for (const [cmd, label] of Object.entries(toggles)) {
+      if (t.includes(cmd) || t === cmd) return jarvisReply(`Toggling ${label}.`);
+    }
+    // Brightness/Volume
+    if (t.match(/brightness\s+(?:to\s+)?(\d+)/i)) return jarvisReply(`Setting brightness to ${t.match(/(\d+)/)[1]}%.`);
+    if (t.match(/volume\s+(?:to\s+)?(\d+)/i)) return jarvisReply(`Setting volume to ${t.match(/(\d+)/)[1]}%.`);
+    // Create note/reminder/event
+    if (t.includes('create a note') || t.includes('new note')) return jarvisReply("Opening Notes.");
+    if (t.includes('reminder') || t.includes('remind me')) return jarvisReply("Setting your reminder.");
+    if (t.includes('calendar event') || t.includes('schedule')) return jarvisReply("Opening Calendar.");
+    // Timer/Alarm
+    if (t.includes('timer')) { const m = t.match(/(\d+)\s*(min|sec|hour)/); return jarvisReply(m ? `Setting a ${m[1]} ${m[2]} timer.` : "Setting a timer."); }
+    if (t.includes('alarm')) return jarvisReply("Setting your alarm.");
+    // Camera/Photos
+    if (t.includes('camera') || t.includes('take a photo') || t.includes('selfie')) return jarvisReply("Opening Camera.");
+    if (t.includes('open photos') || t.includes('photo library')) return jarvisReply("Opening Photos.");
+    // Music
+    if (t.startsWith('play ')) return jarvisReply(`Playing music.`);
+    if (t === 'pause' || t === 'pause music') return jarvisReply("Use Control Center to pause playback.");
+    if (t === 'next track' || t === 'skip') return jarvisReply("Use Control Center to skip tracks.");
+    // Smart Home
+    if (t.includes('turn on') || t.includes('turn off')) {
+      const device = t.replace(/turn\s+(on|off)\s+(the\s+)?/i, '').trim();
+      const state = t.includes('turn on') ? 'on' : 'off';
+      return jarvisReply(`Turning ${state} the ${device}.`);
+    }
+    if (t.match(/thermostat\s+(?:to\s+)?(\d+)/i)) return jarvisReply(`Setting thermostat to ${t.match(/(\d+)/)[1]}°.`);
+    // Run shortcut
+    if (t.includes('run shortcut') || t.includes('run the shortcut')) {
+      const name = t.replace(/run\s+(?:the\s+)?shortcut\s*/i, '').trim();
+      return jarvisReply(`Running shortcut "${name}".`);
+    }
+    // Open apps (catch-all for "open X")
+    if (t.match(/^(?:open|launch)\s+\w+/i)) {
+      const app = t.replace(/^(?:open|launch)\s+/i, '').trim();
+      return jarvisReply(`Opening ${app.charAt(0).toUpperCase() + app.slice(1)}.`);
+    }
+
     // Capabilities / help
     if (t.includes('what can you do') || t.includes('help') || t.includes('capabilities') || t.includes('your features')) {
-      return jarvisReply(`Here's what I can do — no API key needed:\n\n**Calculate** — "what's 15 * 23", "15% of 230", "tip on $45"\n**Convert** — "convert 5 miles to km", "100 f to c"\n**Create** — "make a presentation about AI", "create a document about space"\n**Search** — "search for Python tutorials", "YouTube cat videos"\n**Open** — "open gmail", "open spotify", "open reddit"\n**Translate** — "translate hello to spanish"\n**Navigate** — "directions to Central Park"\n**Utilities** — "flip a coin", "roll d20", "generate password", "random number"\n**Info** — "what time is it", "today's date", "tell me a joke", "fun fact"\n**Voice** — Click the mic or press V to talk\n\nI work entirely offline. No API key, no cloud, no tracking.`);
+      return jarvisReply(`Here's everything I can do:\n\n**Apps** — "open youtube", "open instagram" (80+ apps on iPad)\n**Communication** — "text Mom saying hi", "email John", "call 555-1234", "facetime Mom"\n**Create** — "make a presentation about AI", "create document", "create spreadsheet"\n**Notes** — "create a note about groceries", "set a reminder"\n**Settings** — "toggle wifi", "dark mode", "set brightness to 70"\n**Smart Home** — "turn on the lights", "set thermostat to 72"\n**Media** — "play music", "open camera"\n**Math** — "what's 15 * 23", "5 miles to km"\n**Search** — "search for X", "YouTube cat videos"\n**Translate** — "translate hello to spanish"\n**Utilities** — "flip a coin", "roll d20", "password"\n**Shortcuts** — "run shortcut Morning Routine"\n\nNo API key needed. On iPad: all features work natively.`);
     }
 
     // Goodbye

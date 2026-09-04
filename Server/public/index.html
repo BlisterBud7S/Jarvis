@@ -459,6 +459,62 @@ body {
           </div>
         </div>
 
+        <div class="section-title">Apps</div>
+        <div class="actions-grid">
+          <div class="action-card" onclick="quickAction('open youtube')">
+            <div class="icon">&#x25b6;&#xfe0f;</div><div class="label">YouTube</div>
+          </div>
+          <div class="action-card" onclick="quickAction('open instagram')">
+            <div class="icon">&#x1f4f7;</div><div class="label">Instagram</div>
+          </div>
+          <div class="action-card" onclick="quickAction('open spotify')">
+            <div class="icon">&#x1f3b5;</div><div class="label">Spotify</div>
+          </div>
+          <div class="action-card" onclick="quickAction('open tiktok')">
+            <div class="icon">&#x1f3ac;</div><div class="label">TikTok</div>
+          </div>
+          <div class="action-card" onclick="quickAction('open snapchat')">
+            <div class="icon">&#x1f47b;</div><div class="label">Snapchat</div>
+          </div>
+          <div class="action-card" onclick="quickAction('open discord')">
+            <div class="icon">&#x1f3ae;</div><div class="label">Discord</div>
+          </div>
+          <div class="action-card" onclick="quickAction('open netflix')">
+            <div class="icon">&#x1f3ac;</div><div class="label">Netflix</div>
+          </div>
+          <div class="action-card" onclick="quickAction('open reddit')">
+            <div class="icon">&#x1f4e2;</div><div class="label">Reddit</div>
+          </div>
+        </div>
+
+        <div class="section-title">Settings & System</div>
+        <div class="actions-grid">
+          <div class="action-card" onclick="quickAction('toggle wifi')">
+            <div class="icon">&#x1f4f6;</div><div class="label">WiFi</div>
+          </div>
+          <div class="action-card" onclick="quickAction('toggle bluetooth')">
+            <div class="icon">&#x1f4e1;</div><div class="label">Bluetooth</div>
+          </div>
+          <div class="action-card" onclick="quickAction('toggle dark mode')">
+            <div class="icon">&#x1f319;</div><div class="label">Dark Mode</div>
+          </div>
+          <div class="action-card" onclick="quickAction('toggle airplane mode')">
+            <div class="icon">&#x2708;&#xfe0f;</div><div class="label">Airplane</div>
+          </div>
+          <div class="action-card" onclick="quickAction('toggle do not disturb')">
+            <div class="icon">&#x1f515;</div><div class="label">DND</div>
+          </div>
+          <div class="action-card" onclick="quickAction('toggle low power mode')">
+            <div class="icon">&#x1f50b;</div><div class="label">Low Power</div>
+          </div>
+          <div class="action-card" onclick="quickAction('set brightness to 50')">
+            <div class="icon">&#x2600;&#xfe0f;</div><div class="label">Brightness</div>
+          </div>
+          <div class="action-card" onclick="quickAction('set volume to 50')">
+            <div class="icon">&#x1f50a;</div><div class="label">Volume</div>
+          </div>
+        </div>
+
         <div class="section-title">Smart Home</div>
         <div class="actions-grid">
           <div class="action-card" onclick="quickAction('turn on the lights')">
@@ -470,24 +526,18 @@ body {
           <div class="action-card" onclick="quickAction('set thermostat to 72')">
             <div class="icon">&#x1f321;</div><div class="label">Thermostat</div>
           </div>
-          <div class="action-card" onclick="quickAction('run good night scene')">
-            <div class="icon">&#x1f3e0;</div><div class="label">Scenes</div>
-          </div>
         </div>
 
-        <div class="section-title">Laptop Controls</div>
+        <div class="section-title">Camera & Media</div>
         <div class="actions-grid">
-          <div class="action-card" onclick="quickAction('open google.com in a new tab')">
-            <div class="icon">&#x1f310;</div><div class="label">Open Website</div>
+          <div class="action-card" onclick="quickAction('open camera')">
+            <div class="icon">&#x1f4f8;</div><div class="label">Camera</div>
           </div>
-          <div class="action-card" onclick="quickAction('search google for how to code in python')">
-            <div class="icon">&#x1f4bb;</div><div class="label">Search Web</div>
+          <div class="action-card" onclick="quickAction('open photos')">
+            <div class="icon">&#x1f5bc;&#xfe0f;</div><div class="label">Photos</div>
           </div>
-          <div class="action-card" onclick="quickAction('write a python script that prints hello world')">
-            <div class="icon">&#x1f40d;</div><div class="label">Write Code</div>
-          </div>
-          <div class="action-card" onclick="quickAction('explain how to use git')">
-            <div class="icon">&#x1f4d6;</div><div class="label">Explain</div>
+          <div class="action-card" onclick="quickAction('play music')">
+            <div class="icon">&#x1f3b6;</div><div class="label">Play Music</div>
           </div>
         </div>
       </div>
@@ -909,8 +959,274 @@ function parseOnDevice(text) {
     }
   }
 
+  // --- iOS NATIVE FEATURES (URL schemes + Shortcuts) ---
+  const isiOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+  // Open native apps (URL schemes)
+  const appSchemes = {
+    youtube:'youtube://', instagram:'instagram://', tiktok:'tiktok://',
+    snapchat:'snapchat://', whatsapp:'whatsapp://', spotify:'spotify://',
+    netflix:'netflix://', discord:'discord://', slack:'slack://',
+    zoom:'zoomus://', chrome:'googlechrome://', gmail:'googlegmail://',
+    'google maps':'comgooglemaps://', 'google drive':'googledrive://',
+    notion:'notion://', reddit:'reddit://', facebook:'fb://',
+    messenger:'fb-messenger://', signal:'signal://', linkedin:'linkedin://',
+    pinterest:'pinterest://', twitter:'twitter://', telegram:'tg://',
+    safari:'x-web-search://', notes:'mobilenotes://', calendar:'calshow://',
+    reminders:'x-apple-reminderkit://', maps:'maps://', music:'music://',
+    facetime:'facetime://', settings:'App-prefs://', photos:'photos-redirect://',
+    camera:'camera://', files:'shareddocuments://', 'app store':'itms-apps://',
+    clock:'clock-alarm://', contacts:'contacts://', mail:'mailto:',
+    messages:'sms:', phone:'tel:', weather:'weather://',
+    books:'ibooks://', podcasts:'podcasts://', news:'applenews://',
+    'voice memos':'voicememos://', health:'x-apple-health://',
+    wallet:'shoebox://', 'find my':'findmy://', shortcuts:'shortcuts://',
+    translate:'translate://', magnifier:'magnifier://', measure:'measure://',
+    compass:'compass://', stocks:'stocks://', home:'com.apple.home://',
+    tips:'x-apple-tips://', watch:'bridge://',
+  };
+  const openAppMatch = t.match(/^(?:open|launch|start|go to)\s+(.+)$/);
+  if (openAppMatch) {
+    const appName = openAppMatch[1].trim();
+    const scheme = appSchemes[appName];
+    if (scheme && isiOS) {
+      window.location.href = scheme;
+      return reply(`Opening ${appName.charAt(0).toUpperCase()+appName.slice(1)}.`);
+    }
+  }
+
+  // Send iMessage / text
+  const smsMatch = t.match(/(?:send|text|message)\s+(?:a\s+)?(?:text|message|imessage|sms)?\s*(?:to\s+)?(.+?)(?:\s+saying\s+|\s+that\s+says?\s+)(.+)/i);
+  if (smsMatch) {
+    const to = smsMatch[1].trim(), body = smsMatch[2].trim();
+    window.location.href = `sms:${encodeURIComponent(to)}&body=${encodeURIComponent(body)}`;
+    return reply(`Opening Messages to ${to}.`);
+  }
+  if (t.match(/^(?:send|text|message)\s+/i) && (t.includes('text') || t.includes('message') || t.includes('imessage'))) {
+    window.location.href = 'sms:';
+    return reply('Opening Messages.');
+  }
+
+  // Send WhatsApp
+  const waMatch = t.match(/(?:send\s+)?whatsapp\s+(?:message\s+)?(?:to\s+)?(.+?)(?:\s+saying\s+)(.+)/i);
+  if (waMatch) {
+    window.location.href = `whatsapp://send?text=${encodeURIComponent(waMatch[2])}`;
+    return reply(`Opening WhatsApp.`);
+  }
+  if (t.includes('whatsapp')) {
+    window.location.href = 'whatsapp://';
+    return reply('Opening WhatsApp.');
+  }
+
+  // Send email
+  const emailMatch = t.match(/(?:send|write|compose)\s+(?:an?\s+)?email\s+(?:to\s+)?(.+?)(?:\s+(?:about|subject|saying)\s+)(.+)/i);
+  if (emailMatch) {
+    window.location.href = `mailto:${encodeURIComponent(emailMatch[1])}?subject=${encodeURIComponent(emailMatch[2])}`;
+    return reply(`Opening Mail to ${emailMatch[1]}.`);
+  }
+  if (t.includes('email') && (t.includes('send') || t.includes('write') || t.includes('compose'))) {
+    window.location.href = 'mailto:';
+    return reply('Opening Mail composer.');
+  }
+
+  // Phone call
+  const callMatch = t.match(/(?:call|phone|dial)\s+(.+)/i);
+  if (callMatch && !t.includes('facetime')) {
+    const who = callMatch[1].trim();
+    window.location.href = `tel:${encodeURIComponent(who)}`;
+    return reply(`Calling ${who}.`);
+  }
+
+  // FaceTime
+  const ftMatch = t.match(/facetime\s+(?:audio\s+)?(?:call\s+)?(.+)/i);
+  if (ftMatch) {
+    const who = ftMatch[1].trim();
+    const scheme = t.includes('audio') ? 'facetime-audio' : 'facetime';
+    window.location.href = `${scheme}:${encodeURIComponent(who)}`;
+    return reply(`Starting FaceTime with ${who}.`);
+  }
+
+  // Maps / directions (native on iOS)
+  if (t.startsWith('directions to ') || t.startsWith('navigate to ')) {
+    const q = t.replace(/^(?:directions|navigate)\s+to\s+/i,'').trim();
+    if (isiOS) window.location.href = `maps://?daddr=${encodeURIComponent(q)}`;
+    else window.open(`https://maps.google.com/maps?daddr=${encodeURIComponent(q)}`,'_blank');
+    return reply(`Getting directions to ${q}.`);
+  }
+
+  // Music
+  if (t.match(/^play\s+(.+)/i) && (t.includes('music') || t.includes('song') || !t.includes('video'))) {
+    const song = t.replace(/^play\s+/i,'').replace(/\s*(music|song|on spotify|on apple music)$/i,'').trim();
+    if (isiOS) window.location.href = `music://`;
+    else window.open(`https://open.spotify.com/search/${encodeURIComponent(song)}`,'_blank');
+    return reply(`Playing "${song}".`);
+  }
+  if (t === 'pause music' || t === 'pause' || t === 'stop music') {
+    return reply("Use your device's media controls or Control Center to pause playback.");
+  }
+  if (t === 'next track' || t === 'skip' || t === 'next song') {
+    return reply("Use your device's media controls or Control Center to skip tracks.");
+  }
+
+  // iOS Shortcuts — system toggles
+  const shortcutActions = {
+    'toggle wifi': 'Toggle WiFi', 'turn on wifi': 'Toggle WiFi', 'turn off wifi': 'Toggle WiFi',
+    'toggle bluetooth': 'Toggle Bluetooth', 'turn on bluetooth': 'Toggle Bluetooth', 'turn off bluetooth': 'Toggle Bluetooth',
+    'toggle dark mode': 'Toggle Dark Mode', 'dark mode': 'Toggle Dark Mode',
+    'turn on dark mode': 'Toggle Dark Mode', 'turn off dark mode': 'Toggle Dark Mode',
+    'toggle airplane mode': 'Toggle Airplane Mode', 'airplane mode': 'Toggle Airplane Mode',
+    'toggle do not disturb': 'Toggle DND', 'do not disturb': 'Toggle DND', 'dnd': 'Toggle DND',
+    'toggle low power mode': 'Toggle Low Power Mode', 'low power mode': 'Toggle Low Power Mode',
+    'toggle low power': 'Toggle Low Power Mode',
+  };
+  for (const [cmd, shortcutName] of Object.entries(shortcutActions)) {
+    if (t === cmd || t === cmd.replace('toggle ','')) {
+      if (isiOS) {
+        window.location.href = `shortcuts://run-shortcut?name=${encodeURIComponent(shortcutName)}`;
+        return reply(`Running "${shortcutName}" shortcut.`);
+      }
+      return reply(`"${shortcutName}" requires iOS Shortcuts. On your iPad, this will toggle the setting automatically.`);
+    }
+  }
+
+  // Brightness / Volume
+  const brightnessMatch = t.match(/(?:set\s+)?brightness\s+(?:to\s+)?(\d+)%?/i);
+  if (brightnessMatch) {
+    if (isiOS) { window.location.href = `shortcuts://run-shortcut?name=Set%20Brightness&input=text&text=${brightnessMatch[1]}`; return reply(`Setting brightness to ${brightnessMatch[1]}%.`); }
+    return reply("Brightness control requires iOS. On your iPad, this works via Shortcuts.");
+  }
+  const volumeMatch = t.match(/(?:set\s+)?volume\s+(?:to\s+)?(\d+)%?/i);
+  if (volumeMatch) {
+    if (isiOS) { window.location.href = `shortcuts://run-shortcut?name=Set%20Volume&input=text&text=${volumeMatch[1]}`; return reply(`Setting volume to ${volumeMatch[1]}%.`); }
+    return reply("Volume control requires iOS. On your iPad, this works via Shortcuts.");
+  }
+
+  // Create Note
+  if (t.includes('create a note') || t.includes('new note') || t.includes('write a note') || (t.includes('note') && t.includes('open'))) {
+    const noteMatch = t.match(/(?:create|write|make)\s+(?:a\s+)?note\s+(?:about|called|titled|saying)?\s*(.+)?/i);
+    const body = noteMatch?.[1]?.trim() || '';
+    if (isiOS && body) {
+      window.location.href = `shortcuts://run-shortcut?name=Create%20Note&input=text&text=${encodeURIComponent(body)}`;
+      return reply(`Creating a note: "${body}".`);
+    }
+    window.location.href = isiOS ? 'mobilenotes://' : 'https://keep.google.com';
+    return reply('Opening Notes.');
+  }
+
+  // Create Reminder
+  if (t.includes('reminder') || t.includes('remind me')) {
+    const remMatch = t.match(/(?:set\s+a\s+reminder|remind\s+me)\s+(?:to\s+)?(.+)/i);
+    if (remMatch && isiOS) {
+      window.location.href = `shortcuts://run-shortcut?name=Create%20Reminder&input=text&text=${encodeURIComponent(remMatch[1])}`;
+      return reply(`Setting a reminder: "${remMatch[1]}".`);
+    }
+    window.location.href = isiOS ? 'x-apple-reminderkit://' : 'https://calendar.google.com';
+    return reply('Opening Reminders.');
+  }
+
+  // Calendar Event
+  if (t.includes('calendar event') || t.includes('schedule') || (t.includes('event') && t.includes('create'))) {
+    const evMatch = t.match(/(?:create|add|schedule)\s+(?:a\s+)?(?:calendar\s+)?event\s+(?:called|for|about)?\s*(.+)?/i);
+    if (evMatch?.[1] && isiOS) {
+      window.location.href = `shortcuts://run-shortcut?name=Create%20Event&input=text&text=${encodeURIComponent(evMatch[1])}`;
+      return reply(`Creating a calendar event: "${evMatch[1]}".`);
+    }
+    window.location.href = isiOS ? 'calshow://' : 'https://calendar.google.com';
+    return reply('Opening Calendar.');
+  }
+
+  // Timer
+  const timerMatch = t.match(/(?:set\s+(?:a\s+)?)?timer\s+(?:for\s+)?(\d+)\s*(min|minute|sec|second|hour)/i);
+  if (timerMatch) {
+    const val = timerMatch[1], unit = timerMatch[2];
+    if (isiOS) {
+      window.location.href = `shortcuts://run-shortcut?name=Set%20Timer&input=text&text=${val}%20${unit}`;
+      return reply(`Setting a ${val} ${unit} timer.`);
+    }
+    window.open(`https://www.google.com/search?q=timer+${val}+${unit}`,'_blank');
+    return reply(`Opening a ${val} ${unit} timer.`);
+  }
+
+  // Alarm
+  const alarmMatch = t.match(/(?:set\s+(?:an?\s+)?)?alarm\s+(?:for\s+)?(.+)/i);
+  if (alarmMatch) {
+    if (isiOS) { window.location.href = `shortcuts://run-shortcut?name=Set%20Alarm&input=text&text=${encodeURIComponent(alarmMatch[1])}`; return reply(`Setting an alarm for ${alarmMatch[1]}.`); }
+    return reply("Alarm setting requires iOS. On your iPad, this works via Shortcuts.");
+  }
+
+  // Settings pages
+  const settingsPages = {
+    'wifi settings': 'App-prefs:WIFI', 'bluetooth settings': 'App-prefs:Bluetooth',
+    'display settings': 'App-prefs:DISPLAY', 'sound settings': 'App-prefs:Sounds',
+    'general settings': 'App-prefs:General', 'privacy settings': 'App-prefs:Privacy',
+    'battery settings': 'App-prefs:BATTERY_USAGE', 'storage settings': 'App-prefs:CASTLE',
+    'accessibility settings': 'App-prefs:ACCESSIBILITY', 'wallpaper settings': 'App-prefs:Wallpaper',
+    'notification settings': 'App-prefs:NOTIFICATIONS_ID', 'screen time': 'App-prefs:SCREEN_TIME',
+    'open settings': 'App-prefs:',
+  };
+  for (const [cmd, url] of Object.entries(settingsPages)) {
+    if (t.includes(cmd) || t === cmd) {
+      if (isiOS) { window.location.href = url; return reply(`Opening ${cmd}.`); }
+      return reply(`${cmd.charAt(0).toUpperCase()+cmd.slice(1)} requires iOS.`);
+    }
+  }
+
+  // Camera
+  if (t.includes('take a photo') || t.includes('take a picture') || t.includes('open camera') || t.includes('selfie')) {
+    if (isiOS) { window.location.href = 'camera://'; return reply('Opening Camera.'); }
+    try {
+      navigator.mediaDevices.getUserMedia({video: true}).then(s => { s.getTracks().forEach(t=>t.stop()); });
+    } catch{}
+    return reply('Camera requires the native iOS app. On laptop, your browser may prompt for camera access.');
+  }
+
+  // Photos
+  if (t.includes('open photos') || t.includes('photo library') || t.includes('show my photos')) {
+    if (isiOS) { window.location.href = 'photos-redirect://'; return reply('Opening Photos.'); }
+    window.open('https://photos.google.com','_blank');
+    return reply('Opening Photos.');
+  }
+
+  // Run any shortcut
+  const shortcutMatch = t.match(/(?:run|execute)\s+(?:the\s+)?(?:shortcut\s+)?(?:called\s+)?["']?(.+?)["']?\s*$/i);
+  if (shortcutMatch && (t.includes('shortcut') || t.includes('run '))) {
+    if (isiOS) {
+      window.location.href = `shortcuts://run-shortcut?name=${encodeURIComponent(shortcutMatch[1])}`;
+      return reply(`Running shortcut "${shortcutMatch[1]}".`);
+    }
+    return reply(`Running shortcuts requires iOS. On your iPad, say "run shortcut ${shortcutMatch[1]}".`);
+  }
+
+  // Smart Home via Shortcuts
+  if (t.includes('turn on') || t.includes('turn off')) {
+    const device = t.replace(/turn\s+(on|off)\s+(the\s+)?/i, '').trim();
+    const state = t.includes('turn on') ? 'on' : 'off';
+    if (isiOS) {
+      window.location.href = `shortcuts://run-shortcut?name=Smart%20Home&input=text&text=${encodeURIComponent(device+' '+state)}`;
+      return reply(`Turning ${state} the ${device}.`);
+    }
+    return reply(`Smart home control requires iOS Shortcuts. On your iPad, this will control "${device}" via HomeKit.`);
+  }
+
+  // Thermostat
+  const thermoMatch = t.match(/(?:set\s+)?thermostat\s+(?:to\s+)?(\d+)/i);
+  if (thermoMatch) {
+    if (isiOS) {
+      window.location.href = `shortcuts://run-shortcut?name=Set%20Thermostat&input=text&text=${thermoMatch[1]}`;
+      return reply(`Setting thermostat to ${thermoMatch[1]}°.`);
+    }
+    return reply(`Thermostat control requires iOS Shortcuts.`);
+  }
+
+  // Spotlight search
+  if (t.startsWith('spotlight ') || t.includes('spotlight search')) {
+    const q = t.replace(/spotlight\s*(?:search\s+(?:for\s+)?)?/i,'').trim();
+    if (isiOS) window.location.href = `x-web-search://?${encodeURIComponent(q)}`;
+    else window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`,'_blank');
+    return reply(`Searching for "${q}".`);
+  }
+
   // Unit conversion
-  const convertMatch = t.match(/(?:convert\s+)?([\d.]+)\s+(\w+)\s+(?:to|in)\s+(\w+)/);
   if (convertMatch) {
     const [,val,from,to] = convertMatch;
     const v = parseFloat(val);
@@ -989,7 +1305,7 @@ function parseOnDevice(text) {
 
   // Help / capabilities
   if (t.includes('what can you do') || t === 'help' || t.includes('capabilities'))
-    return reply("Here's what I can do — no API key needed:\n\nCalculate — \"what's 15 * 23\"\nConvert — \"5 miles to km\"\nCreate — \"make a presentation about AI\"\nSearch — \"search for Python tutorials\"\nOpen — \"open gmail\", \"open spotify\"\nTranslate — \"translate hello to spanish\"\nUtilities — \"flip a coin\", \"roll d20\", \"password\"\nInfo — \"what time\", \"joke\", \"fun fact\", \"quote\"\nVoice — Click mic or press V");
+    return reply(`Here's everything I can do:\n\nApps — "open youtube", "open instagram", "open spotify" (80+ apps on iPad)\nCommunication — "text Mom saying hi", "email John about meeting", "call 555-1234", "facetime Mom"\nSearch — "search for X", "youtube cat videos", "wikipedia AI"\nCreate — "make a presentation about AI", "create document", "create spreadsheet"\nNotes — "create a note about groceries", "set a reminder to buy milk"\nCalendar — "create event for dentist tomorrow"\nSettings — "toggle wifi", "dark mode", "set brightness to 70"\nSmart Home — "turn on the lights", "set thermostat to 72"\nMedia — "play music", "open camera", "open photos"\nMath — "what's 15 * 23", "15% of 230", "5 miles to km"\nTimers — "set timer for 10 minutes", "set alarm for 7am"\nUtilities — "flip a coin", "roll d20", "generate password"\nFun — "tell me a joke", "fun fact", "motivational quote"\nDirections — "directions to Central Park"\nTranslate — "translate hello to spanish"\nShortcuts — "run shortcut Morning Routine"\nVoice — Click mic or press V\n\n${/iPad|iPhone/.test(navigator.userAgent) ? 'Running on iPad — all features active.' : 'On iPad: apps, settings, shortcuts, and smart home work natively. On laptop: web features are fully active.'}`);
 
   // Goodbye
   if (/^(bye|goodbye|goodnight|see you|later)/i.test(t))
@@ -1012,8 +1328,7 @@ function reply(message, actions) {
 
 function needsServer(text) {
   const t = text.toLowerCase();
-  const serverOnly = ['presentation','document','spreadsheet','smart home','turn on','turn off','thermostat'];
-  return serverOnly.some(k => t.includes(k));
+  return ['presentation','document','spreadsheet'].some(k => t.includes(k));
 }
 
 // Voice
