@@ -215,6 +215,122 @@ class OnDeviceParser {
             ])
         }
 
+        // System diagnostics
+        if text.contains("diagnostics") || text.contains("system status") || text.contains("system info") || text.contains("device info") {
+            return respond("Running full system diagnostics now, sir.", [
+                ActionPayload(type: "systemDiagnostics", params: [:])
+            ])
+        }
+        if text.contains("battery") && (text.contains("status") || text.contains("level") || text.contains("check") || text.contains("how much")) {
+            return respond("Checking battery status.", [
+                ActionPayload(type: "batteryStatus", params: [:])
+            ])
+        }
+        if text.contains("storage") && (text.contains("check") || text.contains("how much") || text.contains("space") || text.contains("left")) {
+            return respond("Checking storage.", [
+                ActionPayload(type: "storageStatus", params: [:])
+            ])
+        }
+
+        // Math / calculations
+        if let result = MathEngine().parseAndEvaluate(text) {
+            return respond("The answer is \(result).", [
+                ActionPayload(type: "speak", params: ["text": .string("The answer is \(result).")])
+            ])
+        }
+
+        // Weather
+        if text.contains("weather") || text.hasPrefix("what's the temperature") || text.hasPrefix("is it going to rain") {
+            return respond("Pulling up the weather for you.", [
+                ActionPayload(type: "checkWeather", params: [:])
+            ])
+        }
+
+        // News
+        if text.contains("news") || text.hasPrefix("what's happening") || text.contains("headlines") {
+            let topic = text.replacingOccurrences(of: "news about ", with: "")
+                .replacingOccurrences(of: "show me news", with: "")
+                .replacingOccurrences(of: "check the news", with: "")
+                .replacingOccurrences(of: "what's the latest news", with: "")
+                .trimmingCharacters(in: .whitespaces)
+            let params: [String: ParamValue] = topic.isEmpty ? [:] : ["topic": .string(topic)]
+            return respond("Getting the latest news for you.", [
+                ActionPayload(type: "checkNews", params: params)
+            ])
+        }
+
+        // Translate
+        if text.hasPrefix("translate ") {
+            let rest = String(text.dropFirst(10))
+            return respond("Opening the translator.", [
+                ActionPayload(type: "translateText", params: ["text": .string(rest)])
+            ])
+        }
+
+        // Identify music / Shazam
+        if text.contains("what song") || text.contains("what's playing") || text.contains("identify") && text.contains("song") || text.contains("shazam") {
+            return respond("Listening to identify the song...", [
+                ActionPayload(type: "identifyMusic", params: [:])
+            ])
+        }
+
+        // Coin flip
+        if text.contains("flip a coin") || text.contains("coin flip") || text.contains("heads or tails") {
+            return respond("Flipping a coin...", [
+                ActionPayload(type: "coinFlip", params: [:])
+            ])
+        }
+
+        // Roll dice
+        if text.contains("roll a die") || text.contains("roll a dice") || text.contains("roll dice") || text.contains("roll d") {
+            var sides = 6.0
+            if text.contains("d20") { sides = 20 }
+            else if text.contains("d12") { sides = 12 }
+            else if text.contains("d10") { sides = 10 }
+            else if text.contains("d8") { sides = 8 }
+            else if text.contains("d4") { sides = 4 }
+            return respond("Rolling the dice...", [
+                ActionPayload(type: "rollDice", params: ["sides": .number(sides)])
+            ])
+        }
+
+        // Generate password
+        if text.contains("generate") && text.contains("password") || text.contains("random password") {
+            let length = extractNumber(text) ?? 16
+            return respond("Generating a secure password.", [
+                ActionPayload(type: "generatePassword", params: ["length": .number(length)])
+            ])
+        }
+
+        // Smart home
+        if text.contains("turn on the ") || text.contains("turn off the ") {
+            let isOn = text.contains("turn on")
+            let device = text.replacingOccurrences(of: "turn on the ", with: "")
+                .replacingOccurrences(of: "turn off the ", with: "")
+                .trimmingCharacters(in: .whitespaces)
+            return respond("\(isOn ? "Turning on" : "Turning off") the \(device).", [
+                ActionPayload(type: "controlSmartDevice", params: [
+                    "device": .string(device),
+                    "action": .string(isOn ? "on" : "off")
+                ])
+            ])
+        }
+
+        // Thermostat
+        if text.contains("thermostat") || (text.contains("set") && text.contains("temperature")) {
+            let temp = extractNumber(text) ?? 72
+            return respond("Setting thermostat to \(Int(temp))°.", [
+                ActionPayload(type: "setThermostat", params: ["temperature": .number(temp)])
+            ])
+        }
+
+        // Scan QR
+        if text.contains("scan") && (text.contains("qr") || text.contains("barcode") || text.contains("code")) {
+            return respond("Opening the camera to scan.", [
+                ActionPayload(type: "scanQR", params: [:])
+            ])
+        }
+
         // Fallback — try to be helpful
         return respond(
             "I understand you want me to \"\(input)\". For complex tasks like this, connect me to the cloud AI server in Settings for full autonomous control. For now, try specific commands like \"open Safari\", \"type hello world\", \"set brightness to 50%\", or \"text Mom I'm on my way\".",

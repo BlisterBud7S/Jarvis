@@ -44,6 +44,16 @@ struct DeviceAction: Identifiable, Codable, Equatable {
         case browseURL, browserTap, browserFill, browserScroll, browserExtract, browserSubmit, browserBack
         // Document generation
         case createPresentation, createDocument, createSpreadsheet, openGeneratedFile
+        // System diagnostics
+        case systemDiagnostics, batteryStatus, storageStatus, networkStatus
+        // Math & conversion
+        case calculate, convertUnit
+        // Smart home
+        case controlSmartDevice, runScene, setThermostat
+        // QR / Barcode
+        case scanQR
+        // Utilities
+        case checkWeather, checkNews, translateText, identifyMusic, coinFlip, rollDice, generatePassword
     }
 
     init(type: ActionType, params: [String: ParamValue] = [:]) {

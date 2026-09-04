@@ -13,6 +13,10 @@ class ActionExecutor {
     let keyboardBridge = KeyboardBridge()
     let screenReader = ScreenReader()
     let documentGenerator = DocumentGenerator()
+    let systemMonitor = SystemMonitor()
+    let mathEngine = MathEngine()
+    let smartHome = SmartHomeController()
+    let qrScanner = QRScanner()
     var webAutomation: WebAutomation?
 
     // Master URL scheme registry — Jarvis knows how to open everything
@@ -255,6 +259,77 @@ class ActionExecutor {
                 return ActionResult(success: true, message: "Opening \(file.lastPathComponent)")
             }
             return ActionResult(success: false, message: "File not found")
+
+        // System diagnostics
+        case .systemDiagnostics:
+            return ActionResult(success: true, message: systemMonitor.getFullDiagnostics())
+        case .batteryStatus:
+            return ActionResult(success: true, message: systemMonitor.getBatteryInfo())
+        case .storageStatus:
+            return ActionResult(success: true, message: systemMonitor.getStorageInfo())
+        case .networkStatus:
+            return ActionResult(success: true, message: systemMonitor.getNetworkInfo())
+
+        // Math & conversion
+        case .calculate:
+            let expr = action.params["expression"]?.s ?? action.params["query"]?.s ?? ""
+            let result = mathEngine.evaluate(expr)
+            return ActionResult(success: true, message: "\(expr) = \(result)")
+        case .convertUnit:
+            let value = action.params["value"]?.n ?? 0
+            let from = action.params["from"]?.s ?? ""
+            let to = action.params["to"]?.s ?? ""
+            let result = mathEngine.convert(value, from: from, to: to)
+            return ActionResult(success: true, message: "\(value) \(from) = \(result)")
+
+        // Smart home
+        case .controlSmartDevice:
+            let device = action.params["device"]?.s ?? action.params["name"]?.s ?? ""
+            let cmd = action.params["action"]?.s ?? action.params["command"]?.s ?? "toggle"
+            let url = smartHome.controlDevice(name: device, action: cmd)
+            return await openURL(url)
+        case .runScene:
+            let scene = action.params["scene"]?.s ?? action.params["name"]?.s ?? ""
+            let url = smartHome.runScene(name: scene)
+            return await openURL(url)
+        case .setThermostat:
+            let temp = Int(action.params["temperature"]?.n ?? 72)
+            let url = smartHome.setThermostat(temperature: temp)
+            return await openURL(url)
+
+        // QR scanner
+        case .scanQR:
+            return ActionResult(success: true, message: "Opening Camera for QR scanning. Point at a QR code.")
+
+        // Utilities
+        case .checkWeather:
+            return await openURL("weather://")
+        case .checkNews:
+            let topic = action.params["topic"]?.s
+            if let topic, !topic.isEmpty {
+                let enc = topic.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? topic
+                return await openURL("https://news.google.com/search?q=\(enc)")
+            }
+            return await openURL("applenews://")
+        case .translateText:
+            let text = action.params["text"]?.s ?? ""
+            if !text.isEmpty { UIPasteboard.general.string = text }
+            return await openURL("translate://")
+        case .identifyMusic:
+            return await runShortcut("Shazam")
+        case .coinFlip:
+            let result = Bool.random() ? "Heads" : "Tails"
+            return ActionResult(success: true, message: "Coin flip: \(result)")
+        case .rollDice:
+            let sides = Int(action.params["sides"]?.n ?? 6)
+            let result = Int.random(in: 1...max(2, sides))
+            return ActionResult(success: true, message: "Rolled a \(result) (d\(sides))")
+        case .generatePassword:
+            let length = Int(action.params["length"]?.n ?? 16)
+            let chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*"
+            let password = String((0..<max(8, length)).map { _ in chars.randomElement()! })
+            UIPasteboard.general.string = password
+            return ActionResult(success: true, message: "Generated password: \(password) (copied to clipboard)")
 
         default:
             return ActionResult(success: false, message: "Unknown action: \(action.type.rawValue)")

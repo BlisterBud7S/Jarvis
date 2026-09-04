@@ -33,6 +33,10 @@
 		A10023 /* DocumentGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10023; };
 		A10024 /* WebAutomation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10024; };
 		A10025 /* JarvisBrowserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10025; };
+		A10026 /* SystemMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10026; };
+		A10027 /* MathEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10027; };
+		A10028 /* SmartHomeController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10028; };
+		A10029 /* QRScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10029; };
 		A30001 /* JarvisKeyboard.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = P20000; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -93,6 +97,10 @@
 		B10023 /* DocumentGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentGenerator.swift; sourceTree = "<group>"; };
 		B10024 /* WebAutomation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebAutomation.swift; sourceTree = "<group>"; };
 		B10025 /* JarvisBrowserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JarvisBrowserView.swift; sourceTree = "<group>"; };
+		B10026 /* SystemMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemMonitor.swift; sourceTree = "<group>"; };
+		B10027 /* MathEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MathEngine.swift; sourceTree = "<group>"; };
+		B10028 /* SmartHomeController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartHomeController.swift; sourceTree = "<group>"; };
+		B10029 /* QRScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScanner.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -182,6 +190,10 @@
 				B10009,
 				B10010,
 				B10011,
+				B10026,
+				B10027,
+				B10028,
+				B10029,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -394,6 +406,10 @@
 			A10023,
 			A10024,
 			A10025,
+			A10026,
+			A10027,
+			A10028,
+			A10029,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
