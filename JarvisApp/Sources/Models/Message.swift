@@ -1,33 +1,22 @@
 import Foundation
 
-struct Message: Identifiable, Codable, Equatable {
-    let id: UUID
+struct Message: Identifiable, Equatable {
+    let id = UUID()
     let role: Role
     let content: String
-    let timestamp: Date
+    let timestamp = Date()
     var actions: [DeviceAction]?
-    var status: MessageStatus
+    var thinking: String?
 
-    enum Role: String, Codable {
-        case user
-        case assistant
-        case system
-    }
+    enum Role: String { case user, jarvis, system, thinking }
 
-    enum MessageStatus: String, Codable {
-        case sending
-        case sent
-        case executing
-        case completed
-        case failed
-    }
+    static func == (lhs: Message, rhs: Message) -> Bool { lhs.id == rhs.id }
+}
 
-    init(role: Role, content: String, actions: [DeviceAction]? = nil, status: MessageStatus = .sent) {
-        self.id = UUID()
-        self.role = role
-        self.content = content
-        self.timestamp = Date()
-        self.actions = actions
-        self.status = status
-    }
+struct AgentStep: Identifiable {
+    let id = UUID()
+    let description: String
+    var status: StepStatus = .pending
+
+    enum StepStatus { case pending, running, done, failed }
 }

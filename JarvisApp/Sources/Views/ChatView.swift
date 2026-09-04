@@ -1,265 +1,361 @@
 import SwiftUI
 
 struct ChatView: View {
-    @EnvironmentObject var appState: AppState
-    @StateObject private var viewModel: ChatViewModel
-    @StateObject private var voiceService = VoiceService()
-    @FocusState private var isInputFocused: Bool
-
-    init() {
-        _viewModel = StateObject(wrappedValue: ChatViewModel(appState: AppState()))
-    }
+    @EnvironmentObject var jarvis: JarvisBrain
+    @State private var inputText = ""
+    @State private var showVoice = false
+    @FocusState private var focused: Bool
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
+                // Messages
                 ScrollViewReader { proxy in
                     ScrollView {
-                        LazyVStack(spacing: 12) {
-                            ForEach(viewModel.messages) { message in
-                                MessageBubble(message: message)
-                                    .id(message.id)
+                        LazyVStack(spacing: 16) {
+                            ForEach(jarvis.messages) { msg in
+                                MessageRow(message: msg)
+                                    .id(msg.id)
                             }
 
-                            if viewModel.isProcessing {
-                                TypingIndicator()
-                                    .id("typing")
+                            // Live plan
+                            if !jarvis.currentPlan.isEmpty {
+                                PlanView(steps: jarvis.currentPlan)
+                                    .id("plan")
+                            }
+
+                            if jarvis.isProcessing {
+                                ThinkingView()
+                                    .id("thinking")
                             }
                         }
                         .padding()
                     }
-                    .onChange(of: viewModel.messages.count) {
-                        withAnimation {
-                            if let last = viewModel.messages.last {
-                                proxy.scrollTo(last.id, anchor: .bottom)
-                            }
+                    .onChange(of: jarvis.messages.count) {
+                        withAnimation(.easeOut(duration: 0.3)) {
+                            proxy.scrollTo(jarvis.messages.last?.id ?? "thinking", anchor: .bottom)
                         }
+                    }
+                    .onChange(of: jarvis.currentPlan.count) {
+                        withAnimation { proxy.scrollTo("plan", anchor: .bottom) }
                     }
                 }
 
                 Divider()
-
                 inputBar
             }
             .navigationTitle("Jarvis")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    connectionIndicator
+                    HStack(spacing: 6) {
+                        Circle()
+                            .fill(jarvis.isConnected ? .green : .red)
+                            .frame(width: 8, height: 8)
+                        Text(jarvis.isConnected ? "Online" : "Offline")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Clear", systemImage: "trash") {
-                        viewModel.clearChat()
+                        jarvis.clearChat()
                     }
                 }
             }
+            .sheet(isPresented: $showVoice) {
+                VoiceInputSheet(onSubmit: { text in
+                    inputText = text
+                    sendMessage()
+                })
+                .environmentObject(jarvis)
+                .presentationDetents([.medium])
+            }
         }
-        .onAppear {
-            voiceService.requestAuthorization()
+        .task {
+            jarvis.isConnected = await jarvis.testConnection()
         }
     }
 
     private var inputBar: some View {
         HStack(spacing: 12) {
+            // Voice button
             Button {
-                if voiceService.isListening {
-                    voiceService.stopListening()
-                    viewModel.inputText = voiceService.transcribedText
-                } else {
-                    try? voiceService.startListening()
-                }
+                showVoice = true
             } label: {
-                Image(systemName: voiceService.isListening ? "mic.fill" : "mic")
+                Image(systemName: "mic.fill")
                     .font(.title3)
-                    .foregroundStyle(voiceService.isListening ? .red : .blue)
-                    .frame(width: 36, height: 36)
+                    .foregroundStyle(.cyan)
+                    .frame(width: 40, height: 40)
+                    .background(Color.cyan.opacity(0.15))
+                    .clipShape(Circle())
             }
-            .disabled(!voiceService.isAuthorized)
 
-            TextField("Ask Jarvis anything...", text: $viewModel.inputText, axis: .vertical)
+            // Text input
+            TextField("Tell Jarvis what to do...", text: $inputText, axis: .vertical)
                 .textFieldStyle(.plain)
-                .lineLimit(1...4)
-                .focused($isInputFocused)
-                .onSubmit {
-                    Task { await viewModel.sendMessage() }
-                }
+                .lineLimit(1...5)
+                .focused($focused)
+                .onSubmit { sendMessage() }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+                .background(Color(.systemGray6))
+                .clipShape(RoundedRectangle(cornerRadius: 20))
 
-            Button {
-                Task { await viewModel.sendMessage() }
-            } label: {
+            // Send
+            Button { sendMessage() } label: {
                 Image(systemName: "arrow.up.circle.fill")
                     .font(.title2)
-                    .foregroundStyle(viewModel.inputText.isEmpty || viewModel.isProcessing ? .gray : .blue)
+                    .foregroundStyle(canSend ? .cyan : .gray)
             }
-            .disabled(viewModel.inputText.isEmpty || viewModel.isProcessing)
+            .disabled(!canSend)
         }
         .padding(.horizontal)
         .padding(.vertical, 10)
         .background(.bar)
     }
 
-    private var connectionIndicator: some View {
-        HStack(spacing: 6) {
-            Circle()
-                .fill(appState.isConnected ? .green : .red)
-                .frame(width: 8, height: 8)
-            Text(appState.isConnected ? "Connected" : "Offline")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-        }
+    private var canSend: Bool {
+        !inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !jarvis.isProcessing
+    }
+
+    private func sendMessage() {
+        let text = inputText
+        inputText = ""
+        focused = false
+        Task { await jarvis.processCommand(text) }
     }
 }
 
-struct MessageBubble: View {
+// MARK: - Message Row
+
+struct MessageRow: View {
     let message: Message
 
     var body: some View {
-        HStack {
-            if message.role == .user { Spacer(minLength: 60) }
+        HStack(alignment: .top, spacing: 10) {
+            if message.role == .user {
+                Spacer(minLength: 60)
+            } else if message.role != .thinking {
+                avatar
+            }
 
-            VStack(alignment: message.role == .user ? .trailing : .leading, spacing: 4) {
-                Text(message.content)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 10)
-                    .background(backgroundColor)
-                    .foregroundStyle(foregroundColor)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
-
-                if let actions = message.actions, !actions.isEmpty {
-                    ActionsView(actions: actions)
+            VStack(alignment: message.role == .user ? .trailing : .leading, spacing: 6) {
+                if message.role == .thinking {
+                    thinkingBubble
+                } else {
+                    textBubble
                 }
 
-                if message.status == .executing {
-                    HStack(spacing: 4) {
-                        ProgressView()
-                            .scaleEffect(0.7)
-                        Text("Executing...")
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                    }
+                if let actions = message.actions, !actions.isEmpty {
+                    ActionListView(actions: actions)
                 }
             }
 
-            if message.role != .user { Spacer(minLength: 60) }
+            if message.role != .user && message.role != .thinking {
+                Spacer(minLength: 60)
+            }
         }
     }
 
-    private var backgroundColor: Color {
+    private var avatar: some View {
+        ZStack {
+            Circle()
+                .fill(message.role == .jarvis
+                    ? LinearGradient(colors: [.cyan, .blue], startPoint: .topLeading, endPoint: .bottomTrailing)
+                    : LinearGradient(colors: [.gray.opacity(0.3)], startPoint: .top, endPoint: .bottom)
+                )
+                .frame(width: 32, height: 32)
+
+            Image(systemName: message.role == .jarvis ? "brain.head.profile" : "info.circle")
+                .font(.caption)
+                .foregroundStyle(.white)
+        }
+    }
+
+    private var textBubble: some View {
+        Text(message.content)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .background(bubbleColor)
+            .foregroundStyle(message.role == .user ? .white : .primary)
+            .clipShape(RoundedRectangle(cornerRadius: 18))
+    }
+
+    private var thinkingBubble: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "brain")
+                .foregroundStyle(.purple)
+                .font(.caption)
+            Text(message.content)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .italic()
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(Color.purple.opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    private var bubbleColor: Color {
         switch message.role {
-        case .user: return .blue
-        case .assistant: return Color(.systemGray5)
+        case .user: return .cyan
+        case .jarvis: return Color(.systemGray5)
         case .system: return Color(.systemGray6)
+        case .thinking: return Color.purple.opacity(0.1)
         }
-    }
-
-    private var foregroundColor: Color {
-        message.role == .user ? .white : .primary
     }
 }
 
-struct ActionsView: View {
+// MARK: - Action List
+
+struct ActionListView: View {
     let actions: [DeviceAction]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 6) {
             ForEach(actions) { action in
-                HStack(spacing: 6) {
-                    Image(systemName: iconForAction(action.type))
+                HStack(spacing: 8) {
+                    Image(systemName: action.type.icon)
                         .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Text(describeAction(action))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.cyan)
+                        .frame(width: 16)
+
+                    Text(action.type.displayName)
+                        .font(.caption.weight(.medium))
+
+                    if let detail = action.params.values.first?.description {
+                        Text(detail)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+
                     Spacer()
-                    statusIcon(action.status)
+                    statusDot(action.status)
                 }
             }
         }
-        .padding(8)
+        .padding(10)
         .background(Color(.systemGray6))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
     @ViewBuilder
-    private func statusIcon(_ status: DeviceAction.ActionStatus) -> some View {
+    private func statusDot(_ status: DeviceAction.Status) -> some View {
         switch status {
-        case .completed:
-            Image(systemName: "checkmark.circle.fill").foregroundStyle(.green).font(.caption)
-        case .failed:
-            Image(systemName: "xmark.circle.fill").foregroundStyle(.red).font(.caption)
-        case .executing:
-            ProgressView().scaleEffect(0.6)
-        default:
-            Image(systemName: "circle").foregroundStyle(.gray).font(.caption)
-        }
-    }
-
-    private func iconForAction(_ type: DeviceAction.ActionType) -> String {
-        switch type {
-        case .openApp: return "app.badge"
-        case .typeText: return "keyboard"
-        case .tap: return "hand.tap"
-        case .swipe: return "hand.draw"
-        case .scroll: return "scroll"
-        case .goHome: return "house"
-        case .openURL: return "link"
-        case .search: return "magnifyingglass"
-        case .setBrightness: return "sun.max"
-        case .setVolume: return "speaker.wave.3"
-        case .toggleWifi: return "wifi"
-        case .toggleBluetooth: return "wave.3.right"
-        case .sendMessage: return "message"
-        case .runShortcut: return "bolt"
-        case .notification: return "bell"
-        case .openSettings: return "gear"
-        default: return "gear"
-        }
-    }
-
-    private func describeAction(_ action: DeviceAction) -> String {
-        switch action.type {
-        case .openApp:
-            return "Open \(action.parameters["name"]?.stringValue ?? "app")"
-        case .typeText:
-            return "Type: \(action.parameters["text"]?.stringValue ?? "")"
-        case .openURL:
-            return "Open \(action.parameters["url"]?.stringValue ?? "URL")"
-        case .search:
-            return "Search: \(action.parameters["query"]?.stringValue ?? "")"
-        case .setBrightness:
-            let level = action.parameters["level"]?.numberValue ?? 0
-            return "Set brightness to \(Int(level * 100))%"
-        case .runShortcut:
-            return "Run '\(action.parameters["name"]?.stringValue ?? "shortcut")'"
-        case .sendMessage:
-            return "Message \(action.parameters["to"]?.stringValue ?? "contact")"
-        default:
-            return action.type.rawValue
+        case .done: Image(systemName: "checkmark.circle.fill").foregroundStyle(.green).font(.caption2)
+        case .failed: Image(systemName: "xmark.circle.fill").foregroundStyle(.red).font(.caption2)
+        case .running: ProgressView().scaleEffect(0.5)
+        default: Circle().fill(.gray.opacity(0.3)).frame(width: 8, height: 8)
         }
     }
 }
 
-struct TypingIndicator: View {
-    @State private var dotCount = 0
-    let timer = Timer.publish(every: 0.4, on: .main, in: .common).autoconnect()
+// MARK: - Plan View
+
+struct PlanView: View {
+    let steps: [AgentStep]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Image(systemName: "list.bullet.clipboard")
+                    .foregroundStyle(.cyan)
+                Text("Plan")
+                    .font(.subheadline.bold())
+            }
+
+            ForEach(Array(steps.enumerated()), id: \.element.id) { i, step in
+                HStack(spacing: 10) {
+                    ZStack {
+                        Circle()
+                            .fill(stepColor(step.status))
+                            .frame(width: 22, height: 22)
+                        if step.status == .running {
+                            ProgressView().scaleEffect(0.5)
+                        } else {
+                            Text("\(i + 1)")
+                                .font(.caption2.bold())
+                                .foregroundStyle(.white)
+                        }
+                    }
+
+                    Text(step.description)
+                        .font(.caption)
+                        .foregroundStyle(step.status == .done ? .secondary : .primary)
+                        .strikethrough(step.status == .done)
+                }
+            }
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.cyan.opacity(0.05))
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+    }
+
+    private func stepColor(_ s: AgentStep.StepStatus) -> Color {
+        switch s {
+        case .pending: return .gray
+        case .running: return .cyan
+        case .done: return .green
+        case .failed: return .red
+        }
+    }
+}
+
+// MARK: - Thinking animation
+
+struct ThinkingView: View {
+    @State private var phase = 0.0
 
     var body: some View {
         HStack {
-            HStack(spacing: 4) {
+            HStack(spacing: 6) {
                 ForEach(0..<3) { i in
                     Circle()
-                        .fill(Color.gray)
+                        .fill(Color.cyan)
                         .frame(width: 8, height: 8)
-                        .opacity(dotCount % 3 == i ? 1 : 0.3)
+                        .scaleEffect(phase.truncatingRemainder(dividingBy: 3) == Double(i) ? 1.3 : 0.7)
+                        .opacity(phase.truncatingRemainder(dividingBy: 3) == Double(i) ? 1 : 0.4)
                 }
             }
-            .padding(.horizontal, 14)
+            .padding(.horizontal, 16)
             .padding(.vertical, 12)
             .background(Color(.systemGray5))
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .clipShape(Capsule())
+
             Spacer()
         }
-        .onReceive(timer) { _ in
-            dotCount += 1
+        .onAppear {
+            withAnimation(.easeInOut(duration: 0.5).repeatForever()) { phase = 3 }
+        }
+    }
+}
+
+// MARK: - Pulsing Orb
+
+struct PulsingOrb: View {
+    let size: CGFloat
+    @State private var pulse = false
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(.cyan.opacity(0.3))
+                .frame(width: size * 1.8, height: size * 1.8)
+                .scaleEffect(pulse ? 1.3 : 1)
+                .opacity(pulse ? 0 : 0.5)
+
+            Circle()
+                .fill(.cyan)
+                .frame(width: size, height: size)
+        }
+        .onAppear {
+            withAnimation(.easeInOut(duration: 1).repeatForever(autoreverses: false)) {
+                pulse = true
+            }
         }
     }
 }

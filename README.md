@@ -1,80 +1,145 @@
-# Jarvis - AI iPad Controller
+# JARVIS — AI That Controls Your iPad
 
-An AI-powered assistant that can control your iPad through voice and text commands.
-It can open apps, type text, navigate the UI, manage settings, and automate workflows.
+Like Iron Man's Jarvis. You talk, it acts. Full autonomous control over your iPad.
+
+## What Jarvis Can Do
+
+**Everything.** Here's a taste:
+
+| You say | Jarvis does |
+|---------|------------|
+| "Open Instagram" | Opens Instagram instantly |
+| "Text Mom I'll be late" | Opens Messages, fills in recipient and text |
+| "Search YouTube for how to make pasta" | Opens YouTube with search results |
+| "Turn on dark mode and lower brightness to 30%" | Toggles dark mode, sets brightness |
+| "Play some chill music on Spotify" | Opens Spotify, searches for chill music |
+| "Set a timer for 10 minutes" | Creates a 10-minute timer |
+| "Send an email to john@email.com about the meeting" | Composes email with subject and body |
+| "Create a reminder to buy groceries tomorrow" | Creates the reminder |
+| "FaceTime Sarah" | Starts a FaceTime call |
+| "Open WiFi settings" | Navigates directly to WiFi settings |
+| "What's on my screen?" | Analyzes current screen and describes it |
+| "Turn off Bluetooth, enable Do Not Disturb, and lower volume" | Chains all 3 actions in sequence |
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────┐
-│              iPad (Jarvis App)               │
-│  ┌─────────┐  ┌──────────┐  ┌────────────┐ │
-│  │  Chat   │  │ Screen   │  │  Action    │ │
-│  │  UI     │──│ Capture  │──│  Executor  │ │
-│  └─────────┘  └──────────┘  └────────────┘ │
-│       │                          │          │
-│  ┌─────────┐              ┌────────────┐   │
-│  │ Voice   │              │ Shortcuts  │   │
-│  │ Input   │              │ Bridge     │   │
-│  └─────────┘              └────────────┘   │
-│       │                          │          │
-└───────┼──────────────────────────┼──────────┘
-        │         HTTPS            │
-        ▼                          ▼
-┌─────────────────────────────────────────────┐
-│            Jarvis Server (Node.js)          │
-│  ┌─────────┐  ┌──────────┐  ┌────────────┐ │
-│  │ Claude  │  │ Action   │  │  Device    │ │
-│  │ AI Core │──│ Planner  │──│  Registry  │ │
-│  └─────────┘  └──────────┘  └────────────┘ │
-└─────────────────────────────────────────────┘
+You speak/type
+      │
+      ▼
+┌─────────────────────────────────┐
+│       iPad App (SwiftUI)        │
+│                                 │
+│  ┌───────┐  ┌───────────────┐  │
+│  │ Voice │  │ Screen Capture│  │
+│  │ Input │  │   (AI Vision) │  │
+│  └───┬───┘  └───────┬───────┘  │
+│      │              │          │
+│      ▼              ▼          │
+│  ┌──────────────────────────┐  │
+│  │     Action Executor      │  │
+│  │  60+ URL schemes         │  │
+│  │  iOS Shortcuts bridge    │  │
+│  │  System APIs             │  │
+│  │  Media controls          │  │
+│  └──────────────────────────┘  │
+└──────────────┬──────────────────┘
+               │ HTTPS
+               ▼
+┌─────────────────────────────────┐
+│    Server (Node.js + Claude)    │
+│                                 │
+│  ┌──────────────────────────┐  │
+│  │    Autonomous Agent      │  │
+│  │                          │  │
+│  │  SEE → THINK → ACT →    │  │
+│  │  VERIFY → REPEAT         │  │
+│  │                          │  │
+│  │  Plans multi-step tasks  │  │
+│  │  Analyzes screenshots    │  │
+│  │  Chains complex actions  │  │
+│  └──────────────────────────┘  │
+└─────────────────────────────────┘
 ```
 
-## Components
+## The Agent Loop
 
-### iPad App (SwiftUI)
-- **Chat Interface** - Natural language input (text + voice)
-- **Screen Capture** - Takes screenshots for AI to understand current state
-- **Action Executor** - Executes planned actions on the device
-- **Shortcuts Bridge** - Integrates with iOS Shortcuts for deep automation
-- **Accessibility Engine** - Uses iOS accessibility APIs for UI interaction
+Jarvis doesn't just respond — it **thinks and acts autonomously**:
 
-### Server (Node.js + Claude API)
-- **AI Core** - Uses Claude to understand commands and plan actions
-- **Action Planner** - Breaks down complex commands into executable steps
-- **Vision Analysis** - Analyzes screenshots to understand device state
+1. **SEE** — Captures your iPad screen (optional, for context)
+2. **THINK** — Claude AI understands what you want and plans the steps
+3. **ACT** — Executes actions: opens apps, types text, changes settings
+4. **VERIFY** — Takes another screenshot to confirm the action worked
+5. **REPEAT** — If the task isn't done, loops back to step 1
 
-## Capabilities
+This means Jarvis can handle complex, multi-step tasks without you lifting a finger.
 
-| Category | Actions |
-|----------|---------|
-| **Apps** | Open, close, switch between apps |
-| **Text** | Type text, dictate, copy/paste |
-| **Navigation** | Tap, swipe, scroll, go back/home |
-| **Settings** | Toggle WiFi, Bluetooth, brightness, volume |
-| **Media** | Play/pause music, take photos |
-| **Communication** | Send messages, make calls, compose emails |
-| **Automation** | Run Shortcuts, chain multiple actions |
-| **Web** | Open URLs, search, bookmark |
+## 60+ Actions
 
-## Setup
+### Apps (80+ apps via URL schemes)
+Safari, YouTube, Instagram, WhatsApp, Spotify, Netflix, TikTok, Discord, Slack, Zoom, Chrome, Gmail, Notion, Reddit, Twitter/X, Telegram, Snapchat, Pinterest, LinkedIn, Facebook, Messenger, Uber, Amazon, PayPal, and every built-in Apple app.
 
-### 1. Server
+### Communication
+- Send iMessages, WhatsApp messages
+- Compose and send emails
+- Make phone calls, FaceTime (video + audio)
+
+### Media
+- Play/pause/skip music
+- Control volume
+- Take photos, record video
+- Record screen
+
+### Settings & System
+- Brightness, volume
+- WiFi, Bluetooth, Airplane Mode
+- Dark Mode, Low Power Mode, Do Not Disturb
+- Navigate to any Settings page
+- Lock screen
+
+### Productivity
+- Create notes, reminders, calendar events
+- Set timers, alarms, stopwatch
+- Spotlight search
+
+### Search
+- Google, YouTube, Maps, App Store — opens results directly
+
+### Shortcuts
+- Run ANY iOS Shortcut by name — this extends Jarvis to literally anything
+
+## Quick Start
+
+### 1. Server Setup
 ```bash
 cd Server
 npm install
 cp config/env.example .env
-# Add your ANTHROPIC_API_KEY to .env
+# Edit .env — add your ANTHROPIC_API_KEY
 npm start
 ```
 
 ### 2. iPad App
-Open `JarvisApp/Jarvis.xcodeproj` in Xcode, set your server URL in Settings, and run on your iPad.
+Open `JarvisApp/` in Xcode, build & run on your iPad.
+In Settings tab, enter your server URL and API key.
 
-### 3. Shortcuts
-Import the shortcuts from the `Shortcuts/` folder to enable deep device control.
+### 3. Shortcuts (for full control)
+Create these shortcuts in the iOS Shortcuts app to unlock deep system control:
+- **Toggle WiFi** / **Toggle Bluetooth** / **Toggle Dark Mode**
+- **Toggle Low Power** / **Toggle Do Not Disturb** / **Toggle Airplane Mode**
+- **Set Timer** / **Set Alarm** / **Open App**
+- **Create Note** / **Create Reminder** / **Create Calendar Event**
+- **Play Music** / **Speak Text** / **Record Screen**
+
+See `Shortcuts/README.md` for step-by-step instructions.
+
+## Tech Stack
+- **iPad App**: Swift, SwiftUI, Speech framework, AVFoundation, MediaPlayer
+- **Server**: Node.js, Express, Claude API (Anthropic)
+- **AI**: Claude Sonnet for understanding + vision + action planning
 
 ## Requirements
 - iPad running iPadOS 17+
+- Mac with Xcode 15+ (to build the app)
 - Node.js 20+
-- Claude API key (Anthropic)
+- Anthropic API key
