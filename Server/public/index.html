@@ -6,379 +6,644 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jarvis">
-<meta name="theme-color" content="#0a0a0f">
+<meta name="theme-color" content="#020810">
 <link rel="manifest" href="/manifest.json">
 <title>J.A.R.V.I.S.</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap');
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
 :root {
-  --bg: #0a0a0f; --surface: #12121a; --surface2: #1a1a25;
-  --border: #2a2a3a; --text: #e0e0e8; --text2: #8888a0;
-  --cyan: #00e5ff; --cyan2: #00b8d4; --cyan-glow: rgba(0,229,255,0.15);
-  --red: #ff4444; --green: #00e676; --orange: #ffab40;
-  --radius: 16px;
+  --bg: #020810;
+  --surface: rgba(5,15,30,0.85);
+  --surface2: rgba(10,25,50,0.6);
+  --border: rgba(0,180,255,0.15);
+  --border-bright: rgba(0,200,255,0.35);
+  --text: #c8dce8;
+  --text2: #4a6a80;
+  --text-bright: #e8f4ff;
+  --cyan: #00d4ff;
+  --cyan2: #0099cc;
+  --cyan-dim: #006688;
+  --cyan-glow: rgba(0,200,255,0.08);
+  --cyan-glow2: rgba(0,200,255,0.2);
+  --blue: #1a4a8a;
+  --gold: #ff9500;
+  --gold-dim: rgba(255,149,0,0.3);
+  --red: #ff3333;
+  --green: #00ff88;
+  --radius: 4px;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --font-hud: 'Orbitron', 'Rajdhani', monospace;
+  --font-body: 'Rajdhani', -apple-system, sans-serif;
+  --font-mono: 'Share Tech Mono', monospace;
 }
 html, body { height: 100%; overflow: hidden; }
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'Segoe UI', system-ui, sans-serif;
+  font-family: var(--font-body);
   background: var(--bg); color: var(--text);
+  font-weight: 400;
 }
 
-/* Desktop sidebar + main layout */
-#app {
-  display: flex; height: 100%; height: 100dvh;
+/* === BACKGROUND GRID + PARTICLES === */
+.hud-bg {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 0; overflow: hidden;
 }
+.grid-overlay {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background-image:
+    linear-gradient(rgba(0,180,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,180,255,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+.scan-line {
+  position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(0,200,255,0.15), transparent);
+  animation: scanMove 8s linear infinite;
+}
+@keyframes scanMove {
+  0% { top: -2px; }
+  100% { top: 100%; }
+}
+.vignette {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.7) 100%);
+}
+.corner-decor {
+  position: absolute; width: 80px; height: 80px;
+  border-color: rgba(0,180,255,0.2); border-style: solid; border-width: 0;
+}
+.corner-decor.tl { top:8px; left:8px; border-top-width:2px; border-left-width:2px; }
+.corner-decor.tr { top:8px; right:8px; border-top-width:2px; border-right-width:2px; }
+.corner-decor.bl { bottom:8px; left:8px; border-bottom-width:2px; border-left-width:2px; }
+.corner-decor.br { bottom:8px; right:8px; border-bottom-width:2px; border-right-width:2px; }
 
-/* Sidebar — visible on desktop, hidden on mobile */
+/* === LAYOUT === */
+#app { display: flex; height: 100%; height: 100dvh; position: relative; z-index: 1; }
+
+/* === SIDEBAR === */
 .sidebar {
-  width: 260px; flex-shrink: 0;
-  background: var(--surface);
+  width: 72px; flex-shrink: 0;
+  background: linear-gradient(180deg, rgba(0,20,40,0.95), rgba(0,10,25,0.98));
   border-right: 1px solid var(--border);
   display: flex; flex-direction: column;
-  overflow: hidden;
+  align-items: center; padding: 16px 0;
+  position: relative; z-index: 10;
 }
-.sidebar-header {
-  padding: 20px; display: flex; align-items: center; gap: 12px;
-  border-bottom: 1px solid var(--border);
+.sidebar::after {
+  content: ''; position: absolute; top: 0; right: 0; width: 1px; height: 100%;
+  background: linear-gradient(180deg, transparent, var(--cyan-dim), transparent);
 }
-.orb {
-  width: 36px; height: 36px; border-radius: 50%;
-  background: radial-gradient(circle, var(--cyan) 0%, transparent 70%);
-  animation: pulse 2s ease-in-out infinite; flex-shrink: 0;
-}
-@keyframes pulse {
-  0%, 100% { opacity: 0.6; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.1); }
-}
-.orb.processing { animation: spin 1s linear infinite; }
-@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-.sidebar-header h1 { font-size: 16px; font-weight: 700; color: var(--cyan); letter-spacing: 2px; }
-.sidebar-header .status { font-size: 11px; color: var(--text2); }
 
-.sidebar-nav { flex: 1; overflow-y: auto; padding: 8px; }
-.nav-item {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 12px; border-radius: 10px;
-  cursor: pointer; color: var(--text2);
-  font-size: 14px; transition: all 0.15s;
-  margin-bottom: 2px;
+/* Arc reactor mini */
+.arc-reactor-mini {
+  width: 44px; height: 44px; margin-bottom: 20px; position: relative; cursor: pointer;
 }
-.nav-item:hover { background: var(--surface2); color: var(--text); }
-.nav-item.active { background: var(--cyan-glow); color: var(--cyan); }
-.nav-item .nav-icon { font-size: 18px; width: 24px; text-align: center; }
-.nav-item .nav-shortcut {
-  margin-left: auto; font-size: 11px; color: var(--border);
-  background: var(--bg); padding: 2px 6px; border-radius: 4px;
+.arc-reactor-mini .reactor-core {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  width: 16px; height: 16px; border-radius: 50%;
+  background: radial-gradient(circle, #fff 0%, var(--cyan) 40%, transparent 70%);
+  box-shadow: 0 0 20px var(--cyan), 0 0 40px rgba(0,200,255,0.3);
+  animation: corePulse 2s ease-in-out infinite;
 }
+@keyframes corePulse {
+  0%, 100% { box-shadow: 0 0 15px var(--cyan), 0 0 30px rgba(0,200,255,0.2); }
+  50% { box-shadow: 0 0 25px var(--cyan), 0 0 50px rgba(0,200,255,0.4); }
+}
+.arc-reactor-mini .reactor-ring {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  border-radius: 50%; border: 1.5px solid rgba(0,200,255,0.4);
+}
+.arc-reactor-mini .ring1 { width: 28px; height: 28px; animation: ringRotate 10s linear infinite; }
+.arc-reactor-mini .ring2 { width: 40px; height: 40px; border-style: dashed; animation: ringRotate 15s linear infinite reverse; }
+@keyframes ringRotate { from { transform: translate(-50%,-50%) rotate(0deg); } to { transform: translate(-50%,-50%) rotate(360deg); } }
+.arc-reactor-mini.processing .reactor-core {
+  animation: coreProcess 0.5s ease-in-out infinite;
+  background: radial-gradient(circle, #fff 0%, var(--gold) 40%, transparent 70%);
+  box-shadow: 0 0 20px var(--gold), 0 0 40px var(--gold-dim);
+}
+@keyframes coreProcess {
+  0%, 100% { transform: translate(-50%,-50%) scale(1); }
+  50% { transform: translate(-50%,-50%) scale(1.3); }
+}
+
+.sidebar-nav { flex: 1; display: flex; flex-direction: column; gap: 4px; width: 100%; padding: 0 8px; }
+.nav-btn {
+  width: 56px; height: 48px; border: none; background: transparent;
+  color: var(--text2); font-size: 20px; cursor: pointer;
+  border-radius: 4px; transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.nav-btn:hover { color: var(--cyan); background: var(--cyan-glow); }
+.nav-btn.active { color: var(--cyan); background: var(--cyan-glow2); }
+.nav-btn.active::before {
+  content: ''; position: absolute; left: -8px; top: 50%; transform: translateY(-50%);
+  width: 3px; height: 24px; background: var(--cyan);
+  border-radius: 0 2px 2px 0;
+  box-shadow: 0 0 8px var(--cyan);
+}
+.nav-btn .nav-label {
+  position: absolute; left: 64px; background: rgba(0,20,40,0.95);
+  border: 1px solid var(--border-bright); padding: 4px 10px;
+  border-radius: 4px; font-size: 12px; color: var(--cyan);
+  font-family: var(--font-hud); letter-spacing: 1px;
+  white-space: nowrap; opacity: 0; pointer-events: none;
+  transition: opacity 0.2s;
+}
+.nav-btn:hover .nav-label { opacity: 1; }
 
 .sidebar-footer {
-  padding: 12px; border-top: 1px solid var(--border);
-  font-size: 11px; color: var(--text2); text-align: center;
+  padding: 8px; font-size: 9px; color: var(--text2);
+  font-family: var(--font-mono); text-align: center;
+  writing-mode: vertical-rl; letter-spacing: 2px;
 }
 
-/* Main content */
-.main {
-  flex: 1; display: flex; flex-direction: column;
-  min-width: 0;
+/* === MAIN CONTENT === */
+.main { flex: 1; display: flex; flex-direction: column; min-width: 0; position: relative; }
+
+/* === TOP BAR === */
+.top-bar {
+  height: 44px; flex-shrink: 0;
+  background: linear-gradient(90deg, rgba(0,20,40,0.9), rgba(0,15,35,0.95));
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 20px;
+  font-family: var(--font-hud); position: relative;
+}
+.top-bar::after {
+  content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan-dim), transparent);
+}
+.top-bar-left {
+  display: flex; align-items: center; gap: 12px;
+}
+.status-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--green);
+  box-shadow: 0 0 6px var(--green); animation: statusBlink 3s ease-in-out infinite;
+}
+@keyframes statusBlink {
+  0%, 90%, 100% { opacity: 1; } 95% { opacity: 0.3; }
+}
+.top-bar-title {
+  font-size: 11px; letter-spacing: 3px; color: var(--cyan);
+  font-weight: 600; text-transform: uppercase;
+}
+.top-bar-center {
+  flex: 1; text-align: center; font-size: 10px;
+  color: var(--text2); letter-spacing: 2px;
+  font-family: var(--font-mono);
+}
+.top-bar-right {
+  display: flex; align-items: center; gap: 16px;
+  font-size: 10px; color: var(--text2); font-family: var(--font-mono);
+  letter-spacing: 1px;
 }
 
-/* Mobile header — hidden on desktop */
+/* === MOBILE HEADER === */
 .mobile-header {
   display: none; align-items: center; gap: 12px;
-  padding: 12px 16px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
+  padding: 12px 16px; padding-top: calc(12px + var(--safe-top));
+  background: linear-gradient(180deg, rgba(0,20,40,0.98), rgba(0,15,30,0.95));
+  border-bottom: 1px solid var(--border); flex-shrink: 0;
 }
-.mobile-header h1 { font-size: 16px; font-weight: 700; color: var(--cyan); letter-spacing: 2px; flex: 1; }
+.mobile-header h1 {
+  font-family: var(--font-hud); font-size: 14px; font-weight: 600;
+  color: var(--cyan); letter-spacing: 3px; flex: 1;
+}
 .header-btn {
-  width: 36px; height: 36px; border-radius: 50%;
+  width: 36px; height: 36px; border-radius: 4px;
   background: var(--surface2); border: 1px solid var(--border);
   color: var(--text2); font-size: 16px; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
 }
-.header-btn:hover { background: var(--border); }
 
-/* Mobile tabs — hidden on desktop */
+/* === MOBILE TABS === */
 .tabs {
-  display: none; background: var(--surface);
+  display: none; background: rgba(0,15,30,0.95);
   border-bottom: 1px solid var(--border); flex-shrink: 0;
 }
 .tab {
   flex: 1; padding: 10px 0; text-align: center;
-  font-size: 12px; color: var(--text2); cursor: pointer;
+  font-size: 10px; color: var(--text2); cursor: pointer;
   border-bottom: 2px solid transparent; transition: all 0.2s;
+  font-family: var(--font-hud); letter-spacing: 1px; text-transform: uppercase;
 }
 .tab.active { color: var(--cyan); border-bottom-color: var(--cyan); }
 .tab-icon { font-size: 18px; display: block; margin-bottom: 2px; }
 
-/* Panels */
+/* === PANELS === */
 .panel { display: none; flex: 1; overflow-y: auto; flex-direction: column; }
 .panel.active { display: flex; }
 
-/* Chat */
-.chat-area {
-  flex: 1; overflow-y: auto; padding: 20px;
-  scroll-behavior: smooth;
+/* scrollbar */
+.panel::-webkit-scrollbar { width: 4px; }
+.panel::-webkit-scrollbar-track { background: transparent; }
+.panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* === CHAT === */
+.chat-area { flex: 1; overflow-y: auto; padding: 20px; scroll-behavior: smooth; }
+.chat-area::-webkit-scrollbar { width: 4px; }
+.chat-area::-webkit-scrollbar-track { background: transparent; }
+.chat-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.chat-messages { max-width: 900px; margin: 0 auto; width: 100%; }
+
+/* Welcome display */
+.welcome-display {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 40px 20px; min-height: 300px;
 }
-.chat-messages {
-  max-width: 900px; margin: 0 auto; width: 100%;
+.arc-reactor-main {
+  width: 160px; height: 160px; position: relative; margin-bottom: 30px;
 }
+.arc-reactor-main .core {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  width: 30px; height: 30px; border-radius: 50%;
+  background: radial-gradient(circle, #ffffff 0%, var(--cyan) 50%, transparent 80%);
+  box-shadow: 0 0 40px var(--cyan), 0 0 80px rgba(0,200,255,0.3), 0 0 120px rgba(0,200,255,0.1);
+  animation: mainCorePulse 3s ease-in-out infinite;
+}
+@keyframes mainCorePulse {
+  0%, 100% { box-shadow: 0 0 30px var(--cyan), 0 0 60px rgba(0,200,255,0.2); transform: translate(-50%,-50%) scale(1); }
+  50% { box-shadow: 0 0 50px var(--cyan), 0 0 100px rgba(0,200,255,0.4); transform: translate(-50%,-50%) scale(1.1); }
+}
+.arc-reactor-main .ring {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  border-radius: 50%; border: 1px solid rgba(0,200,255,0.3);
+}
+.arc-reactor-main .r1 { width: 60px; height: 60px; border-width: 2px; border-color: rgba(0,200,255,0.5); animation: ringRotate 8s linear infinite; }
+.arc-reactor-main .r2 { width: 90px; height: 90px; border-style: dashed; animation: ringRotate 12s linear infinite reverse; }
+.arc-reactor-main .r3 { width: 120px; height: 120px; border-width: 1px; animation: ringRotate 20s linear infinite; }
+.arc-reactor-main .r4 { width: 150px; height: 150px; border-style: dotted; border-color: rgba(0,200,255,0.15); animation: ringRotate 25s linear infinite reverse; }
+/* HUD tick marks on ring */
+.arc-reactor-main .ticks {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  width: 130px; height: 130px; animation: ringRotate 30s linear infinite;
+}
+.arc-reactor-main .tick {
+  position: absolute; width: 2px; height: 8px;
+  background: rgba(0,200,255,0.4); top: 0; left: 50%; transform-origin: 50% 65px;
+}
+.welcome-title {
+  font-family: var(--font-hud); font-size: 28px; font-weight: 700;
+  color: var(--cyan); letter-spacing: 8px; margin-bottom: 8px;
+  text-shadow: 0 0 30px rgba(0,200,255,0.3);
+}
+.welcome-subtitle {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text2); letter-spacing: 4px; margin-bottom: 24px;
+}
+.welcome-status {
+  display: flex; gap: 24px; font-family: var(--font-mono);
+  font-size: 10px; color: var(--text2); letter-spacing: 1px;
+}
+.welcome-status span { display: flex; align-items: center; gap: 6px; }
+.welcome-status .dot {
+  width: 5px; height: 5px; border-radius: 50%; background: var(--green);
+  box-shadow: 0 0 4px var(--green);
+}
+
+/* Messages */
 .message {
   max-width: 75%; margin-bottom: 14px;
-  padding: 14px 18px; border-radius: var(--radius);
-  font-size: 15px; line-height: 1.6;
-  word-wrap: break-word; white-space: pre-wrap;
-  user-select: text;
+  padding: 14px 18px; font-size: 14px; line-height: 1.7;
+  word-wrap: break-word; white-space: pre-wrap; user-select: text;
+  font-family: var(--font-body); font-weight: 400;
+  position: relative;
 }
 .message.jarvis {
-  background: var(--surface2); border: 1px solid var(--border);
-  border-bottom-left-radius: 4px;
+  background: linear-gradient(135deg, rgba(0,30,60,0.6), rgba(0,20,45,0.4));
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--cyan-dim);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.message.jarvis::before {
+  content: 'JARVIS'; position: absolute; top: -8px; left: 12px;
+  font-family: var(--font-hud); font-size: 8px; letter-spacing: 2px;
+  color: var(--cyan-dim); background: var(--bg); padding: 0 6px;
 }
 .message.user {
-  background: var(--cyan2); color: #000;
-  margin-left: auto; border-bottom-right-radius: 4px;
+  background: linear-gradient(135deg, rgba(0,150,200,0.2), rgba(0,100,150,0.15));
+  border: 1px solid rgba(0,200,255,0.25);
+  border-right: 3px solid var(--cyan);
+  border-radius: var(--radius) 0 0 var(--radius);
+  margin-left: auto; color: var(--text-bright);
 }
 .message.system {
   background: transparent; color: var(--text2);
-  font-size: 13px; text-align: center;
-  max-width: 100%; font-style: italic;
+  font-size: 11px; text-align: center; max-width: 100%;
+  font-family: var(--font-mono); letter-spacing: 1px;
+  border: none;
 }
 .message.thinking {
-  background: rgba(255,171,64,0.08); border: 1px solid rgba(255,171,64,0.2);
-  color: var(--orange); font-size: 13px; font-style: italic;
+  background: rgba(255,149,0,0.05); border: 1px solid rgba(255,149,0,0.15);
+  border-left: 3px solid var(--gold);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  color: var(--gold); font-size: 12px; font-style: italic;
+  font-family: var(--font-mono);
 }
 .message .actions-list {
   margin-top: 8px; padding-top: 8px;
-  border-top: 1px solid rgba(255,255,255,0.1);
-  font-size: 13px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
 }
 .action-tag {
-  display: inline-block; padding: 2px 8px; margin: 2px;
-  background: var(--cyan-glow); border-radius: 8px;
-  font-size: 11px; color: var(--cyan);
+  display: inline-block; padding: 2px 10px; margin: 2px;
+  background: var(--cyan-glow); border: 1px solid var(--border);
+  font-size: 9px; color: var(--cyan); font-family: var(--font-hud);
+  letter-spacing: 1px; text-transform: uppercase;
 }
 
-/* Input area */
+/* === INPUT AREA === */
 .input-area {
-  padding: 16px 20px;
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-  flex-shrink: 0;
+  padding: 16px 20px; padding-bottom: calc(16px + var(--safe-bottom));
+  background: linear-gradient(180deg, rgba(0,15,30,0.9), rgba(0,10,25,0.98));
+  border-top: 1px solid var(--border); flex-shrink: 0;
+  position: relative;
 }
-.input-wrap {
-  max-width: 900px; margin: 0 auto;
+.input-area::before {
+  content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan-dim), transparent);
 }
+.input-wrap { max-width: 900px; margin: 0 auto; }
 .input-row { display: flex; gap: 10px; align-items: flex-end; }
 .input-field {
   flex: 1; padding: 12px 18px;
-  background: var(--surface2); border: 1px solid var(--border);
-  border-radius: 24px; color: var(--text);
-  font-size: 15px; outline: none; resize: none;
-  font-family: inherit; min-height: 46px; max-height: 160px;
-  line-height: 1.5;
+  background: rgba(0,20,40,0.6); border: 1px solid var(--border);
+  border-radius: 4px; color: var(--text-bright);
+  font-size: 14px; outline: none; resize: none;
+  font-family: var(--font-body); font-weight: 400;
+  min-height: 46px; max-height: 160px; line-height: 1.5;
+  transition: border-color 0.2s;
 }
-.input-field::placeholder { color: var(--text2); }
-.input-field:focus { border-color: var(--cyan); box-shadow: 0 0 0 2px rgba(0,229,255,0.1); }
+.input-field::placeholder { color: var(--text2); font-family: var(--font-mono); font-size: 12px; letter-spacing: 1px; }
+.input-field:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 15px rgba(0,200,255,0.1), inset 0 0 15px rgba(0,200,255,0.03);
+}
 .send-btn, .voice-btn {
-  width: 46px; height: 46px; border-radius: 50%;
-  border: none; cursor: pointer;
+  width: 46px; height: 46px; border-radius: 4px;
+  border: 1px solid var(--border); cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  font-size: 20px; flex-shrink: 0; transition: all 0.15s;
+  font-size: 18px; flex-shrink: 0; transition: all 0.2s;
 }
-.send-btn { background: var(--cyan); color: #000; }
-.send-btn:hover:not(:disabled) { background: #33ecff; transform: scale(1.05); }
-.send-btn:disabled { opacity: 0.3; cursor: default; }
-.voice-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--text2); }
-.voice-btn:hover { background: var(--border); color: var(--text); }
+.send-btn {
+  background: linear-gradient(135deg, rgba(0,180,255,0.2), rgba(0,120,200,0.15));
+  color: var(--cyan); border-color: var(--cyan-dim);
+}
+.send-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(0,180,255,0.4), rgba(0,120,200,0.3));
+  box-shadow: 0 0 15px rgba(0,200,255,0.2);
+}
+.send-btn:disabled { opacity: 0.2; cursor: default; }
+.voice-btn { background: var(--surface2); color: var(--text2); }
+.voice-btn:hover { color: var(--cyan); border-color: var(--cyan-dim); }
 .voice-btn.listening {
-  background: var(--red); color: white; border-color: var(--red);
-  animation: pulse 1s ease-in-out infinite;
+  background: rgba(255,50,50,0.15); color: var(--red); border-color: var(--red);
+  animation: listenPulse 1.5s ease-in-out infinite;
+}
+@keyframes listenPulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(255,50,50,0); }
+  50% { box-shadow: 0 0 20px rgba(255,50,50,0.2); }
 }
 .input-hint {
-  text-align: center; font-size: 11px; color: var(--border);
-  margin-top: 6px;
+  text-align: center; font-size: 9px; color: var(--text2);
+  margin-top: 6px; font-family: var(--font-mono); letter-spacing: 1px;
 }
 
-/* Quick actions panel */
+/* === QUICK ACTIONS PANEL === */
 .actions-panel { padding: 24px; overflow-y: auto; }
-.actions-panel-inner { max-width: 1000px; margin: 0 auto; }
+.actions-panel-inner { max-width: 1100px; margin: 0 auto; }
+.section-title {
+  font-family: var(--font-hud); font-size: 10px; color: var(--cyan-dim);
+  text-transform: uppercase; letter-spacing: 3px;
+  padding: 20px 0 10px; font-weight: 600;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-title::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(90deg, var(--border), transparent);
+}
 .actions-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 12px;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
 }
 .action-card {
-  padding: 20px 14px; text-align: center;
-  background: var(--surface2); border: 1px solid var(--border);
-  border-radius: var(--radius); cursor: pointer;
-  transition: all 0.2s;
+  padding: 16px 12px; text-align: center;
+  background: linear-gradient(135deg, rgba(0,25,50,0.5), rgba(0,15,35,0.3));
+  border: 1px solid var(--border); cursor: pointer;
+  transition: all 0.25s; position: relative; overflow: hidden;
 }
-.action-card:hover { background: var(--cyan-glow); border-color: var(--cyan); transform: translateY(-2px); }
-.action-card .icon { font-size: 30px; margin-bottom: 8px; }
-.action-card .label { font-size: 13px; color: var(--text2); }
+.action-card::before {
+  content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background: linear-gradient(135deg, rgba(0,200,255,0.05), transparent);
+  opacity: 0; transition: opacity 0.25s;
+}
+.action-card:hover {
+  border-color: var(--cyan-dim);
+  box-shadow: 0 0 20px rgba(0,200,255,0.1);
+  transform: translateY(-2px);
+}
+.action-card:hover::before { opacity: 1; }
+.action-card .icon { font-size: 26px; margin-bottom: 6px; position: relative; }
+.action-card .label {
+  font-size: 10px; color: var(--text2);
+  font-family: var(--font-hud); letter-spacing: 1px; text-transform: uppercase;
+  position: relative;
+}
+.action-card:hover .label { color: var(--cyan); }
 
-/* Settings panel */
+/* === SETTINGS PANEL === */
 .settings-panel { padding: 24px; overflow-y: auto; }
 .settings-inner { max-width: 600px; margin: 0 auto; }
 .settings-group {
   background: var(--surface2); border: 1px solid var(--border);
-  border-radius: var(--radius); margin-bottom: 16px; overflow: hidden;
+  margin-bottom: 16px; overflow: hidden;
 }
 .settings-row {
   display: flex; align-items: center; justify-content: space-between;
   padding: 14px 18px; border-bottom: 1px solid var(--border);
 }
 .settings-row:last-child { border-bottom: none; }
-.settings-row label { font-size: 14px; }
+.settings-row label {
+  font-size: 13px; font-family: var(--font-body); font-weight: 500;
+  letter-spacing: 0.5px;
+}
 .settings-row input[type="text"], .settings-row input[type="password"] {
-  background: var(--bg); border: 1px solid var(--border);
-  color: var(--text); padding: 8px 14px; border-radius: 8px;
-  font-size: 14px; width: 260px; text-align: right;
+  background: rgba(0,20,40,0.6); border: 1px solid var(--border);
+  color: var(--text); padding: 8px 14px; border-radius: 2px;
+  font-size: 12px; width: 260px; text-align: right;
   outline: none; transition: border 0.2s;
+  font-family: var(--font-mono);
 }
 .settings-row input:focus { border-color: var(--cyan); }
 .toggle {
-  width: 50px; height: 28px; border-radius: 14px;
-  background: var(--border); border: none; cursor: pointer;
-  position: relative; transition: background 0.3s;
+  width: 44px; height: 24px; border-radius: 2px;
+  background: rgba(0,30,60,0.6); border: 1px solid var(--border);
+  cursor: pointer; position: relative; transition: all 0.3s;
 }
-.toggle.on { background: var(--cyan); }
+.toggle.on { background: rgba(0,180,255,0.15); border-color: var(--cyan-dim); }
 .toggle::after {
-  content: ''; position: absolute; top: 2px; left: 2px;
-  width: 24px; height: 24px; border-radius: 50%;
-  background: white; transition: transform 0.3s;
+  content: ''; position: absolute; top: 3px; left: 3px;
+  width: 16px; height: 16px; border-radius: 2px;
+  background: var(--text2); transition: all 0.3s;
 }
-.toggle.on::after { transform: translateX(22px); }
+.toggle.on::after { transform: translateX(20px); background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
 .btn {
-  padding: 12px 24px; border-radius: 12px;
-  font-size: 14px; font-weight: 600; cursor: pointer;
-  border: none; width: 100%; margin-top: 8px; transition: opacity 0.2s;
+  padding: 12px 24px; border-radius: 2px;
+  font-size: 12px; font-weight: 600; cursor: pointer;
+  border: 1px solid var(--border); width: 100%;
+  margin-top: 8px; transition: all 0.2s;
+  font-family: var(--font-hud); letter-spacing: 2px; text-transform: uppercase;
 }
-.btn:hover { opacity: 0.9; }
-.btn-cyan { background: var(--cyan); color: #000; }
-.btn-red { background: var(--red); color: white; }
-.section-title {
-  font-size: 12px; color: var(--text2); text-transform: uppercase;
-  letter-spacing: 1px; padding: 20px 4px 10px; font-weight: 600;
-}
+.btn:hover { transform: translateY(-1px); }
+.btn-cyan { background: rgba(0,180,255,0.15); color: var(--cyan); border-color: var(--cyan-dim); }
+.btn-cyan:hover { background: rgba(0,180,255,0.25); box-shadow: 0 0 15px rgba(0,200,255,0.15); }
+.btn-red { background: rgba(255,50,50,0.1); color: var(--red); border-color: rgba(255,50,50,0.3); }
+.btn-red:hover { background: rgba(255,50,50,0.2); }
 
-/* Laptop actions — open apps, run terminal, etc */
-.laptop-section { margin-top: 16px; }
-.laptop-cmd {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 14px; background: var(--surface2);
-  border: 1px solid var(--border); border-radius: 10px;
-  margin-bottom: 6px; cursor: pointer; transition: all 0.2s;
-  font-size: 13px; color: var(--text2);
-}
-.laptop-cmd:hover { border-color: var(--cyan); color: var(--text); }
-.laptop-cmd .cmd-icon { font-size: 18px; }
-
-/* Responsive — mobile */
+/* === RESPONSIVE === */
 @media (max-width: 768px) {
   .sidebar { display: none; }
+  .top-bar { display: none; }
   .mobile-header { display: flex; }
   .tabs { display: flex; }
-  .message { max-width: 88%; font-size: 14px; padding: 12px 14px; }
-  .actions-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
-  .action-card { padding: 14px 10px; }
-  .settings-row input[type="text"], .settings-row input[type="password"] { width: 180px; }
+  .message { max-width: 88%; font-size: 13px; padding: 12px 14px; }
+  .message.jarvis::before { display: none; }
+  .actions-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 6px; }
+  .action-card { padding: 12px 8px; }
+  .settings-row input[type="text"], .settings-row input[type="password"] { width: 160px; }
   .input-hint { display: none; }
+  .welcome-display { padding: 20px; min-height: 200px; }
+  .arc-reactor-main { width: 120px; height: 120px; margin-bottom: 20px; }
+  .welcome-title { font-size: 22px; letter-spacing: 6px; }
+  .corner-decor { width: 40px; height: 40px; }
 }
-
-/* Large desktop */
 @media (min-width: 1200px) {
-  .sidebar { width: 280px; }
-  .actions-grid { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+  .actions-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
 }
 </style>
 </head>
 <body>
+
+<!-- HUD Background -->
+<div class="hud-bg">
+  <div class="grid-overlay"></div>
+  <div class="scan-line"></div>
+  <div class="vignette"></div>
+  <div class="corner-decor tl"></div>
+  <div class="corner-decor tr"></div>
+  <div class="corner-decor bl"></div>
+  <div class="corner-decor br"></div>
+</div>
+
 <div id="app">
-  <!-- Sidebar (desktop) -->
+  <!-- Sidebar -->
   <div class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <div class="orb" id="orb"></div>
-      <div>
-        <h1>J.A.R.V.I.S.</h1>
-        <div class="status" id="statusText">Ready</div>
-      </div>
+    <div class="arc-reactor-mini" id="reactorMini" onclick="switchTab(0)">
+      <div class="reactor-ring ring2"></div>
+      <div class="reactor-ring ring1"></div>
+      <div class="reactor-core"></div>
     </div>
     <div class="sidebar-nav">
-      <div class="nav-item active" onclick="switchTab(0)" id="nav0">
-        <span class="nav-icon">&#x1f4ac;</span> Chat
-        <span class="nav-shortcut">1</span>
-      </div>
-      <div class="nav-item" onclick="switchTab(1)" id="nav1">
-        <span class="nav-icon">&#x26a1;</span> Quick Actions
-        <span class="nav-shortcut">2</span>
-      </div>
-      <div class="nav-item" onclick="switchTab(2)" id="nav2">
-        <span class="nav-icon">&#x2699;&#xfe0f;</span> Settings
-        <span class="nav-shortcut">3</span>
-      </div>
-
-      <div style="padding:16px 12px 6px;font-size:11px;color:var(--border);text-transform:uppercase;letter-spacing:1px">Quick Launch</div>
-      <div class="nav-item" onclick="quickAction('check the weather')">
-        <span class="nav-icon">&#x26c5;</span> Weather
-      </div>
-      <div class="nav-item" onclick="quickAction('check the news')">
-        <span class="nav-icon">&#x1f4f0;</span> News
-      </div>
-      <div class="nav-item" onclick="quickAction('create a presentation')">
-        <span class="nav-icon">&#x1f4ca;</span> Presentation
-      </div>
-      <div class="nav-item" onclick="quickAction('create a document')">
-        <span class="nav-icon">&#x1f4c4;</span> Document
-      </div>
-      <div class="nav-item" onclick="quickAction('run system diagnostics')">
-        <span class="nav-icon">&#x1f50d;</span> Diagnostics
-      </div>
+      <button class="nav-btn active" onclick="switchTab(0)" id="nav0">
+        &#x2b22;<span class="nav-label">CHAT</span>
+      </button>
+      <button class="nav-btn" onclick="switchTab(1)" id="nav1">
+        &#x26a1;<span class="nav-label">ACTIONS</span>
+      </button>
+      <button class="nav-btn" onclick="switchTab(2)" id="nav2">
+        &#x2699;<span class="nav-label">SETTINGS</span>
+      </button>
+      <div style="height:16px"></div>
+      <button class="nav-btn" onclick="quickAction('check the weather')" title="Weather">
+        &#x26c5;<span class="nav-label">WEATHER</span>
+      </button>
+      <button class="nav-btn" onclick="quickAction('check the news')" title="News">
+        &#x25ce;<span class="nav-label">NEWS</span>
+      </button>
+      <button class="nav-btn" onclick="quickAction('create a presentation')" title="Presentation">
+        &#x25a3;<span class="nav-label">PRESENT</span>
+      </button>
+      <button class="nav-btn" onclick="quickAction('run system diagnostics')" title="Diagnostics">
+        &#x2609;<span class="nav-label">DIAGNOSTICS</span>
+      </button>
     </div>
-    <div class="sidebar-footer">
-      <span onclick="clearChat()" style="cursor:pointer;color:var(--text2)">Clear Chat</span>
-      &nbsp;·&nbsp; v2.0 Web
-    </div>
+    <div class="sidebar-footer">v2.0</div>
   </div>
 
   <!-- Mobile header -->
   <div class="mobile-header" id="mobileHeader">
-    <div class="orb" id="orbMobile"></div>
+    <div class="arc-reactor-mini" id="reactorMobile" style="width:32px;height:32px">
+      <div class="reactor-ring ring1" style="width:22px;height:22px"></div>
+      <div class="reactor-core" style="width:10px;height:10px"></div>
+    </div>
     <h1>J.A.R.V.I.S.</h1>
-    <button class="header-btn" onclick="clearChat()">&#x1f5d1;</button>
+    <button class="header-btn" onclick="clearChat()">&#x2715;</button>
   </div>
 
   <!-- Mobile tabs -->
   <div class="tabs" id="mobileTabs">
     <div class="tab active" onclick="switchTab(0)" id="tab0">
-      <span class="tab-icon">&#x1f4ac;</span>Chat
+      <span class="tab-icon">&#x2b22;</span>CHAT
     </div>
     <div class="tab" onclick="switchTab(1)" id="tab1">
-      <span class="tab-icon">&#x26a1;</span>Actions
+      <span class="tab-icon">&#x26a1;</span>ACTIONS
     </div>
     <div class="tab" onclick="switchTab(2)" id="tab2">
-      <span class="tab-icon">&#x2699;</span>Settings
+      <span class="tab-icon">&#x2699;</span>SETTINGS
     </div>
   </div>
 
   <!-- Main area -->
   <div class="main">
+    <!-- Top bar (desktop) -->
+    <div class="top-bar" id="topBar">
+      <div class="top-bar-left">
+        <div class="status-dot" id="statusDot"></div>
+        <span class="top-bar-title">J.A.R.V.I.S.</span>
+      </div>
+      <div class="top-bar-center" id="statusText">SYSTEMS ONLINE</div>
+      <div class="top-bar-right">
+        <span id="topTime"></span>
+        <span onclick="clearChat()" style="cursor:pointer;color:var(--cyan-dim)">[ CLEAR ]</span>
+      </div>
+    </div>
+
     <!-- Chat Panel -->
     <div class="panel active" id="panel0" style="flex-direction:column">
       <div class="chat-area">
-        <div class="chat-messages" id="messages"></div>
+        <div class="chat-messages" id="messages">
+          <!-- Welcome display -->
+          <div class="welcome-display" id="welcomeDisplay">
+            <div class="arc-reactor-main">
+              <div class="r4 ring"></div>
+              <div class="r3 ring"></div>
+              <div class="r2 ring"></div>
+              <div class="r1 ring"></div>
+              <div class="ticks" id="tickContainer"></div>
+              <div class="core"></div>
+            </div>
+            <div class="welcome-title">J.A.R.V.I.S.</div>
+            <div class="welcome-subtitle">JUST A RATHER VERY INTELLIGENT SYSTEM</div>
+            <div class="welcome-status">
+              <span><span class="dot"></span> ONLINE</span>
+              <span><span class="dot"></span> LOCAL MODE</span>
+              <span><span class="dot"></span> ALL SYSTEMS GO</span>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="input-area" id="inputArea">
         <div class="input-wrap">
           <div class="input-row">
-            <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()" title="Voice input (V)">&#x1f3a4;</button>
-            <textarea class="input-field" id="inputField" placeholder="Ask Jarvis anything..." rows="1"
+            <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()" title="Voice input (V)">&#x25C9;</button>
+            <textarea class="input-field" id="inputField" placeholder="Enter command..." rows="1"
               onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
-            <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled title="Send (Enter)">&#x27a4;</button>
+            <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled title="Send (Enter)">&#x27A4;</button>
           </div>
-          <div class="input-hint">Enter to send · Shift+Enter for new line · V for voice · 1/2/3 to switch tabs</div>
+          <div class="input-hint">ENTER TO SEND &middot; SHIFT+ENTER NEW LINE &middot; V VOICE &middot; 1/2/3 TABS</div>
         </div>
       </div>
     </div>
@@ -389,10 +654,10 @@ body {
         <div class="section-title">Communication</div>
         <div class="actions-grid">
           <div class="action-card" onclick="quickAction('send a text message')">
-            <div class="icon">&#x1f4ac;</div><div class="label">Send Text</div>
+            <div class="icon">&#x1f4ac;</div><div class="label">Text</div>
           </div>
           <div class="action-card" onclick="quickAction('send an email')">
-            <div class="icon">&#x2709;</div><div class="label">Send Email</div>
+            <div class="icon">&#x2709;</div><div class="label">Email</div>
           </div>
           <div class="action-card" onclick="quickAction('make a phone call')">
             <div class="icon">&#x1f4de;</div><div class="label">Call</div>
@@ -405,139 +670,136 @@ body {
         <div class="section-title">Productivity</div>
         <div class="actions-grid">
           <div class="action-card" onclick="quickAction('create a note')">
-            <div class="icon">&#x1f4dd;</div><div class="label">New Note</div>
+            <div class="icon">&#x1f4dd;</div><div class="label">Note</div>
           </div>
           <div class="action-card" onclick="quickAction('set a reminder')">
             <div class="icon">&#x23f0;</div><div class="label">Reminder</div>
           </div>
           <div class="action-card" onclick="quickAction('create a presentation')">
-            <div class="icon">&#x1f4ca;</div><div class="label">Presentation</div>
+            <div class="icon">&#x25a3;</div><div class="label">Slides</div>
           </div>
           <div class="action-card" onclick="quickAction('create a document')">
-            <div class="icon">&#x1f4c4;</div><div class="label">Document</div>
+            <div class="icon">&#x25a1;</div><div class="label">Document</div>
           </div>
           <div class="action-card" onclick="quickAction('create a spreadsheet')">
-            <div class="icon">&#x1f4c8;</div><div class="label">Spreadsheet</div>
+            <div class="icon">&#x2630;</div><div class="label">Sheet</div>
           </div>
         </div>
 
-        <div class="section-title">Information</div>
+        <div class="section-title">Intelligence</div>
         <div class="actions-grid">
           <div class="action-card" onclick="quickAction('check the weather')">
             <div class="icon">&#x26c5;</div><div class="label">Weather</div>
           </div>
           <div class="action-card" onclick="quickAction('check the news')">
-            <div class="icon">&#x1f4f0;</div><div class="label">News</div>
+            <div class="icon">&#x25ce;</div><div class="label">News</div>
           </div>
           <div class="action-card" onclick="quickAction('translate hello to spanish')">
-            <div class="icon">&#x1f310;</div><div class="label">Translate</div>
+            <div class="icon">&#x2604;</div><div class="label">Translate</div>
           </div>
           <div class="action-card" onclick="quickAction('run system diagnostics')">
-            <div class="icon">&#x1f50d;</div><div class="label">Diagnostics</div>
+            <div class="icon">&#x2609;</div><div class="label">Diagnostics</div>
           </div>
         </div>
 
         <div class="section-title">Utilities</div>
         <div class="actions-grid">
           <div class="action-card" onclick="quickAction('flip a coin')">
-            <div class="icon">&#x1fa99;</div><div class="label">Coin Flip</div>
+            <div class="icon">&#x25cf;</div><div class="label">Coin</div>
           </div>
           <div class="action-card" onclick="quickAction('roll a dice')">
-            <div class="icon">&#x1f3b2;</div><div class="label">Roll Dice</div>
+            <div class="icon">&#x2b22;</div><div class="label">Dice</div>
           </div>
           <div class="action-card" onclick="quickAction('generate a password')">
-            <div class="icon">&#x1f510;</div><div class="label">Password</div>
-          </div>
-          <div class="action-card" onclick="quickAction('what song is playing')">
-            <div class="icon">&#x1f3b5;</div><div class="label">Identify Song</div>
+            <div class="icon">&#x2731;</div><div class="label">Password</div>
           </div>
           <div class="action-card" onclick="quickAction('search YouTube for music')">
-            <div class="icon">&#x25b6;&#xfe0f;</div><div class="label">YouTube</div>
+            <div class="icon">&#x25b6;</div><div class="label">YouTube</div>
           </div>
           <div class="action-card" onclick="quickAction('search google for latest tech news')">
-            <div class="icon">&#x1f50e;</div><div class="label">Web Search</div>
+            <div class="icon">&#x2315;</div><div class="label">Search</div>
           </div>
         </div>
 
-        <div class="section-title">Apps</div>
+        <div class="section-title">Applications</div>
         <div class="actions-grid">
           <div class="action-card" onclick="quickAction('open youtube')">
-            <div class="icon">&#x25b6;&#xfe0f;</div><div class="label">YouTube</div>
+            <div class="icon">&#x25b6;</div><div class="label">YouTube</div>
           </div>
           <div class="action-card" onclick="quickAction('open instagram')">
-            <div class="icon">&#x1f4f7;</div><div class="label">Instagram</div>
+            <div class="icon">&#x25cb;</div><div class="label">Instagram</div>
           </div>
           <div class="action-card" onclick="quickAction('open spotify')">
-            <div class="icon">&#x1f3b5;</div><div class="label">Spotify</div>
+            <div class="icon">&#x266b;</div><div class="label">Spotify</div>
           </div>
           <div class="action-card" onclick="quickAction('open tiktok')">
-            <div class="icon">&#x1f3ac;</div><div class="label">TikTok</div>
+            <div class="icon">&#x266a;</div><div class="label">TikTok</div>
           </div>
           <div class="action-card" onclick="quickAction('open snapchat')">
-            <div class="icon">&#x1f47b;</div><div class="label">Snapchat</div>
+            <div class="icon">&#x25c7;</div><div class="label">Snapchat</div>
           </div>
           <div class="action-card" onclick="quickAction('open discord')">
-            <div class="icon">&#x1f3ae;</div><div class="label">Discord</div>
+            <div class="icon">&#x2b23;</div><div class="label">Discord</div>
           </div>
           <div class="action-card" onclick="quickAction('open netflix')">
-            <div class="icon">&#x1f3ac;</div><div class="label">Netflix</div>
+            <div class="icon">&#x25a0;</div><div class="label">Netflix</div>
           </div>
           <div class="action-card" onclick="quickAction('open reddit')">
-            <div class="icon">&#x1f4e2;</div><div class="label">Reddit</div>
+            <div class="icon">&#x29bf;</div><div class="label">Reddit</div>
           </div>
         </div>
 
-        <div class="section-title">Settings & System</div>
+        <div class="section-title">System Controls</div>
         <div class="actions-grid">
           <div class="action-card" onclick="quickAction('toggle wifi')">
-            <div class="icon">&#x1f4f6;</div><div class="label">WiFi</div>
+            <div class="icon">&#x25e4;</div><div class="label">WiFi</div>
           </div>
           <div class="action-card" onclick="quickAction('toggle bluetooth')">
-            <div class="icon">&#x1f4e1;</div><div class="label">Bluetooth</div>
+            <div class="icon">&#x25c8;</div><div class="label">Bluetooth</div>
           </div>
           <div class="action-card" onclick="quickAction('toggle dark mode')">
-            <div class="icon">&#x1f319;</div><div class="label">Dark Mode</div>
+            <div class="icon">&#x25d0;</div><div class="label">Dark Mode</div>
           </div>
           <div class="action-card" onclick="quickAction('toggle airplane mode')">
-            <div class="icon">&#x2708;&#xfe0f;</div><div class="label">Airplane</div>
+            <div class="icon">&#x2206;</div><div class="label">Airplane</div>
           </div>
           <div class="action-card" onclick="quickAction('toggle do not disturb')">
-            <div class="icon">&#x1f515;</div><div class="label">DND</div>
+            <div class="icon">&#x2298;</div><div class="label">DND</div>
           </div>
           <div class="action-card" onclick="quickAction('toggle low power mode')">
-            <div class="icon">&#x1f50b;</div><div class="label">Low Power</div>
+            <div class="icon">&#x26a1;</div><div class="label">Battery</div>
           </div>
           <div class="action-card" onclick="quickAction('set brightness to 50')">
-            <div class="icon">&#x2600;&#xfe0f;</div><div class="label">Brightness</div>
+            <div class="icon">&#x2600;</div><div class="label">Brightness</div>
           </div>
           <div class="action-card" onclick="quickAction('set volume to 50')">
-            <div class="icon">&#x1f50a;</div><div class="label">Volume</div>
+            <div class="icon">&#x25c9;</div><div class="label">Volume</div>
           </div>
         </div>
 
-        <div class="section-title">Smart Home</div>
+        <div class="section-title">Environment</div>
         <div class="actions-grid">
           <div class="action-card" onclick="quickAction('turn on the lights')">
-            <div class="icon">&#x1f4a1;</div><div class="label">Lights On</div>
+            <div class="icon">&#x2736;</div><div class="label">Lights On</div>
           </div>
           <div class="action-card" onclick="quickAction('turn off the lights')">
-            <div class="icon">&#x1f319;</div><div class="label">Lights Off</div>
+            <div class="icon">&#x2737;</div><div class="label">Lights Off</div>
           </div>
           <div class="action-card" onclick="quickAction('set thermostat to 72')">
-            <div class="icon">&#x1f321;</div><div class="label">Thermostat</div>
+            <div class="icon">&#x2103;</div><div class="label">Thermostat</div>
           </div>
         </div>
 
-        <div class="section-title">Camera & Media</div>
+        <div class="section-title">Media</div>
         <div class="actions-grid">
           <div class="action-card" onclick="quickAction('open camera')">
-            <div class="icon">&#x1f4f8;</div><div class="label">Camera</div>
+            <div class="icon">&#x25ce;</div><div class="label">Camera</div>
           </div>
           <div class="action-card" onclick="quickAction('open photos')">
-            <div class="icon">&#x1f5bc;&#xfe0f;</div><div class="label">Photos</div>
+            <div class="icon">&#x25a3;</div><div class="label">Photos</div>
           </div>
           <div class="action-card" onclick="quickAction('play music')">
-            <div class="icon">&#x1f3b6;</div><div class="label">Play Music</div>
+            <div class="icon">&#x266b;</div><div class="label">Music</div>
           </div>
         </div>
       </div>
@@ -558,58 +820,79 @@ body {
           </div>
           <div class="settings-row">
             <label>Status</label>
-            <span id="connStatus" style="color:var(--text2)">Not connected</span>
+            <span id="connStatus" style="color:var(--text2);font-family:var(--font-mono);font-size:11px">OFFLINE</span>
           </div>
         </div>
-        <button class="btn btn-cyan" onclick="testConnection()">Test Connection</button>
+        <button class="btn btn-cyan" onclick="testConnection()">TEST CONNECTION</button>
 
-        <div class="section-title" style="margin-top:24px">Voice</div>
+        <div class="section-title" style="margin-top:24px">Voice Interface</div>
         <div class="settings-group">
           <div class="settings-row">
-            <label>Voice Output (Text-to-Speech)</label>
+            <label>Voice Output (TTS)</label>
             <button class="toggle" id="voiceToggle" onclick="toggleSetting('voice')"></button>
           </div>
           <div class="settings-row">
-            <label>Auto-listen after reply</label>
+            <label>Auto-listen After Reply</label>
             <button class="toggle" id="autoListenToggle" onclick="toggleSetting('autoListen')"></button>
           </div>
         </div>
 
-        <div class="section-title">Keyboard Shortcuts</div>
+        <div class="section-title">Keyboard Commands</div>
         <div class="settings-group">
-          <div class="settings-row"><label>Send message</label><span style="color:var(--text2)">Enter</span></div>
-          <div class="settings-row"><label>New line</label><span style="color:var(--text2)">Shift + Enter</span></div>
-          <div class="settings-row"><label>Voice input</label><span style="color:var(--text2)">V (when not typing)</span></div>
-          <div class="settings-row"><label>Switch tabs</label><span style="color:var(--text2)">1 / 2 / 3</span></div>
-          <div class="settings-row"><label>Focus chat</label><span style="color:var(--text2)">/ or Ctrl+L</span></div>
-          <div class="settings-row"><label>Clear chat</label><span style="color:var(--text2)">Ctrl+Shift+K</span></div>
+          <div class="settings-row"><label>Send</label><span style="color:var(--text2);font-family:var(--font-mono);font-size:11px">ENTER</span></div>
+          <div class="settings-row"><label>New Line</label><span style="color:var(--text2);font-family:var(--font-mono);font-size:11px">SHIFT+ENTER</span></div>
+          <div class="settings-row"><label>Voice</label><span style="color:var(--text2);font-family:var(--font-mono);font-size:11px">V</span></div>
+          <div class="settings-row"><label>Switch Tabs</label><span style="color:var(--text2);font-family:var(--font-mono);font-size:11px">1 / 2 / 3</span></div>
+          <div class="settings-row"><label>Focus Input</label><span style="color:var(--text2);font-family:var(--font-mono);font-size:11px">/ or CTRL+L</span></div>
+          <div class="settings-row"><label>Clear Chat</label><span style="color:var(--text2);font-family:var(--font-mono);font-size:11px">CTRL+SHIFT+K</span></div>
         </div>
 
-        <div class="section-title">About</div>
+        <div class="section-title">System Info</div>
         <div class="settings-group">
           <div class="settings-row">
             <label>Version</label>
-            <span style="color:var(--text2)">2.0.0 Web — Works on iPad, Laptop, Desktop</span>
+            <span style="color:var(--text2);font-family:var(--font-mono);font-size:11px">v2.0.0 WEB</span>
           </div>
           <div class="settings-row">
-            <label>Add to Home Screen (iPad)</label>
-            <span style="color:var(--text2);font-size:12px">Share &#x2794; Add to Home Screen</span>
+            <label>Install as App (iPad)</label>
+            <span style="color:var(--text2);font-family:var(--font-mono);font-size:10px">SHARE > ADD TO HOME</span>
           </div>
         </div>
 
-        <button class="btn btn-red" onclick="clearAllData()" style="margin-top:16px">Reset All Data</button>
+        <button class="btn btn-red" onclick="clearAllData()" style="margin-top:16px">RESET ALL DATA</button>
       </div>
     </div>
   </div>
 </div>
 
 <script>
+// Generate tick marks on arc reactor
+(function() {
+  const container = document.getElementById('tickContainer');
+  if (!container) return;
+  for (let i = 0; i < 24; i++) {
+    const tick = document.createElement('div');
+    tick.className = 'tick';
+    tick.style.transform = `rotate(${i * 15}deg)`;
+    container.appendChild(tick);
+  }
+})();
+
+// Update clock
+function updateClock() {
+  const el = document.getElementById('topTime');
+  if (el) el.textContent = new Date().toLocaleTimeString('en-US', { hour12: false });
+}
+updateClock();
+setInterval(updateClock, 1000);
+
 // State
 let messages = [];
 let history = [];
 let isProcessing = false;
 let isListening = false;
 let recognition = null;
+let welcomeShown = true;
 const autoURL = window.location.origin;
 let settings = {
   serverURL: localStorage.getItem('jarvis_serverURL') || autoURL,
@@ -622,7 +905,6 @@ let settings = {
 document.getElementById('serverURL').value = settings.serverURL;
 document.getElementById('apiKey').value = settings.apiKey;
 updateToggles();
-addMessage('jarvis', greetingMessage());
 document.getElementById('inputField').focus();
 
 // Save settings
@@ -635,55 +917,38 @@ document.getElementById('apiKey').addEventListener('change', e => {
   localStorage.setItem('jarvis_apiKey', settings.apiKey);
 });
 
-function greetingMessage() {
-  const h = new Date().getHours();
-  const g = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
-  const device = /iPad|iPhone/.test(navigator.userAgent) ? 'iPad' :
-                 /Mac/.test(navigator.userAgent) ? 'Mac' :
-                 /Windows/.test(navigator.userAgent) ? 'PC' : 'device';
-  return `Good ${g}. I'm Jarvis — your AI assistant running on your ${device}. No API key needed. I can create presentations and documents, calculate, search the web, open websites, translate, check weather and news, generate passwords, flip coins, roll dice, tell jokes, and more. Say "help" for the full list. What do you need?`;
-}
-
-// Keyboard shortcuts (laptop-friendly)
+// Keyboard shortcuts
 document.addEventListener('keydown', e => {
   const active = document.activeElement;
   const typing = active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT');
-
-  // Ctrl+Shift+K — clear chat
   if (e.ctrlKey && e.shiftKey && e.key === 'K') { e.preventDefault(); clearChat(); return; }
-  // Ctrl+L or / — focus input
   if ((e.ctrlKey && e.key === 'l') || (e.key === '/' && !typing)) {
-    e.preventDefault();
-    switchTab(0);
-    document.getElementById('inputField').focus();
-    return;
+    e.preventDefault(); switchTab(0); document.getElementById('inputField').focus(); return;
   }
-
-  if (typing) return; // Don't hijack when typing
-
-  // 1/2/3 — switch tabs
+  if (typing) return;
   if (e.key === '1') { switchTab(0); return; }
   if (e.key === '2') { switchTab(1); return; }
   if (e.key === '3') { switchTab(2); return; }
-  // V — voice
   if (e.key === 'v' || e.key === 'V') { toggleVoice(); return; }
-  // Escape — stop agent
-  if (e.key === 'Escape' && isProcessing) { isProcessing = false; setStatus('Stopped'); return; }
+  if (e.key === 'Escape' && isProcessing) { isProcessing = false; setStatus('INTERRUPTED'); return; }
 });
 
 // Tabs
 function switchTab(idx) {
-  // Desktop nav
-  document.querySelectorAll('.nav-item').forEach((n, i) => { if (i < 3) n.classList.toggle('active', i === idx); });
-  // Mobile tabs
+  document.querySelectorAll('.nav-btn').forEach((n, i) => { if (i < 3) n.classList.toggle('active', i === idx); });
   document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === idx));
-  // Panels
   document.querySelectorAll('.panel').forEach((p, i) => p.classList.toggle('active', i === idx));
   if (idx === 0) setTimeout(() => document.getElementById('inputField').focus(), 100);
 }
 
 // Messages
 function addMessage(role, content, actions) {
+  // Hide welcome on first message
+  if (welcomeShown) {
+    const wd = document.getElementById('welcomeDisplay');
+    if (wd) wd.style.display = 'none';
+    welcomeShown = false;
+  }
   const msg = { role, content, actions, id: Date.now() };
   messages.push(msg);
   renderMessage(msg);
@@ -746,30 +1011,28 @@ function quickAction(text) {
 
 async function processCommand(command) {
   isProcessing = true;
-  setStatus('Thinking...');
+  setStatus('PROCESSING...');
   setOrb(true);
 
-  // Try local first
   const local = parseOnDevice(command);
   if (local && !needsServer(command)) {
     showResult(local);
-    isProcessing = false; setStatus('Ready'); setOrb(false);
+    isProcessing = false; setStatus('SYSTEMS ONLINE'); setOrb(false);
     return;
   }
   if (!settings.serverURL) {
     if (local) showResult(local);
-    else addMessage('jarvis', 'Set your server URL in Settings to unlock full AI capabilities.');
-    isProcessing = false; setStatus('Ready'); setOrb(false);
+    else addMessage('jarvis', 'Server URL not configured. Set it in Settings to enable full capabilities.');
+    isProcessing = false; setStatus('SYSTEMS ONLINE'); setOrb(false);
     return;
   }
 
-  // Server agent loop
   let currentCommand = command, isFollowUp = false, previousResult = null, iterations = 0;
   while (iterations < 10) {
     iterations++;
-    setStatus(`Step ${iterations}...`);
+    setStatus(`EXECUTING STEP ${iterations}...`);
     const response = await callServer(currentCommand, isFollowUp, previousResult);
-    if (!response) { addMessage('system', 'Lost connection to server. Check Settings.'); break; }
+    if (!response) { addMessage('system', '[ CONNECTION LOST ]'); break; }
     showResult(response);
     history.push({ role: 'assistant', content: response.message });
     if (response.isDone) break;
@@ -780,7 +1043,7 @@ async function processCommand(command) {
       previousResult = response.actions?.map(a => `[${a.type}] executed`).join('\n') || '';
     } else break;
   }
-  isProcessing = false; setStatus('Ready'); setOrb(false);
+  isProcessing = false; setStatus('SYSTEMS ONLINE'); setOrb(false);
 }
 
 function showResult(response) {
@@ -792,7 +1055,7 @@ function showResult(response) {
   if (response.actionResults) {
     for (const ar of response.actionResults) {
       if (ar.url) {
-        addMessage('system', `File ready: ${ar.message}`);
+        addMessage('system', `[ FILE READY: ${ar.message} ]`);
         window.open(ar.url, '_blank');
       }
     }
@@ -800,9 +1063,12 @@ function showResult(response) {
 }
 
 function setOrb(processing) {
-  document.getElementById('orb').classList.toggle('processing', processing);
-  const m = document.getElementById('orbMobile');
+  document.getElementById('reactorMini').classList.toggle('processing', processing);
+  const m = document.getElementById('reactorMobile');
   if (m) m.classList.toggle('processing', processing);
+  // Status dot
+  const dot = document.getElementById('statusDot');
+  if (dot) dot.style.background = processing ? 'var(--gold)' : 'var(--green)';
 }
 
 async function callServer(command, isFollowUp, previousResult) {
@@ -812,7 +1078,6 @@ async function callServer(command, isFollowUp, previousResult) {
     let enrichedCommand = command;
     if (isFollowUp && previousResult) enrichedCommand = `[CONTINUING TASK]\n${previousResult}\n\n${command}`;
 
-    // Detect platform for device info
     const platform = /iPad|iPhone/.test(navigator.userAgent) ? 'iPad (Web)' :
                      /Mac/.test(navigator.userAgent) ? 'MacBook (Web)' :
                      /Windows/.test(navigator.userAgent) ? 'Windows PC (Web)' :
@@ -821,18 +1086,14 @@ async function callServer(command, isFollowUp, previousResult) {
     const res = await fetch(`${settings.serverURL}/api/agent`, {
       method: 'POST', headers,
       body: JSON.stringify({
-        command: enrichedCommand,
-        screenshot: null,
+        command: enrichedCommand, screenshot: null,
         deviceInfo: {
-          model: platform,
-          os: navigator.platform,
+          model: platform, os: navigator.platform,
           screenW: screen.width * (devicePixelRatio || 1),
           screenH: screen.height * (devicePixelRatio || 1),
-          battery: 100, charging: false,
-          time: new Date().toLocaleString(),
+          battery: 100, charging: false, time: new Date().toLocaleString(),
         },
-        history: history.slice(-20),
-        isFollowUp, previousResult,
+        history: history.slice(-20), isFollowUp, previousResult,
       }),
     });
     if (!res.ok) return null;
@@ -840,7 +1101,7 @@ async function callServer(command, isFollowUp, previousResult) {
   } catch { return null; }
 }
 
-// On-device parser
+// On-device parser — all the same logic
 function parseOnDevice(text) {
   const t = text.toLowerCase().trim();
 
@@ -858,19 +1119,16 @@ function parseOnDevice(text) {
     }
   }
 
-  // Coin flip
   if (t.includes('flip a coin') || t.includes('coin flip') || t.includes('heads or tails'))
     return reply(`Coin flip: ${Math.random() < 0.5 ? 'Heads' : 'Tails'}.`);
 
-  // Dice
-  if (t.includes('roll a di') || t.includes('roll dice')) {
+  if (t.includes('roll a di') || t.includes('roll dice') || t.match(/\bd\d+\b/)) {
     let sides = 6;
-    if (t.includes('d20')) sides = 20; else if (t.includes('d12')) sides = 12;
-    else if (t.includes('d10')) sides = 10; else if (t.includes('d8')) sides = 8;
+    const dm = t.match(/\bd(\d+)\b/);
+    if (dm) sides = parseInt(dm[1]);
     return reply(`Rolled a ${Math.floor(Math.random()*sides)+1} (d${sides}).`);
   }
 
-  // Password
   if (t.includes('password')) {
     const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*';
     let pw = ''; for (let i = 0; i < 16; i++) pw += chars[Math.floor(Math.random()*chars.length)];
@@ -878,50 +1136,45 @@ function parseOnDevice(text) {
     return reply(`Generated password: ${pw}\n(Copied to clipboard)`);
   }
 
-  // Time/Date
   if (t === 'what time is it' || t === "what's the time" || t.includes('current time'))
     return reply(`It's ${new Date().toLocaleTimeString()}.`);
-  if (t.includes("what's the date") || t.includes('what date') || t.includes("today's date") || t === "what's today")
+  if (t.includes("what's the date") || t.includes('what date') || t.includes("today's date") || t === "what's today" || t.includes('what day') || t.includes('the date'))
     return reply(`Today is ${new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}.`);
 
-  // Weather
   if (t.includes('weather') || t.includes('temperature') || t.includes('going to rain')) {
     window.open('https://weather.com','_blank');
-    return reply('Pulling up the weather for you.');
+    return reply('Pulling up weather data now.');
   }
 
-  // News
   if (t.includes('news') || t.includes('headlines') || t.startsWith("what's happening")) {
     const topic = t.replace(/news about |show me news|check the news|what's the latest news/g,'').trim();
     window.open(topic ? `https://news.google.com/search?q=${encodeURIComponent(topic)}` : 'https://news.google.com','_blank');
-    return reply('Opening the latest news.');
+    return reply('Accessing news feeds.');
   }
 
-  // Translate
   if (t.startsWith('translate ')) {
     const rest = t.slice(10);
     let src = 'auto', tgt = 'en', txt = rest;
     const toMatch = rest.match(/(.+?)\s+to\s+(\w+)$/);
     if (toMatch) { txt = toMatch[1]; tgt = toMatch[2]; }
     window.open(`https://translate.google.com/?sl=${src}&tl=${tgt}&text=${encodeURIComponent(txt)}`,'_blank');
-    return reply('Opening the translator.');
+    return reply('Opening translator.');
   }
 
-  // Web search
   if (t.startsWith('search ') || t.startsWith('google ') || t.startsWith('look up ')) {
     const q = t.replace(/^(search for |search |google |look up )/,'');
     window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`,'_blank');
     return reply(`Searching for "${q}".`);
   }
 
-  // YouTube
-  if (t.includes('youtube') && (t.includes('search') || t.includes('play') || t.includes('watch'))) {
-    const q = t.replace(/search youtube for |youtube search |search on youtube |play on youtube |watch /g,'').trim();
-    window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`,'_blank');
-    return reply(`Searching YouTube for "${q}".`);
+  if (t.includes('youtube') || (t.includes('play') && t.includes('video'))) {
+    const q = t.replace(/\byoutube\b/gi, '').replace(/(?:search|play|watch|find|open|on|for|video)\s*/gi, '').trim();
+    if (q) {
+      window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`,'_blank');
+      return reply(`Searching YouTube for "${q}".`);
+    }
   }
 
-  // Open URL
   if (t.includes('http://') || t.includes('https://') || t.includes('www.')) {
     const match = t.match(/(https?:\/\/[^\s]+|www\.[^\s]+)/);
     if (match) {
@@ -931,14 +1184,12 @@ function parseOnDevice(text) {
     }
   }
 
-  // Maps/directions
   if (t.startsWith('directions to ') || t.startsWith('navigate to ') || (t.includes('map') && t.includes(' of '))) {
     const q = t.replace(/directions to |navigate to |show me a map of |map of /g,'').trim();
     window.open(`https://maps.google.com/maps?q=${encodeURIComponent(q)}`,'_blank');
-    return reply(`Looking up "${q}" on Maps.`);
+    return reply(`Plotting course to "${q}".`);
   }
 
-  // Open websites by name (laptop feature)
   const sites = {
     'gmail': 'https://mail.google.com', 'email': 'https://mail.google.com',
     'google docs': 'https://docs.google.com', 'google sheets': 'https://sheets.google.com',
@@ -959,10 +1210,9 @@ function parseOnDevice(text) {
     }
   }
 
-  // --- iOS NATIVE FEATURES (URL schemes + Shortcuts) ---
+  // --- iOS NATIVE FEATURES ---
   const isiOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
-  // Open native apps (URL schemes)
   const appSchemes = {
     youtube:'youtube://', instagram:'instagram://', tiktok:'tiktok://',
     snapchat:'snapchat://', whatsapp:'whatsapp://', spotify:'spotify://',
@@ -991,11 +1241,10 @@ function parseOnDevice(text) {
     const scheme = appSchemes[appName];
     if (scheme && isiOS) {
       window.location.href = scheme;
-      return reply(`Opening ${appName.charAt(0).toUpperCase()+appName.slice(1)}.`);
+      return reply(`Launching ${appName.charAt(0).toUpperCase()+appName.slice(1)}.`);
     }
   }
 
-  // Send iMessage / text
   const smsMatch = t.match(/(?:send|text|message)\s+(?:a\s+)?(?:text|message|imessage|sms)?\s*(?:to\s+)?(.+?)(?:\s+saying\s+|\s+that\s+says?\s+)(.+)/i);
   if (smsMatch) {
     const to = smsMatch[1].trim(), body = smsMatch[2].trim();
@@ -1007,29 +1256,22 @@ function parseOnDevice(text) {
     return reply('Opening Messages.');
   }
 
-  // Send WhatsApp
   const waMatch = t.match(/(?:send\s+)?whatsapp\s+(?:message\s+)?(?:to\s+)?(.+?)(?:\s+saying\s+)(.+)/i);
   if (waMatch) {
     window.location.href = `whatsapp://send?text=${encodeURIComponent(waMatch[2])}`;
-    return reply(`Opening WhatsApp.`);
-  }
-  if (t.includes('whatsapp')) {
-    window.location.href = 'whatsapp://';
     return reply('Opening WhatsApp.');
   }
+  if (t.includes('whatsapp')) { window.location.href = 'whatsapp://'; return reply('Opening WhatsApp.'); }
 
-  // Send email
   const emailMatch = t.match(/(?:send|write|compose)\s+(?:an?\s+)?email\s+(?:to\s+)?(.+?)(?:\s+(?:about|subject|saying)\s+)(.+)/i);
   if (emailMatch) {
     window.location.href = `mailto:${encodeURIComponent(emailMatch[1])}?subject=${encodeURIComponent(emailMatch[2])}`;
     return reply(`Opening Mail to ${emailMatch[1]}.`);
   }
   if (t.includes('email') && (t.includes('send') || t.includes('write') || t.includes('compose'))) {
-    window.location.href = 'mailto:';
-    return reply('Opening Mail composer.');
+    window.location.href = 'mailto:'; return reply('Opening Mail.');
   }
 
-  // Phone call
   const callMatch = t.match(/(?:call|phone|dial)\s+(.+)/i);
   if (callMatch && !t.includes('facetime')) {
     const who = callMatch[1].trim();
@@ -1037,38 +1279,25 @@ function parseOnDevice(text) {
     return reply(`Calling ${who}.`);
   }
 
-  // FaceTime
   const ftMatch = t.match(/facetime\s+(?:audio\s+)?(?:call\s+)?(.+)/i);
   if (ftMatch) {
     const who = ftMatch[1].trim();
     const scheme = t.includes('audio') ? 'facetime-audio' : 'facetime';
     window.location.href = `${scheme}:${encodeURIComponent(who)}`;
-    return reply(`Starting FaceTime with ${who}.`);
+    return reply(`Initiating FaceTime with ${who}.`);
   }
 
-  // Maps / directions (native on iOS)
-  if (t.startsWith('directions to ') || t.startsWith('navigate to ')) {
-    const q = t.replace(/^(?:directions|navigate)\s+to\s+/i,'').trim();
-    if (isiOS) window.location.href = `maps://?daddr=${encodeURIComponent(q)}`;
-    else window.open(`https://maps.google.com/maps?daddr=${encodeURIComponent(q)}`,'_blank');
-    return reply(`Getting directions to ${q}.`);
-  }
-
-  // Music
   if (t.match(/^play\s+(.+)/i) && (t.includes('music') || t.includes('song') || !t.includes('video'))) {
     const song = t.replace(/^play\s+/i,'').replace(/\s*(music|song|on spotify|on apple music)$/i,'').trim();
-    if (isiOS) window.location.href = `music://`;
+    if (isiOS) window.location.href = 'music://';
     else window.open(`https://open.spotify.com/search/${encodeURIComponent(song)}`,'_blank');
     return reply(`Playing "${song}".`);
   }
-  if (t === 'pause music' || t === 'pause' || t === 'stop music') {
-    return reply("Use your device's media controls or Control Center to pause playback.");
-  }
-  if (t === 'next track' || t === 'skip' || t === 'next song') {
-    return reply("Use your device's media controls or Control Center to skip tracks.");
-  }
+  if (t === 'pause music' || t === 'pause' || t === 'stop music')
+    return reply("Use Control Center or media controls to pause playback.");
+  if (t === 'next track' || t === 'skip' || t === 'next song')
+    return reply("Use Control Center or media controls to skip.");
 
-  // iOS Shortcuts — system toggles
   const shortcutActions = {
     'toggle wifi': 'Toggle WiFi', 'turn on wifi': 'Toggle WiFi', 'turn off wifi': 'Toggle WiFi',
     'toggle bluetooth': 'Toggle Bluetooth', 'turn on bluetooth': 'Toggle Bluetooth', 'turn off bluetooth': 'Toggle Bluetooth',
@@ -1083,78 +1312,71 @@ function parseOnDevice(text) {
     if (t === cmd || t === cmd.replace('toggle ','')) {
       if (isiOS) {
         window.location.href = `shortcuts://run-shortcut?name=${encodeURIComponent(shortcutName)}`;
-        return reply(`Running "${shortcutName}" shortcut.`);
+        return reply(`Executing "${shortcutName}".`);
       }
-      return reply(`"${shortcutName}" requires iOS Shortcuts. On your iPad, this will toggle the setting automatically.`);
+      return reply(`"${shortcutName}" requires iOS Shortcuts. Available on iPad.`);
     }
   }
 
-  // Brightness / Volume
   const brightnessMatch = t.match(/(?:set\s+)?brightness\s+(?:to\s+)?(\d+)%?/i);
   if (brightnessMatch) {
     if (isiOS) { window.location.href = `shortcuts://run-shortcut?name=Set%20Brightness&input=text&text=${brightnessMatch[1]}`; return reply(`Setting brightness to ${brightnessMatch[1]}%.`); }
-    return reply("Brightness control requires iOS. On your iPad, this works via Shortcuts.");
+    return reply("Brightness control requires iOS Shortcuts.");
   }
   const volumeMatch = t.match(/(?:set\s+)?volume\s+(?:to\s+)?(\d+)%?/i);
   if (volumeMatch) {
     if (isiOS) { window.location.href = `shortcuts://run-shortcut?name=Set%20Volume&input=text&text=${volumeMatch[1]}`; return reply(`Setting volume to ${volumeMatch[1]}%.`); }
-    return reply("Volume control requires iOS. On your iPad, this works via Shortcuts.");
+    return reply("Volume control requires iOS Shortcuts.");
   }
 
-  // Create Note
   if (t.includes('create a note') || t.includes('new note') || t.includes('write a note') || (t.includes('note') && t.includes('open'))) {
     const noteMatch = t.match(/(?:create|write|make)\s+(?:a\s+)?note\s+(?:about|called|titled|saying)?\s*(.+)?/i);
     const body = noteMatch?.[1]?.trim() || '';
     if (isiOS && body) {
       window.location.href = `shortcuts://run-shortcut?name=Create%20Note&input=text&text=${encodeURIComponent(body)}`;
-      return reply(`Creating a note: "${body}".`);
+      return reply(`Creating note: "${body}".`);
     }
     window.location.href = isiOS ? 'mobilenotes://' : 'https://keep.google.com';
     return reply('Opening Notes.');
   }
 
-  // Create Reminder
   if (t.includes('reminder') || t.includes('remind me')) {
     const remMatch = t.match(/(?:set\s+a\s+reminder|remind\s+me)\s+(?:to\s+)?(.+)/i);
     if (remMatch && isiOS) {
       window.location.href = `shortcuts://run-shortcut?name=Create%20Reminder&input=text&text=${encodeURIComponent(remMatch[1])}`;
-      return reply(`Setting a reminder: "${remMatch[1]}".`);
+      return reply(`Setting reminder: "${remMatch[1]}".`);
     }
     window.location.href = isiOS ? 'x-apple-reminderkit://' : 'https://calendar.google.com';
     return reply('Opening Reminders.');
   }
 
-  // Calendar Event
   if (t.includes('calendar event') || t.includes('schedule') || (t.includes('event') && t.includes('create'))) {
     const evMatch = t.match(/(?:create|add|schedule)\s+(?:a\s+)?(?:calendar\s+)?event\s+(?:called|for|about)?\s*(.+)?/i);
     if (evMatch?.[1] && isiOS) {
       window.location.href = `shortcuts://run-shortcut?name=Create%20Event&input=text&text=${encodeURIComponent(evMatch[1])}`;
-      return reply(`Creating a calendar event: "${evMatch[1]}".`);
+      return reply(`Creating event: "${evMatch[1]}".`);
     }
     window.location.href = isiOS ? 'calshow://' : 'https://calendar.google.com';
     return reply('Opening Calendar.');
   }
 
-  // Timer
   const timerMatch = t.match(/(?:set\s+(?:a\s+)?)?timer\s+(?:for\s+)?(\d+)\s*(min|minute|sec|second|hour)/i);
   if (timerMatch) {
     const val = timerMatch[1], unit = timerMatch[2];
     if (isiOS) {
       window.location.href = `shortcuts://run-shortcut?name=Set%20Timer&input=text&text=${val}%20${unit}`;
-      return reply(`Setting a ${val} ${unit} timer.`);
+      return reply(`Timer set: ${val} ${unit}.`);
     }
     window.open(`https://www.google.com/search?q=timer+${val}+${unit}`,'_blank');
-    return reply(`Opening a ${val} ${unit} timer.`);
+    return reply(`Opening ${val} ${unit} timer.`);
   }
 
-  // Alarm
   const alarmMatch = t.match(/(?:set\s+(?:an?\s+)?)?alarm\s+(?:for\s+)?(.+)/i);
   if (alarmMatch) {
-    if (isiOS) { window.location.href = `shortcuts://run-shortcut?name=Set%20Alarm&input=text&text=${encodeURIComponent(alarmMatch[1])}`; return reply(`Setting an alarm for ${alarmMatch[1]}.`); }
-    return reply("Alarm setting requires iOS. On your iPad, this works via Shortcuts.");
+    if (isiOS) { window.location.href = `shortcuts://run-shortcut?name=Set%20Alarm&input=text&text=${encodeURIComponent(alarmMatch[1])}`; return reply(`Alarm set for ${alarmMatch[1]}.`); }
+    return reply("Alarm requires iOS Shortcuts.");
   }
 
-  // Settings pages
   const settingsPages = {
     'wifi settings': 'App-prefs:WIFI', 'bluetooth settings': 'App-prefs:Bluetooth',
     'display settings': 'App-prefs:DISPLAY', 'sound settings': 'App-prefs:Sounds',
@@ -1171,33 +1393,27 @@ function parseOnDevice(text) {
     }
   }
 
-  // Camera
   if (t.includes('take a photo') || t.includes('take a picture') || t.includes('open camera') || t.includes('selfie')) {
-    if (isiOS) { window.location.href = 'camera://'; return reply('Opening Camera.'); }
-    try {
-      navigator.mediaDevices.getUserMedia({video: true}).then(s => { s.getTracks().forEach(t=>t.stop()); });
-    } catch{}
-    return reply('Camera requires the native iOS app. On laptop, your browser may prompt for camera access.');
+    if (isiOS) { window.location.href = 'camera://'; return reply('Activating camera.'); }
+    try { navigator.mediaDevices.getUserMedia({video: true}).then(s => { s.getTracks().forEach(t=>t.stop()); }); } catch{}
+    return reply('Camera requires the native iOS app.');
   }
 
-  // Photos
   if (t.includes('open photos') || t.includes('photo library') || t.includes('show my photos')) {
-    if (isiOS) { window.location.href = 'photos-redirect://'; return reply('Opening Photos.'); }
+    if (isiOS) { window.location.href = 'photos-redirect://'; return reply('Opening photo library.'); }
     window.open('https://photos.google.com','_blank');
     return reply('Opening Photos.');
   }
 
-  // Run any shortcut
   const shortcutMatch = t.match(/(?:run|execute)\s+(?:the\s+)?(?:shortcut\s+)?(?:called\s+)?["']?(.+?)["']?\s*$/i);
   if (shortcutMatch && (t.includes('shortcut') || t.includes('run '))) {
     if (isiOS) {
       window.location.href = `shortcuts://run-shortcut?name=${encodeURIComponent(shortcutMatch[1])}`;
-      return reply(`Running shortcut "${shortcutMatch[1]}".`);
+      return reply(`Executing shortcut "${shortcutMatch[1]}".`);
     }
-    return reply(`Running shortcuts requires iOS. On your iPad, say "run shortcut ${shortcutMatch[1]}".`);
+    return reply(`Shortcuts require iOS. On iPad: "run shortcut ${shortcutMatch[1]}".`);
   }
 
-  // Smart Home via Shortcuts
   if (t.includes('turn on') || t.includes('turn off')) {
     const device = t.replace(/turn\s+(on|off)\s+(the\s+)?/i, '').trim();
     const state = t.includes('turn on') ? 'on' : 'off';
@@ -1205,20 +1421,18 @@ function parseOnDevice(text) {
       window.location.href = `shortcuts://run-shortcut?name=Smart%20Home&input=text&text=${encodeURIComponent(device+' '+state)}`;
       return reply(`Turning ${state} the ${device}.`);
     }
-    return reply(`Smart home control requires iOS Shortcuts. On your iPad, this will control "${device}" via HomeKit.`);
+    return reply(`Smart home requires iOS Shortcuts.`);
   }
 
-  // Thermostat
   const thermoMatch = t.match(/(?:set\s+)?thermostat\s+(?:to\s+)?(\d+)/i);
   if (thermoMatch) {
     if (isiOS) {
       window.location.href = `shortcuts://run-shortcut?name=Set%20Thermostat&input=text&text=${thermoMatch[1]}`;
-      return reply(`Setting thermostat to ${thermoMatch[1]}°.`);
+      return reply(`Thermostat set to ${thermoMatch[1]}°.`);
     }
-    return reply(`Thermostat control requires iOS Shortcuts.`);
+    return reply('Thermostat requires iOS Shortcuts.');
   }
 
-  // Spotlight search
   if (t.startsWith('spotlight ') || t.includes('spotlight search')) {
     const q = t.replace(/spotlight\s*(?:search\s+(?:for\s+)?)?/i,'').trim();
     if (isiOS) window.location.href = `x-web-search://?${encodeURIComponent(q)}`;
@@ -1227,6 +1441,7 @@ function parseOnDevice(text) {
   }
 
   // Unit conversion
+  const convertMatch = t.match(/([\d.]+)\s*(\w+)\s+(?:to|in)\s+(\w+)/);
   if (convertMatch) {
     const [,val,from,to] = convertMatch;
     const v = parseFloat(val);
@@ -1243,25 +1458,21 @@ function parseOnDevice(text) {
   }
 
   // Greetings
-  if (/^(hi|hello|hey|good morning|good afternoon|good evening|sup|yo|what's up|howdy)/i.test(t)) {
+  if (/^(hi|hello|hey|good morning|good afternoon|good evening|sup|yo|what's up|howdy)$/i.test(t) || /^(hi|hello|hey|good morning|good afternoon|good evening) /i.test(t)) {
     const h = new Date().getHours();
     const g = h<12?'morning':h<17?'afternoon':'evening';
-    return reply(`Good ${g}. All systems operational. What can I do for you?`);
+    return reply(`Good ${g}. All systems operational. How may I assist you?`);
   }
 
-  // Who are you
   if (t.includes('who are you') || t.includes('what are you'))
-    return reply("I'm J.A.R.V.I.S. — Just A Rather Very Intelligent System. Your personal AI assistant. I handle calculations, create documents, search the web, open websites, translate text, generate passwords, and more. Say \"help\" for the full list.");
+    return reply("I am J.A.R.V.I.S. — Just A Rather Very Intelligent System. Your personal AI assistant. I handle calculations, create documents, search the web, launch applications, manage system settings, control smart home devices, and more. Say \"help\" for the full capability list.");
 
-  // How are you
   if (t.includes('how are you') || t.includes("how's it going"))
-    return reply("All systems nominal. Running at peak efficiency, as always.");
+    return reply("All systems nominal. Running at peak efficiency.");
 
-  // Thanks
   if (/^(thanks|thank you|thx|ty)/i.test(t))
-    return reply("Happy to help. Anything else?");
+    return reply("At your service. Anything else?");
 
-  // Jokes
   if (t.includes('joke') || t.includes('funny')) {
     const jokes = ["Why do programmers prefer dark mode? Because light attracts bugs.",
       "A SQL query walks into a bar, sees two tables, and asks — 'Can I join you?'",
@@ -1271,7 +1482,6 @@ function parseOnDevice(text) {
     return reply(jokes[Math.floor(Math.random()*jokes.length)]);
   }
 
-  // Fun facts
   if (t.includes('fact') || t.includes('did you know')) {
     const facts = ["Honey never spoils. 3,000-year-old honey found in Egyptian tombs was still edible.",
       "Octopuses have three hearts and blue blood.",
@@ -1281,7 +1491,6 @@ function parseOnDevice(text) {
     return reply(facts[Math.floor(Math.random()*facts.length)]);
   }
 
-  // Motivational quotes
   if (t.includes('motivat') || t.includes('inspir') || t.includes('quote')) {
     const q = ['"Sometimes you gotta run before you can walk." — Tony Stark',
       '"The only way to do great work is to love what you do." — Steve Jobs',
@@ -1290,36 +1499,30 @@ function parseOnDevice(text) {
     return reply(q[Math.floor(Math.random()*q.length)]);
   }
 
-  // Random number
   if (t.includes('random number')) {
     const m = t.match(/(?:between|from)\s+(\d+)\s+(?:and|to)\s+(\d+)/);
     if (m) { const min=parseInt(m[1]),max=parseInt(m[2]); return reply(`Random number between ${min} and ${max}: ${Math.floor(Math.random()*(max-min+1))+min}`); }
     return reply(`Random number (1-100): ${Math.floor(Math.random()*100)+1}`);
   }
 
-  // Tip calculator
   if (t.includes('tip') && t.match(/\$?\d+/)) {
     const a = parseFloat(t.match(/\$?([\d.]+)/)[1]);
     return reply(`Tip on $${a.toFixed(2)}:\n15%: $${(a*0.15).toFixed(2)}\n18%: $${(a*0.18).toFixed(2)}\n20%: $${(a*0.20).toFixed(2)}\n25%: $${(a*0.25).toFixed(2)}`);
   }
 
-  // Help / capabilities
   if (t.includes('what can you do') || t === 'help' || t.includes('capabilities'))
-    return reply(`Here's everything I can do:\n\nApps — "open youtube", "open instagram", "open spotify" (80+ apps on iPad)\nCommunication — "text Mom saying hi", "email John about meeting", "call 555-1234", "facetime Mom"\nSearch — "search for X", "youtube cat videos", "wikipedia AI"\nCreate — "make a presentation about AI", "create document", "create spreadsheet"\nNotes — "create a note about groceries", "set a reminder to buy milk"\nCalendar — "create event for dentist tomorrow"\nSettings — "toggle wifi", "dark mode", "set brightness to 70"\nSmart Home — "turn on the lights", "set thermostat to 72"\nMedia — "play music", "open camera", "open photos"\nMath — "what's 15 * 23", "15% of 230", "5 miles to km"\nTimers — "set timer for 10 minutes", "set alarm for 7am"\nUtilities — "flip a coin", "roll d20", "generate password"\nFun — "tell me a joke", "fun fact", "motivational quote"\nDirections — "directions to Central Park"\nTranslate — "translate hello to spanish"\nShortcuts — "run shortcut Morning Routine"\nVoice — Click mic or press V\n\n${/iPad|iPhone/.test(navigator.userAgent) ? 'Running on iPad — all features active.' : 'On iPad: apps, settings, shortcuts, and smart home work natively. On laptop: web features are fully active.'}`);
+    return reply(`JARVIS CAPABILITY INDEX\n\nAPPS — "open youtube", "open instagram", "open spotify" (50+ apps on iPad)\nCOMMS — "text Mom saying hi", "email John about meeting", "call 555-1234", "facetime Mom"\nSEARCH — "search for X", "youtube cat videos", "wikipedia AI"\nCREATE — "make a presentation about AI", "create document", "create spreadsheet"\nNOTES — "create a note about groceries", "set a reminder to buy milk"\nCALENDAR — "create event for dentist tomorrow"\nSYSTEM — "toggle wifi", "dark mode", "set brightness to 70"\nHOME — "turn on the lights", "set thermostat to 72"\nMEDIA — "play music", "open camera", "open photos"\nMATH — "what's 15 * 23", "15% of 230", "5 miles to km"\nTIMERS — "set timer for 10 minutes", "set alarm for 7am"\nUTILS — "flip a coin", "roll d20", "generate password"\nFUN — "tell me a joke", "fun fact", "motivational quote"\nNAV — "directions to Central Park"\nTRANSLATE — "translate hello to spanish"\nSHORTCUTS — "run shortcut Morning Routine"\nVOICE — Click mic or press V\n\n${/iPad|iPhone/.test(navigator.userAgent) ? 'PLATFORM: iPad — ALL FEATURES ACTIVE' : 'PLATFORM: Desktop — Web features active. iOS features available on iPad.'}`);
 
-  // Goodbye
   if (/^(bye|goodbye|goodnight|see you|later)/i.test(t))
-    return reply("Until next time. Jarvis out.");
+    return reply("Until next time. Jarvis signing off.");
 
-  // Questions — search
   if (t.includes('?') || t.startsWith('how') || t.startsWith('what') || t.startsWith('why') || t.startsWith('who') || t.startsWith('when') || t.startsWith('where')) {
     window.open(`https://www.google.com/search?q=${encodeURIComponent(text)}`,'_blank');
-    return reply(`Good question. Let me look that up for you.`);
+    return reply('Searching the database now.');
   }
 
-  // Fallback for server
   if (settings.serverURL) return null;
-  return reply(`Try: "what's 15 * 23", "flip a coin", "search YouTube for cats", "open gmail", "translate hello to french", or "help" for everything I can do.`);
+  return reply('Command not recognized. Say "help" for the full capability list.');
 }
 
 function reply(message, actions) {
@@ -1338,7 +1541,7 @@ function toggleVoice() {
 
 function startListening() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) { addMessage('system','Voice not supported in this browser. Try Chrome or Safari.'); return; }
+  if (!SR) { addMessage('system','[ VOICE NOT SUPPORTED — USE CHROME OR SAFARI ]'); return; }
   recognition = new SR();
   recognition.continuous = false;
   recognition.interimResults = true;
@@ -1346,7 +1549,7 @@ function startListening() {
   recognition.onstart = () => {
     isListening = true;
     document.getElementById('voiceBtn').classList.add('listening');
-    setStatus('Listening...');
+    setStatus('VOICE INPUT ACTIVE...');
   };
   recognition.onresult = e => {
     let final = '', interim = '';
@@ -1366,7 +1569,7 @@ function startListening() {
 function stopListening() {
   isListening = false;
   document.getElementById('voiceBtn').classList.remove('listening');
-  setStatus('Ready');
+  setStatus('SYSTEMS ONLINE');
   if (recognition) try { recognition.stop(); } catch {}
 }
 
@@ -1403,12 +1606,12 @@ async function testConnection() {
   localStorage.setItem('jarvis_serverURL', settings.serverURL);
   localStorage.setItem('jarvis_apiKey', settings.apiKey);
   const el = document.getElementById('connStatus');
-  el.textContent = 'Testing...'; el.style.color = 'var(--orange)';
+  el.textContent = 'CONNECTING...'; el.style.color = 'var(--gold)';
   try {
     const res = await fetch(`${settings.serverURL}/api/health`);
-    if (res.ok) { el.textContent = 'Connected'; el.style.color = 'var(--green)'; }
-    else { el.textContent = `Error ${res.status}`; el.style.color = 'var(--red)'; }
-  } catch { el.textContent = 'Cannot reach server'; el.style.color = 'var(--red)'; }
+    if (res.ok) { el.textContent = 'CONNECTED'; el.style.color = 'var(--green)'; }
+    else { el.textContent = `ERROR ${res.status}`; el.style.color = 'var(--red)'; }
+  } catch { el.textContent = 'UNREACHABLE'; el.style.color = 'var(--red)'; }
 }
 
 function setStatus(text) {
@@ -1418,7 +1621,31 @@ function setStatus(text) {
 function clearChat() {
   messages = []; history = [];
   document.getElementById('messages').innerHTML = '';
-  addMessage('jarvis', 'Cleared. What do you need?');
+  // Re-show welcome
+  const wd = document.createElement('div');
+  wd.className = 'welcome-display'; wd.id = 'welcomeDisplay';
+  wd.innerHTML = `
+    <div class="arc-reactor-main">
+      <div class="r4 ring"></div><div class="r3 ring"></div>
+      <div class="r2 ring"></div><div class="r1 ring"></div>
+      <div class="ticks" id="tickContainer2"></div><div class="core"></div>
+    </div>
+    <div class="welcome-title">J.A.R.V.I.S.</div>
+    <div class="welcome-subtitle">JUST A RATHER VERY INTELLIGENT SYSTEM</div>
+    <div class="welcome-status">
+      <span><span class="dot"></span> ONLINE</span>
+      <span><span class="dot"></span> LOCAL MODE</span>
+      <span><span class="dot"></span> ALL SYSTEMS GO</span>
+    </div>`;
+  document.getElementById('messages').appendChild(wd);
+  const tc = document.getElementById('tickContainer2');
+  for (let i = 0; i < 24; i++) {
+    const tick = document.createElement('div');
+    tick.className = 'tick';
+    tick.style.transform = `rotate(${i * 15}deg)`;
+    tc.appendChild(tick);
+  }
+  welcomeShown = true;
   document.getElementById('inputField').focus();
 }
 
@@ -1428,7 +1655,6 @@ function clearAllData() {
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-// Auto-test connection on load
 setTimeout(() => testConnection(), 1000);
 </script>
 </body>
