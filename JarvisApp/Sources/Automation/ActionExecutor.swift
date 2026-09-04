@@ -10,6 +10,9 @@ struct ActionResult {
 
 class ActionExecutor {
 
+    let keyboardBridge = KeyboardBridge()
+    let screenReader = ScreenReader()
+
     // Master URL scheme registry — Jarvis knows how to open everything
     private let appSchemes: [String: String] = [
         // Apple
@@ -204,8 +207,14 @@ class ActionExecutor {
         guard let text = params["text"]?.s else {
             return ActionResult(success: false, message: "No text")
         }
+
+        // Method 1: Keyboard extension (types directly into any focused field)
+        keyboardBridge.typeText(text)
+
+        // Method 2: Also copy to clipboard as fallback
         UIPasteboard.general.string = text
-        return ActionResult(success: true, message: "Text ready — paste it into the field (Cmd+V or long-press → Paste). Text: \"\(text)\"")
+
+        return ActionResult(success: true, message: "Typing: \"\(text)\" — if Jarvis Keyboard is active it types directly, otherwise paste with Cmd+V")
     }
 
     private func selectAll() -> ActionResult {

@@ -25,8 +25,10 @@ class JarvisBrain: ObservableObject {
     // Services
     let executor = ActionExecutor()
     let screenCapture = ScreenCaptureService()
+    let screenReader = ScreenReader()
     let voice = VoiceService()
     let speaker = SpeechSynthesizer()
+    let memory = JarvisMemory()
 
     private var history: [HistoryTurn] = []
     private var loopTask: Task<Void, Never>?
@@ -34,8 +36,15 @@ class JarvisBrain: ObservableObject {
     init() {
         messages.append(Message(
             role: .jarvis,
-            content: "I'm Jarvis. Tell me anything — I'll figure out how to do it on your iPad. I can open apps, type messages, search the web, change settings, control music, send texts, and chain complex multi-step tasks. Just say the word."
+            content: "Good \(greeting). I'm Jarvis. I have full control of this iPad — I can open any app, write documents, send messages, browse the web, adjust every setting, and handle complex multi-step tasks autonomously. What do you need?"
         ))
+    }
+
+    private var greeting: String {
+        let hour = Calendar.current.component(.hour, from: Date())
+        if hour < 12 { return "morning" }
+        if hour < 17 { return "afternoon" }
+        return "evening"
     }
 
     // MARK: - Main command entry
@@ -68,16 +77,26 @@ class JarvisBrain: ObservableObject {
         while agentLoopActive && iterations < maxIterations {
             iterations += 1
 
-            // 1. See — capture current screen state
-            let screenshot = autoScreenshot ? screenCapture.captureAndEncode(quality: 0.8) : nil
+            // 1. See — capture current screen state + OCR read it
+            var screenshot: String? = nil
+            var screenText: String? = nil
 
-            // 2. Think — send to server AI
+            if autoScreenshot, let image = screenCapture.captureScreen() {
+                screenshot = image.jpegData(compressionQuality: 0.8)?.base64EncodedString()
+                statusText = "Reading screen..."
+                let analysis = await screenReader.readScreen(image)
+                screenText = analysis.summary
+            }
+
+            // 2. Think — send to server AI with full context
             statusText = "Planning step \(iterations)..."
             guard let response = await callServer(
                 command: currentCommand,
                 screenshot: screenshot,
                 isFollowUp: followUp,
-                previousResult: prevResult
+                previousResult: prevResult,
+                screenText: screenText,
+                memoryContext: memory.contextString()
             ) else {
                 messages.append(Message(role: .system, content: "Lost connection to server."))
                 break
@@ -174,7 +193,7 @@ class JarvisBrain: ObservableObject {
 
     // MARK: - Server communication
 
-    private func callServer(command: String, screenshot: String?, isFollowUp: Bool, previousResult: String?) async -> AgentResponse? {
+    private func callServer(command: String, screenshot: String?, isFollowUp: Bool, previousResult: String?, screenText: String? = nil, memoryContext: String? = nil) async -> AgentResponse? {
         guard !serverURL.isEmpty else { return nil }
         guard let url = URL(string: "\(serverURL)/api/agent") else { return nil }
 
@@ -189,8 +208,17 @@ class JarvisBrain: ObservableObject {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
 
+        // Append screen OCR and memory to command for richer context
+        var enrichedCommand = command
+        if let screenText, !screenText.isEmpty {
+            enrichedCommand += "\n\n[SCREEN OCR]\n\(screenText)"
+        }
+        if let memoryContext, !memoryContext.isEmpty {
+            enrichedCommand += "\n\n\(memoryContext)"
+        }
+
         let body = CommandRequest(
-            command: command,
+            command: enrichedCommand,
             screenshot: screenshot,
             deviceInfo: DeviceInfoPayload(
                 model: UIDevice.current.model,
