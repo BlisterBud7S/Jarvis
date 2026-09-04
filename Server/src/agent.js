@@ -45,7 +45,7 @@ export class JarvisAgent {
     const greeting = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
 
     // Greetings
-    if (/^(hi|hello|hey|good morning|good afternoon|good evening|sup|yo|what's up|howdy|greetings)/i.test(t)) {
+    if (/^(hi|hello|hey|good morning|good afternoon|good evening|sup|what's up|howdy|greetings)$/i.test(t) || /^(hi|hello|hey|good morning|good afternoon|good evening) /i.test(t)) {
       const greetings = [
         `Good ${greeting}. All systems are operational. What can I do for you?`,
         `Good ${greeting}. I'm at your service. What shall we tackle?`,
@@ -101,7 +101,7 @@ export class JarvisAgent {
     if (t.includes('what time') || t === 'time' || t.includes('current time')) {
       return jarvisReply(`The current time is ${time.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}.`);
     }
-    if (t.includes('what day') || t.includes("today's date") || t.includes("what's the date") || t === 'date' || t === "what's today") {
+    if (t.includes('what day') || t.includes('the date') || t.includes("today's date") || t === 'date' || t === "what's today") {
       return jarvisReply(`Today is ${time.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}.`);
     }
 
@@ -118,7 +118,7 @@ export class JarvisAgent {
     }
 
     // Dice
-    if (t.includes('roll') && (t.includes('di') || t.includes('dice'))) {
+    if (t.includes('roll') || t.match(/\bd\d+\b/)) {
       let sides = 6;
       const dm = t.match(/d(\d+)/);
       if (dm) sides = parseInt(dm[1]);
@@ -231,8 +231,8 @@ export class JarvisAgent {
 
     // YouTube
     if (t.includes('youtube')) {
-      const q = t.replace(/(?:search|play|watch|find|open)\s*(?:on\s+)?youtube\s*(?:for)?\s*/i, '').trim();
-      if (q && q !== 'youtube') {
+      const q = t.replace(/\byoutube\b/gi, '').replace(/(?:search|play|watch|find|open|on|for)\s*/gi, '').trim();
+      if (q) {
         return jarvisReply(`Searching YouTube for "${q}".`, [{ type: 'openURL', params: { url: `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}` } }]);
       }
       return jarvisReply("Opening YouTube.", [{ type: 'openURL', params: { url: 'https://www.youtube.com' } }]);
@@ -348,9 +348,9 @@ export class JarvisAgent {
       return jarvisReply(facts[Math.floor(Math.random() * facts.length)]);
     }
 
-    // Definition / meaning
-    if (t.startsWith('define ') || t.startsWith('what does ') || t.includes('meaning of ')) {
-      const word = t.replace(/^(?:define\s+|what\s+does\s+|what(?:'s| is) the meaning of\s+)/i, '').replace(/\s*\??\s*(?:mean)?$/, '').trim();
+    // Definition
+    if (t.startsWith('define ') || (t.startsWith('what does ') && t.includes('mean'))) {
+      const word = t.replace(/^(?:define\s+|what\s+does\s+)/i, '').replace(/\s*\??\s*(?:mean)?$/, '').trim();
       return jarvisReply(`Looking up "${word}" for you.`, [{ type: 'openURL', params: { url: `https://www.google.com/search?q=define+${encodeURIComponent(word)}` } }]);
     }
 
