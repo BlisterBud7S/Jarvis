@@ -1,0 +1,587 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A10001 /* JarvisApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10001; };
+		A10002 /* JarvisBrain.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10002; };
+		A10003 /* ActionExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10003; };
+		A10004 /* AutomationEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10004; };
+		A10005 /* OnDeviceParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10005; };
+		A10006 /* ShortcutInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10006; };
+		A10007 /* KeyboardBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10007; };
+		A10008 /* ScreenReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10008; };
+		A10009 /* ScreenCaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10009; };
+		A10010 /* VoiceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10010; };
+		A10011 /* SpeechSynthesizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10011; };
+		A10012 /* JarvisMemory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10012; };
+		A10013 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10013; };
+		A10014 /* ServerResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10014; };
+		A10015 /* DeviceAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10015; };
+		A10016 /* ActionType+UI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10016; };
+		A10017 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10017; };
+		A10018 /* JarvisRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10018; };
+		A10019 /* QuickActionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10019; };
+		A10020 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10020; };
+		A10021 /* VoiceInputSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10021; };
+		A10022 /* SetupWizardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10022; };
+		A20001 /* KeyboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20001; };
+		A30001 /* JarvisKeyboard.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = P20000; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C10001 = {
+			isa = PBXContainerItemProxy;
+			containerPortal = R00000;
+			proxyType = 1;
+			remoteGlobalIDString = T10000;
+			remoteInfo = JarvisKeyboard;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		D10001 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				A30001,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		P10000 /* Jarvis.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Jarvis.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		P20000 /* JarvisKeyboard.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = JarvisKeyboard.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		B10001 /* JarvisApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JarvisApp.swift; sourceTree = "<group>"; };
+		B10002 /* JarvisBrain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JarvisBrain.swift; sourceTree = "<group>"; };
+		B10003 /* ActionExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionExecutor.swift; sourceTree = "<group>"; };
+		B10004 /* AutomationEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomationEngine.swift; sourceTree = "<group>"; };
+		B10005 /* OnDeviceParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnDeviceParser.swift; sourceTree = "<group>"; };
+		B10006 /* ShortcutInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutInstaller.swift; sourceTree = "<group>"; };
+		B10007 /* KeyboardBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardBridge.swift; sourceTree = "<group>"; };
+		B10008 /* ScreenReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenReader.swift; sourceTree = "<group>"; };
+		B10009 /* ScreenCaptureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenCaptureService.swift; sourceTree = "<group>"; };
+		B10010 /* VoiceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceService.swift; sourceTree = "<group>"; };
+		B10011 /* SpeechSynthesizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechSynthesizer.swift; sourceTree = "<group>"; };
+		B10012 /* JarvisMemory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JarvisMemory.swift; sourceTree = "<group>"; };
+		B10013 /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
+		B10014 /* ServerResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerResponse.swift; sourceTree = "<group>"; };
+		B10015 /* DeviceAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceAction.swift; sourceTree = "<group>"; };
+		B10016 /* ActionType+UI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ActionType+UI.swift"; sourceTree = "<group>"; };
+		B10017 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
+		B10018 /* JarvisRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JarvisRootView.swift; sourceTree = "<group>"; };
+		B10019 /* QuickActionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickActionsView.swift; sourceTree = "<group>"; };
+		B10020 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		B10021 /* VoiceInputSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceInputSheet.swift; sourceTree = "<group>"; };
+		B10022 /* SetupWizardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupWizardView.swift; sourceTree = "<group>"; };
+		B20001 /* KeyboardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardViewController.swift; sourceTree = "<group>"; };
+		B30001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B30002 /* Jarvis.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Jarvis.entitlements; sourceTree = "<group>"; };
+		B30003 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B30004 /* JarvisKeyboard.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = JarvisKeyboard.entitlements; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F10001 = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F20001 = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		G00000 = {
+			isa = PBXGroup;
+			children = (
+				G10000,
+				G20000,
+				G90000,
+			);
+			sourceTree = "<group>";
+		};
+		G10000 /* JarvisApp */ = {
+			isa = PBXGroup;
+			children = (
+				B30001 /* Info.plist */,
+				B30002 /* Jarvis.entitlements */,
+				G11000 /* Sources */,
+			);
+			path = JarvisApp;
+			sourceTree = "<group>";
+		};
+		G11000 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				G11100 /* App */,
+				G11200 /* Services */,
+				G11300 /* Automation */,
+				G11400 /* Keyboard */,
+				G11500 /* Vision */,
+				G11600 /* Memory */,
+				G11700 /* Models */,
+				G11800 /* Extensions */,
+				G11900 /* Views */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		G11100 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				B10001,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		G11200 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				B10002,
+				B10009,
+				B10010,
+				B10011,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		G11300 /* Automation */ = {
+			isa = PBXGroup;
+			children = (
+				B10003,
+				B10004,
+				B10005,
+				B10006,
+			);
+			path = Automation;
+			sourceTree = "<group>";
+		};
+		G11400 /* Keyboard */ = {
+			isa = PBXGroup;
+			children = (
+				B10007,
+			);
+			path = Keyboard;
+			sourceTree = "<group>";
+		};
+		G11500 /* Vision */ = {
+			isa = PBXGroup;
+			children = (
+				B10008,
+			);
+			path = Vision;
+			sourceTree = "<group>";
+		};
+		G11600 /* Memory */ = {
+			isa = PBXGroup;
+			children = (
+				B10012,
+			);
+			path = Memory;
+			sourceTree = "<group>";
+		};
+		G11700 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				B10013,
+				B10014,
+				B10015,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		G11800 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				B10016,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		G11900 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				B10017,
+				B10018,
+				B10019,
+				B10020,
+				B10021,
+				B10022,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		G20000 /* JarvisKeyboard */ = {
+			isa = PBXGroup;
+			children = (
+				B20001,
+				B30003 /* Info.plist */,
+				B30004 /* JarvisKeyboard.entitlements */,
+			);
+			path = JarvisKeyboard;
+			sourceTree = "<group>";
+		};
+		G90000 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				P10000,
+				P20000,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		T00000 /* Jarvis */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = X10000;
+			buildPhases = (
+				S10000,
+				F10001,
+				R10000,
+				D10001,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				DEP10001,
+			);
+			name = Jarvis;
+			productName = Jarvis;
+			productReference = P10000;
+			productType = "com.apple.product-type.application";
+		};
+		T10000 /* JarvisKeyboard */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = X20000;
+			buildPhases = (
+				S20000,
+				F20001,
+				R20000,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = JarvisKeyboard;
+			productName = JarvisKeyboard;
+			productReference = P20000;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		R00000 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1540;
+				LastUpgradeCheck = 1540;
+				TargetAttributes = {
+					T00000 = {
+						CreatedOnToolsVersion = 15.4;
+					};
+					T10000 = {
+						CreatedOnToolsVersion = 15.4;
+					};
+				};
+			};
+			buildConfigurationList = X00000;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = G00000;
+			productRefGroup = G90000;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				T00000,
+				T10000,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		R10000 = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		R20000 = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		S10000 = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10001,
+				A10002,
+				A10003,
+				A10004,
+				A10005,
+				A10006,
+				A10007,
+				A10008,
+				A10009,
+				A10010,
+				A10011,
+				A10012,
+				A10013,
+				A10014,
+				A10015,
+				A10016,
+				A10017,
+				A10018,
+				A10019,
+				A10020,
+				A10021,
+				A10022,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		S20000 = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A20001,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		DEP10001 = {
+			isa = PBXTargetDependency;
+			target = T10000;
+			targetProxy = C10001;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		/* Project-level Debug */
+		CFG_PRJ_DEBUG = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		/* Project-level Release */
+		CFG_PRJ_RELEASE = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_VERSION = 5.0;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		/* Jarvis App Debug */
+		CFG_APP_DEBUG = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = JarvisApp/Jarvis.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = JarvisApp/Info.plist;
+				INFOPLIST_KEY_LSRequiresIPhoneOS = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 2.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jarvis.ai;
+				PRODUCT_NAME = Jarvis;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 2;
+			};
+			name = Debug;
+		};
+		/* Jarvis App Release */
+		CFG_APP_RELEASE = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = JarvisApp/Jarvis.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = JarvisApp/Info.plist;
+				INFOPLIST_KEY_LSRequiresIPhoneOS = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 2.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jarvis.ai;
+				PRODUCT_NAME = Jarvis;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 2;
+			};
+			name = Release;
+		};
+		/* JarvisKeyboard Debug */
+		CFG_KBD_DEBUG = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = JarvisKeyboard/JarvisKeyboard.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = JarvisKeyboard/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 2.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jarvis.ai.keyboard;
+				PRODUCT_NAME = JarvisKeyboard;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 2;
+			};
+			name = Debug;
+		};
+		/* JarvisKeyboard Release */
+		CFG_KBD_RELEASE = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = JarvisKeyboard/JarvisKeyboard.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = JarvisKeyboard/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 2.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jarvis.ai.keyboard;
+				PRODUCT_NAME = JarvisKeyboard;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 2;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		X00000 /* Project */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CFG_PRJ_DEBUG,
+				CFG_PRJ_RELEASE,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		X10000 /* Jarvis */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CFG_APP_DEBUG,
+				CFG_APP_RELEASE,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		X20000 /* JarvisKeyboard */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CFG_KBD_DEBUG,
+				CFG_KBD_RELEASE,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = R00000;
+}
