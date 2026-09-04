@@ -21,6 +21,8 @@ class JarvisBrain: ObservableObject {
     @AppStorage("voiceEnabled") var voiceEnabled = true
     @AppStorage("autoScreenshot") var autoScreenshot = true
     @AppStorage("jarvisVoice") var jarvisVoice = true
+    @AppStorage("useOnDevice") var useOnDevice = true
+    @AppStorage("hasCompletedSetup") var hasCompletedSetup = false
 
     // Services
     let executor = ActionExecutor()
@@ -29,6 +31,8 @@ class JarvisBrain: ObservableObject {
     let voice = VoiceService()
     let speaker = SpeechSynthesizer()
     let memory = JarvisMemory()
+    let onDeviceParser = OnDeviceParser()
+    let shortcutInstaller = ShortcutInstaller()
 
     private var history: [HistoryTurn] = []
     private var loopTask: Task<Void, Never>?
@@ -58,10 +62,43 @@ class JarvisBrain: ObservableObject {
         history.append(HistoryTurn(role: "user", content: command))
         statusText = "Thinking..."
 
-        await agentLoop(command: command, isFollowUp: false, previousResult: nil)
+        if useOnDevice || serverURL.isEmpty {
+            // On-device mode: parse locally, execute immediately
+            await executeOnDevice(command: command)
+        } else {
+            // Cloud mode: full agent loop
+            await agentLoop(command: command, isFollowUp: false, previousResult: nil)
+        }
 
         isProcessing = false
         statusText = "Ready"
+    }
+
+    private func executeOnDevice(command: String) async {
+        let response = onDeviceParser.parse(command)
+
+        if !response.message.isEmpty {
+            messages.append(Message(role: .jarvis, content: response.message,
+                actions: response.actions.map { DeviceAction(
+                    type: DeviceAction.ActionType(rawValue: $0.type) ?? .think,
+                    params: $0.params
+                )}
+            ))
+
+            if jarvisVoice { speaker.speak(response.message) }
+        }
+
+        // Execute actions
+        for actionPayload in response.actions {
+            let actionType = DeviceAction.ActionType(rawValue: actionPayload.type) ?? .think
+            let action = DeviceAction(type: actionType, params: actionPayload.params)
+            _ = await executor.execute(action)
+            if response.actions.count > 1 {
+                try? await Task.sleep(nanoseconds: 300_000_000)
+            }
+        }
+
+        history.append(HistoryTurn(role: "assistant", content: response.message))
     }
 
     // MARK: - Agent loop (see → think → act → verify → repeat)

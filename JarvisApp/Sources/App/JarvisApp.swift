@@ -1,5 +1,6 @@
 import SwiftUI
 import UserNotifications
+import AVFoundation
 
 @main
 struct JarvisApp: App {
@@ -8,13 +9,19 @@ struct JarvisApp: App {
     init() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in }
         UIDevice.current.isBatteryMonitoringEnabled = true
+        AVAudioApplication.requestRecordPermission { _ in }
     }
 
     var body: some Scene {
         WindowGroup {
-            JarvisRootView()
-                .environmentObject(jarvis)
-                .preferredColorScheme(jarvis.forcedTheme)
+            Group {
+                if jarvis.hasCompletedSetup {
+                    JarvisRootView()
+                } else {
+                    SetupWizardView()
+                }
+            }
+            .environmentObject(jarvis)
         }
     }
 }

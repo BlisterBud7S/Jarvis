@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleName</key>
+    <string>Jarvis</string>
+    <key>CFBundleDisplayName</key>
+    <string>Jarvis</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.jarvis.ai</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>CFBundleShortVersionString</key>
+    <string>2.0.0</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>LSRequiresIPhoneOS</key>
+    <true/>
+    <key>UIRequiredDeviceCapabilities</key>
+    <array>
+        <string>arm64</string>
+    </array>
+    <key>UISupportedInterfaceOrientations~ipad</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+        <string>UIInterfaceOrientationPortraitUpsideDown</string>
+        <string>UIInterfaceOrientationLandscapeLeft</string>
+        <string>UIInterfaceOrientationLandscapeRight</string>
+    </array>
+    <key>UILaunchScreen</key>
+    <dict>
+        <key>UIColorName</key>
+        <string>LaunchScreenBackground</string>
+        <key>UIImageName</key>
+        <string>LaunchIcon</string>
+    </dict>
+
+    <!-- Permissions -->
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Jarvis needs microphone access for voice commands so you can speak to control your iPad.</string>
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>Jarvis uses speech recognition to understand your voice commands.</string>
+    <key>NSCameraUsageDescription</key>
+    <string>Jarvis needs camera access to take photos when you ask.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Jarvis needs photo library access to save screenshots and photos.</string>
+    <key>NSContactsUsageDescription</key>
+    <string>Jarvis needs contacts access to send messages and make calls to your contacts.</string>
+    <key>NSCalendarsUsageDescription</key>
+    <string>Jarvis needs calendar access to create events when you ask.</string>
+    <key>NSRemindersUsageDescription</key>
+    <string>Jarvis needs reminders access to create reminders when you ask.</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Jarvis uses your location for map searches and weather.</string>
+    <key>NSAppleMusicUsageDescription</key>
+    <string>Jarvis needs music access to play and control your music.</string>
+
+    <!-- App Transport Security -->
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <false/>
+        <key>NSAllowsLocalNetworking</key>
+        <true/>
+    </dict>
+
+    <!-- URL Schemes this app can open -->
+    <key>LSApplicationQueriesSchemes</key>
+    <array>
+        <string>shortcuts</string>
+        <string>youtube</string>
+        <string>twitter</string>
+        <string>instagram</string>
+        <string>whatsapp</string>
+        <string>tg</string>
+        <string>spotify</string>
+        <string>nflx</string>
+        <string>snssdk1233</string>
+        <string>snapchat</string>
+        <string>discord</string>
+        <string>slack</string>
+        <string>zoomus</string>
+        <string>googlechrome</string>
+        <string>googlegmail</string>
+        <string>comgooglemaps</string>
+        <string>googledrive</string>
+        <string>notion</string>
+        <string>reddit</string>
+        <string>fb</string>
+        <string>fb-messenger</string>
+        <string>sgnl</string>
+        <string>linkedin</string>
+        <string>pinterest</string>
+        <string>music</string>
+        <string>maps</string>
+        <string>facetime</string>
+        <string>facetime-audio</string>
+        <string>mobilenotes</string>
+        <string>calshow</string>
+    </array>
+
+    <!-- Background modes -->
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>audio</string>
+        <string>fetch</string>
+    </array>
+</dict>
+</plist>
