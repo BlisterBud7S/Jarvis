@@ -116,11 +116,12 @@ app.get('*', (_req, res) => {
 });
 
 app.listen(port, '0.0.0.0', () => {
+  const mode = process.env.ANTHROPIC_API_KEY ? 'AI Mode (Claude API)' : 'Local Mode (No API key needed)';
   console.log(`\n  ╔══════════════════════════════════════╗`);
   console.log(`  ║     J.A.R.V.I.S. Server v2.0.0      ║`);
   console.log(`  ╠══════════════════════════════════════╣`);
   console.log(`  ║  Local:  http://localhost:${port}        ║`);
-  console.log(`  ║  Web UI: http://localhost:${port}        ║`);
+  console.log(`  ║  Mode:   ${mode.padEnd(27)}║`);
   console.log(`  ╚══════════════════════════════════════╝\n`);
   console.log(`  Open on your iPad: http://<your-mac-ip>:${port}`);
   console.log(`  Then: Share → Add to Home Screen\n`);

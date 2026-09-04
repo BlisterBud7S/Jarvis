@@ -591,7 +591,7 @@ function greetingMessage() {
   const device = /iPad|iPhone/.test(navigator.userAgent) ? 'iPad' :
                  /Mac/.test(navigator.userAgent) ? 'Mac' :
                  /Windows/.test(navigator.userAgent) ? 'PC' : 'device';
-  return `Good ${g}. I'm Jarvis — your AI assistant. I'm running on your ${device} and ready for anything. I can create documents and presentations, do calculations, search the web, check the weather and news, translate text, generate passwords, control smart home devices, and handle complex multi-step tasks. What do you need?`;
+  return `Good ${g}. I'm Jarvis — your AI assistant running on your ${device}. No API key needed. I can create presentations and documents, calculate, search the web, open websites, translate, check weather and news, generate passwords, flip coins, roll dice, tell jokes, and more. Say "help" for the full list. What do you need?`;
 }
 
 // Keyboard shortcuts (laptop-friendly)
@@ -926,9 +926,84 @@ function parseOnDevice(text) {
     }
   }
 
+  // Greetings
+  if (/^(hi|hello|hey|good morning|good afternoon|good evening|sup|yo|what's up|howdy)/i.test(t)) {
+    const h = new Date().getHours();
+    const g = h<12?'morning':h<17?'afternoon':'evening';
+    return reply(`Good ${g}. All systems operational. What can I do for you?`);
+  }
+
+  // Who are you
+  if (t.includes('who are you') || t.includes('what are you'))
+    return reply("I'm J.A.R.V.I.S. — Just A Rather Very Intelligent System. Your personal AI assistant. I handle calculations, create documents, search the web, open websites, translate text, generate passwords, and more. Say \"help\" for the full list.");
+
+  // How are you
+  if (t.includes('how are you') || t.includes("how's it going"))
+    return reply("All systems nominal. Running at peak efficiency, as always.");
+
+  // Thanks
+  if (/^(thanks|thank you|thx|ty)/i.test(t))
+    return reply("Happy to help. Anything else?");
+
+  // Jokes
+  if (t.includes('joke') || t.includes('funny')) {
+    const jokes = ["Why do programmers prefer dark mode? Because light attracts bugs.",
+      "A SQL query walks into a bar, sees two tables, and asks — 'Can I join you?'",
+      "There are only 10 types of people: those who understand binary and those who don't.",
+      "I'm not saying I'm better than Siri, but I've never tried to call someone named 'Aunt Margarine.'",
+      "Why was the JavaScript developer sad? Because he didn't Node how to Express himself."];
+    return reply(jokes[Math.floor(Math.random()*jokes.length)]);
+  }
+
+  // Fun facts
+  if (t.includes('fact') || t.includes('did you know')) {
+    const facts = ["Honey never spoils. 3,000-year-old honey found in Egyptian tombs was still edible.",
+      "Octopuses have three hearts and blue blood.",
+      "A day on Venus is longer than a year on Venus.",
+      "Bananas are berries, but strawberries aren't.",
+      "The first computer programmer was Ada Lovelace, in the 1840s."];
+    return reply(facts[Math.floor(Math.random()*facts.length)]);
+  }
+
+  // Motivational quotes
+  if (t.includes('motivat') || t.includes('inspir') || t.includes('quote')) {
+    const q = ['"Sometimes you gotta run before you can walk." — Tony Stark',
+      '"The only way to do great work is to love what you do." — Steve Jobs',
+      '"Heroes are made by the path they choose, not the powers they are graced with." — Tony Stark',
+      '"Intelligence is the ability to adapt to change." — Stephen Hawking'];
+    return reply(q[Math.floor(Math.random()*q.length)]);
+  }
+
+  // Random number
+  if (t.includes('random number')) {
+    const m = t.match(/(?:between|from)\s+(\d+)\s+(?:and|to)\s+(\d+)/);
+    if (m) { const min=parseInt(m[1]),max=parseInt(m[2]); return reply(`Random number between ${min} and ${max}: ${Math.floor(Math.random()*(max-min+1))+min}`); }
+    return reply(`Random number (1-100): ${Math.floor(Math.random()*100)+1}`);
+  }
+
+  // Tip calculator
+  if (t.includes('tip') && t.match(/\$?\d+/)) {
+    const a = parseFloat(t.match(/\$?([\d.]+)/)[1]);
+    return reply(`Tip on $${a.toFixed(2)}:\n15%: $${(a*0.15).toFixed(2)}\n18%: $${(a*0.18).toFixed(2)}\n20%: $${(a*0.20).toFixed(2)}\n25%: $${(a*0.25).toFixed(2)}`);
+  }
+
+  // Help / capabilities
+  if (t.includes('what can you do') || t === 'help' || t.includes('capabilities'))
+    return reply("Here's what I can do — no API key needed:\n\nCalculate — \"what's 15 * 23\"\nConvert — \"5 miles to km\"\nCreate — \"make a presentation about AI\"\nSearch — \"search for Python tutorials\"\nOpen — \"open gmail\", \"open spotify\"\nTranslate — \"translate hello to spanish\"\nUtilities — \"flip a coin\", \"roll d20\", \"password\"\nInfo — \"what time\", \"joke\", \"fun fact\", \"quote\"\nVoice — Click mic or press V");
+
+  // Goodbye
+  if (/^(bye|goodbye|goodnight|see you|later)/i.test(t))
+    return reply("Until next time. Jarvis out.");
+
+  // Questions — search
+  if (t.includes('?') || t.startsWith('how') || t.startsWith('what') || t.startsWith('why') || t.startsWith('who') || t.startsWith('when') || t.startsWith('where')) {
+    window.open(`https://www.google.com/search?q=${encodeURIComponent(text)}`,'_blank');
+    return reply(`Good question. Let me look that up for you.`);
+  }
+
   // Fallback for server
   if (settings.serverURL) return null;
-  return reply(`I understand you want me to "${text}". Connect to the server in Settings for full AI. Try: "what's 15 * 23", "flip a coin", "search YouTube for cats", "open gmail", or "translate hello to french".`);
+  return reply(`Try: "what's 15 * 23", "flip a coin", "search YouTube for cats", "open gmail", "translate hello to french", or "help" for everything I can do.`);
 }
 
 function reply(message, actions) {
@@ -937,10 +1012,8 @@ function reply(message, actions) {
 
 function needsServer(text) {
   const t = text.toLowerCase();
-  const kw = ['presentation','document','write a ','compose','draft','spreadsheet','research',
-    'summarize','analyze','explain','help me','create a plan','smart home','turn on','turn off',
-    'thermostat','remind me','create a note','set a reminder','make a '];
-  return kw.some(k => t.includes(k));
+  const serverOnly = ['presentation','document','spreadsheet','smart home','turn on','turn off','thermostat'];
+  return serverOnly.some(k => t.includes(k));
 }
 
 // Voice
