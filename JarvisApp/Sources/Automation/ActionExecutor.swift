@@ -12,6 +12,8 @@ class ActionExecutor {
 
     let keyboardBridge = KeyboardBridge()
     let screenReader = ScreenReader()
+    let documentGenerator = DocumentGenerator()
+    var webAutomation: WebAutomation?
 
     // Master URL scheme registry — Jarvis knows how to open everything
     private let appSchemes: [String: String] = [
@@ -181,6 +183,78 @@ class ActionExecutor {
             return ActionResult(success: true, message: "Continuing...")
         case .abort:
             return ActionResult(success: false, message: action.params["reason"]?.s ?? "Aborted")
+
+        // Browser automation
+        case .browseURL:
+            if let web = webAutomation {
+                let url = action.params["url"]?.s ?? ""
+                await web.navigate(to: url)
+                try? await Task.sleep(nanoseconds: 1_500_000_000)
+                return ActionResult(success: true, message: "Navigated to \(url)")
+            }
+            return await openURL(action.params["url"]?.s ?? "https://google.com")
+        case .browserTap:
+            if let web = webAutomation, let text = action.params["text"]?.s {
+                let ok = await web.tapElement(withText: text)
+                return ActionResult(success: ok, message: ok ? "Tapped '\(text)'" : "Could not find '\(text)' on page")
+            }
+            return ActionResult(success: false, message: "Browser not active")
+        case .browserFill:
+            if let web = webAutomation, let field = action.params["field"]?.s, let value = action.params["value"]?.s {
+                let ok = await web.fillField(placeholder: field, value: value)
+                return ActionResult(success: ok, message: ok ? "Filled '\(field)'" : "Field '\(field)' not found")
+            }
+            return ActionResult(success: false, message: "Browser not active or missing params")
+        case .browserScroll:
+            if let web = webAutomation {
+                let dir = action.params["direction"]?.s ?? "down"
+                if dir == "up" { await web.scrollUp() } else { await web.scrollDown() }
+                return ActionResult(success: true, message: "Scrolled \(dir)")
+            }
+            return ActionResult(success: false, message: "Browser not active")
+        case .browserExtract:
+            if let web = webAutomation {
+                let text = await web.extractText()
+                return ActionResult(success: true, message: "Page text:\n\(String(text.prefix(2000)))")
+            }
+            return ActionResult(success: false, message: "Browser not active")
+        case .browserSubmit:
+            if let web = webAutomation {
+                let ok = await web.submitForm()
+                return ActionResult(success: ok, message: ok ? "Form submitted" : "No form found")
+            }
+            return ActionResult(success: false, message: "Browser not active")
+        case .browserBack:
+            webAutomation?.goBack()
+            return ActionResult(success: true, message: "Went back")
+
+        // Document generation
+        case .createPresentation:
+            let topic = action.params["topic"]?.s ?? action.params["title"]?.s ?? "Untitled"
+            let count = Int(action.params["slides"]?.n ?? 8)
+            if let url = documentGenerator.createPresentationFromTopic(topic: topic, slideCount: count) {
+                return ActionResult(success: true, message: "Presentation created: \(url.lastPathComponent). Opening now.")
+            }
+            return ActionResult(success: false, message: "Failed to create presentation")
+        case .createDocument:
+            let topic = action.params["topic"]?.s ?? action.params["title"]?.s ?? "Untitled"
+            if let url = documentGenerator.createDocumentFromTopic(topic: topic) {
+                return ActionResult(success: true, message: "Document created: \(url.lastPathComponent)")
+            }
+            return ActionResult(success: false, message: "Failed to create document")
+        case .createSpreadsheet:
+            let title = action.params["title"]?.s ?? "Untitled"
+            let headers = (action.params["headers"]?.s ?? "Column A,Column B,Column C").components(separatedBy: ",")
+            let url = documentGenerator.createSpreadsheet(title: title, headers: headers, rows: [])
+            return ActionResult(success: url != nil, message: url != nil ? "Spreadsheet created: \(url!.lastPathComponent)" : "Failed")
+        case .openGeneratedFile:
+            let name = action.params["name"]?.s ?? ""
+            let files = documentGenerator.listGeneratedFiles()
+            if let file = files.first(where: { $0.lastPathComponent.lowercased().contains(name.lowercased()) }) {
+                await MainActor.run { UIApplication.shared.open(file) }
+                return ActionResult(success: true, message: "Opening \(file.lastPathComponent)")
+            }
+            return ActionResult(success: false, message: "File not found")
 
         default:
             return ActionResult(success: false, message: "Unknown action: \(action.type.rawValue)")

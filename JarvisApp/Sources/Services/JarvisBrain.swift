@@ -299,4 +299,60 @@ class JarvisBrain: ObservableObject {
         history = []
         currentPlan = []
     }
+
+    // MARK: - Browser commands
+
+    func processBrowserCommand(_ text: String, automation: WebAutomation) async {
+        let cmd = text.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        messages.append(Message(role: .user, content: text))
+
+        if cmd.hasPrefix("go to ") || cmd.hasPrefix("open ") || cmd.hasPrefix("navigate to ") {
+            let url = cmd.replacingOccurrences(of: "go to ", with: "")
+                .replacingOccurrences(of: "open ", with: "")
+                .replacingOccurrences(of: "navigate to ", with: "")
+            automation.navigate(to: url)
+            messages.append(Message(role: .jarvis, content: "Navigating to \(url)."))
+        } else if cmd.hasPrefix("click ") || cmd.hasPrefix("tap ") || cmd.hasPrefix("press ") {
+            let target = cmd.replacingOccurrences(of: "click ", with: "")
+                .replacingOccurrences(of: "tap ", with: "")
+                .replacingOccurrences(of: "press ", with: "")
+            let ok = await automation.tapElement(withText: target)
+            messages.append(Message(role: .jarvis, content: ok ? "Tapped '\(target)'." : "Could not find '\(target)' on the page."))
+        } else if cmd.contains("fill") || cmd.contains("type") || cmd.contains("enter") {
+            let parts = cmd.components(separatedBy: " with ")
+            if parts.count == 2 {
+                let field = parts[0].replacingOccurrences(of: "fill ", with: "")
+                    .replacingOccurrences(of: "type in ", with: "")
+                    .replacingOccurrences(of: "enter in ", with: "")
+                let ok = await automation.fillField(placeholder: field, value: parts[1])
+                messages.append(Message(role: .jarvis, content: ok ? "Filled '\(field)'." : "Field '\(field)' not found."))
+            }
+        } else if cmd == "scroll down" || cmd == "scroll" {
+            await automation.scrollDown()
+            messages.append(Message(role: .jarvis, content: "Scrolled down."))
+        } else if cmd == "scroll up" {
+            await automation.scrollUp()
+            messages.append(Message(role: .jarvis, content: "Scrolled up."))
+        } else if cmd == "read" || cmd == "read page" || cmd.hasPrefix("extract") {
+            let text = await automation.extractText()
+            messages.append(Message(role: .jarvis, content: "Page content:\n\(String(text.prefix(1500)))"))
+        } else if cmd == "submit" || cmd == "submit form" {
+            let ok = await automation.submitForm()
+            messages.append(Message(role: .jarvis, content: ok ? "Form submitted." : "No form found on page."))
+        } else if cmd == "back" || cmd == "go back" {
+            automation.goBack()
+            messages.append(Message(role: .jarvis, content: "Going back."))
+        } else if cmd == "links" || cmd == "show links" {
+            let links = await automation.extractLinks()
+            messages.append(Message(role: .jarvis, content: "Links on page:\n\(links)"))
+        } else {
+            let encoded = cmd.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? cmd
+            automation.navigate(to: "https://www.google.com/search?q=\(encoded)")
+            messages.append(Message(role: .jarvis, content: "Searching for '\(cmd)'."))
+        }
+
+        if jarvisVoice, let last = messages.last, last.role == .jarvis {
+            speaker.speak(last.content)
+        }
+    }
 }

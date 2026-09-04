@@ -40,6 +40,10 @@ struct DeviceAction: Identifiable, Codable, Equatable {
         case wait, think, speak, verify, askUser, loop, abort
         // Keyboard extension
         case injectKeystrokes, submitForm
+        // Browser automation
+        case browseURL, browserTap, browserFill, browserScroll, browserExtract, browserSubmit, browserBack
+        // Document generation
+        case createPresentation, createDocument, createSpreadsheet, openGeneratedFile
     }
 
     init(type: ActionType, params: [String: ParamValue] = [:]) {

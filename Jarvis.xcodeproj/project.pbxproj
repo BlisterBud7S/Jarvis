@@ -30,6 +30,9 @@
 		A10021 /* VoiceInputSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10021; };
 		A10022 /* SetupWizardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10022; };
 		A20001 /* KeyboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20001; };
+		A10023 /* DocumentGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10023; };
+		A10024 /* WebAutomation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10024; };
+		A10025 /* JarvisBrowserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10025; };
 		A30001 /* JarvisKeyboard.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = P20000; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -87,6 +90,9 @@
 		B30002 /* Jarvis.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Jarvis.entitlements; sourceTree = "<group>"; };
 		B30003 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B30004 /* JarvisKeyboard.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = JarvisKeyboard.entitlements; sourceTree = "<group>"; };
+		B10023 /* DocumentGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentGenerator.swift; sourceTree = "<group>"; };
+		B10024 /* WebAutomation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebAutomation.swift; sourceTree = "<group>"; };
+		B10025 /* JarvisBrowserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JarvisBrowserView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -138,8 +144,27 @@
 				G11700 /* Models */,
 				G11800 /* Extensions */,
 				G11900 /* Views */,
+				G11A00 /* Documents */,
+				G11B00 /* Browser */,
 			);
 			path = Sources;
+			sourceTree = "<group>";
+		};
+		G11A00 /* Documents */ = {
+			isa = PBXGroup;
+			children = (
+				B10023,
+			);
+			path = Documents;
+			sourceTree = "<group>";
+		};
+		G11B00 /* Browser */ = {
+			isa = PBXGroup;
+			children = (
+				B10024,
+				B10025,
+			);
+			path = Browser;
 			sourceTree = "<group>";
 		};
 		G11100 /* App */ = {
@@ -366,6 +391,9 @@
 				A10020,
 				A10021,
 				A10022,
+			A10023,
+			A10024,
+			A10025,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

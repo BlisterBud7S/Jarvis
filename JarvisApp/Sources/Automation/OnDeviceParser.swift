@@ -187,6 +187,34 @@ class OnDeviceParser {
             ])
         }
 
+        // Create presentation
+        if let topic = matchPresentation(text) {
+            return respond("Creating a presentation about \(topic). I'll generate it and open it for you.", [
+                ActionPayload(type: "createPresentation", params: ["topic": .string(topic), "slides": .number(8)])
+            ])
+        }
+
+        // Create document
+        if let topic = matchDocument(text) {
+            return respond("Creating a document about \(topic).", [
+                ActionPayload(type: "createDocument", params: ["topic": .string(topic)])
+            ])
+        }
+
+        // Create spreadsheet
+        if let title = matchSpreadsheet(text) {
+            return respond("Creating a spreadsheet: \(title).", [
+                ActionPayload(type: "createSpreadsheet", params: ["title": .string(title)])
+            ])
+        }
+
+        // Browse/web automation
+        if let url = matchBrowse(text) {
+            return respond("Opening that in the browser.", [
+                ActionPayload(type: "browseURL", params: ["url": .string(url)])
+            ])
+        }
+
         // Fallback — try to be helpful
         return respond(
             "I understand you want me to \"\(input)\". For complex tasks like this, connect me to the cloud AI server in Settings for full autonomous control. For now, try specific commands like \"open Safari\", \"type hello world\", \"set brightness to 50%\", or \"text Mom I'm on my way\".",
@@ -444,6 +472,70 @@ class OnDeviceParser {
             result = result.replacingOccurrences(of: w + " ", with: "")
         }
         return result.trimmingCharacters(in: .whitespaces)
+    }
+
+    private func matchPresentation(_ text: String) -> String? {
+        let patterns = [
+            "make a presentation about ", "create a presentation about ",
+            "make a presentation on ", "create a presentation on ",
+            "make a slideshow about ", "create a slideshow about ",
+            "make slides about ", "create slides about ",
+            "make a ppt about ", "make a ppt on ",
+            "presentation about ", "presentation on ",
+            "make a presentation ", "create a presentation ",
+        ]
+        for p in patterns {
+            if text.hasPrefix(p) {
+                let topic = String(text.dropFirst(p.count)).trimmingCharacters(in: .whitespaces)
+                if !topic.isEmpty { return topic.capitalized }
+            }
+        }
+        return nil
+    }
+
+    private func matchDocument(_ text: String) -> String? {
+        let patterns = [
+            "make a document about ", "create a document about ",
+            "write a document about ", "make a doc about ",
+            "write a report about ", "create a report about ",
+            "write an essay about ", "create an essay about ",
+            "make a document on ", "write a document on ",
+        ]
+        for p in patterns {
+            if text.hasPrefix(p) {
+                let topic = String(text.dropFirst(p.count)).trimmingCharacters(in: .whitespaces)
+                if !topic.isEmpty { return topic.capitalized }
+            }
+        }
+        return nil
+    }
+
+    private func matchSpreadsheet(_ text: String) -> String? {
+        let patterns = [
+            "make a spreadsheet ", "create a spreadsheet ",
+            "make a table ", "create a table ",
+            "make an excel ", "create a csv ",
+        ]
+        for p in patterns {
+            if text.hasPrefix(p) {
+                let title = String(text.dropFirst(p.count))
+                    .replacingOccurrences(of: "called ", with: "")
+                    .replacingOccurrences(of: "named ", with: "")
+                    .replacingOccurrences(of: "about ", with: "")
+                    .replacingOccurrences(of: "for ", with: "")
+                    .trimmingCharacters(in: .whitespaces)
+                if !title.isEmpty { return title.capitalized }
+            }
+        }
+        return nil
+    }
+
+    private func matchBrowse(_ text: String) -> String? {
+        if text.hasPrefix("browse ") {
+            let url = String(text.dropFirst(7))
+            return url.contains(".") ? url : "https://www.google.com/search?q=\(url.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? url)"
+        }
+        return nil
     }
 
     private func respond(_ message: String, _ actions: [ActionPayload], isDone: Bool = true) -> AgentResponse {

@@ -11,13 +11,17 @@ struct JarvisRootView: View {
                     .tabItem { Label("Jarvis", systemImage: "brain.head.profile") }
                     .tag(0)
 
+                JarvisBrowserView()
+                    .tabItem { Label("Browser", systemImage: "globe") }
+                    .tag(1)
+
                 QuickActionsView()
                     .tabItem { Label("Actions", systemImage: "bolt.fill") }
-                    .tag(1)
+                    .tag(2)
 
                 SettingsView()
                     .tabItem { Label("Settings", systemImage: "gear") }
-                    .tag(2)
+                    .tag(3)
             }
             .tint(.cyan)
 
