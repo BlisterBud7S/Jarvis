@@ -354,6 +354,30 @@ body {
   font-size: 9px; color: var(--cyan); font-family: var(--font-hud);
   letter-spacing: 1px; text-transform: uppercase;
 }
+/* Rich message formatting */
+.rich-list-item {
+  display: flex; gap: 8px; padding: 4px 0; align-items: baseline;
+}
+.rich-num {
+  color: var(--cyan); font-family: var(--font-hud); font-size: 11px;
+  min-width: 18px; font-weight: 600;
+}
+.rich-bullet { color: var(--cyan); font-size: 14px; min-width: 12px; }
+.rich-kv {
+  display: flex; gap: 8px; padding: 3px 0;
+}
+.rich-key {
+  color: var(--cyan-dim); font-family: var(--font-hud); font-size: 11px;
+  letter-spacing: 0.5px; text-transform: uppercase; min-width: 100px; flex-shrink: 0;
+}
+.rich-key::after { content: ':'; }
+.rich-val { color: var(--text-bright); }
+.rich-section {
+  color: var(--cyan); font-family: var(--font-hud); font-size: 11px;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  padding: 8px 0 4px; border-bottom: 1px solid var(--border); margin-bottom: 4px;
+}
+.message a { word-break: break-all; }
 
 /* === INPUT AREA === */
 .input-area {
@@ -958,7 +982,7 @@ function addMessage(role, content, actions) {
 function renderMessage(msg) {
   const el = document.createElement('div');
   el.className = `message ${msg.role}`;
-  let html = escapeHtml(msg.content);
+  let html = formatRichMessage(msg.content);
   if (msg.actions && msg.actions.length > 0) {
     html += '<div class="actions-list">';
     msg.actions.forEach(a => { html += `<span class="action-tag">${escapeHtml(a.type)}</span>`; });
@@ -966,6 +990,26 @@ function renderMessage(msg) {
   }
   el.innerHTML = html;
   document.getElementById('messages').appendChild(el);
+}
+
+function formatRichMessage(text) {
+  if (!text) return '';
+  let s = escapeHtml(text);
+  // Detect URLs and make them links
+  s = s.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" style="color:var(--cyan);text-decoration:none;border-bottom:1px solid var(--cyan-dim)">$1</a>');
+  // Bold text between **
+  s = s.replace(/\*\*(.+?)\*\*/g, '<strong style="color:var(--text-bright)">$1</strong>');
+  // Numbered lists: lines starting with "1. ", "2. " etc
+  s = s.replace(/^(\d+)\.\s+(.+)$/gm, '<div class="rich-list-item"><span class="rich-num">$1</span><span>$2</span></div>');
+  // Lines starting with "- " as bullet items
+  s = s.replace(/^-\s+(.+)$/gm, '<div class="rich-list-item"><span class="rich-bullet">&#8226;</span><span>$1</span></div>');
+  // Key: Value lines (like "Temperature: 72°F")
+  s = s.replace(/^([A-Z][A-Za-z\s]+?):\s+(.+)$/gm, '<div class="rich-kv"><span class="rich-key">$1</span><span class="rich-val">$2</span></div>');
+  // Section headers — lines that are short, uppercase or title-case, alone
+  s = s.replace(/^(Forecast|Category|More):?\s*$/gm, '<div class="rich-section">$1</div>');
+  // Convert remaining newlines to <br>
+  s = s.replace(/\n/g, '<br>');
+  return s;
 }
 
 function scrollToBottom() {
@@ -1531,7 +1575,19 @@ function reply(message, actions) {
 
 function needsServer(text) {
   const t = text.toLowerCase();
-  return ['presentation','document','spreadsheet'].some(k => t.includes(k));
+  if (['presentation','document','spreadsheet'].some(k => t.includes(k))) return true;
+  if (t.includes('weather') || t.includes('temperature outside') || t.includes('forecast') || t.includes('is it raining') || t.includes('how hot') || t.includes('how cold')) return true;
+  if (t.includes('news') || t.includes('headlines') || t.includes("what's happening")) return true;
+  if (t.includes('wikipedia') || t.startsWith('wiki ') || t.startsWith('who was ') || t.startsWith('who is ') || t.startsWith('what is a ') || t.startsWith('what is an ') || t.startsWith('what is the ') || t.startsWith('tell me about ')) return true;
+  if (t.startsWith('define ') || (t.startsWith('what does ') && t.includes('mean'))) return true;
+  if (t.startsWith('translate ')) return true;
+  if (t.includes('tell me a joke') || t.includes('say something funny') || t.includes('make me laugh')) return true;
+  if (t.includes('trivia') || t.includes('quiz me') || t.includes('test me')) return true;
+  if (t.includes('quote') || t.includes('motivat') || t.includes('inspir')) return true;
+  if (t.includes('fun fact') || t.includes('did you know') || t.includes('random fact')) return true;
+  if (t.includes('remember my') || t.includes('what\'s my') || t.includes('what do you remember') || t.includes('forget everything')) return true;
+  if (t.includes('?') || t.startsWith('how') || t.startsWith('what') || t.startsWith('why') || t.startsWith('who') || t.startsWith('when') || t.startsWith('where')) return true;
+  return false;
 }
 
 // Voice

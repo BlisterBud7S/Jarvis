@@ -45,7 +45,7 @@ app.post('/api/agent', auth, async (req, res) => {
     if (result.actions && result.actions.length > 0) {
       result.actionResults = [];
       for (const action of result.actions) {
-        const ar = executeWebAction(action, req);
+        const ar = await executeWebAction(action, req);
         result.actionResults.push(ar);
       }
     }
@@ -64,17 +64,20 @@ app.post('/api/agent', auth, async (req, res) => {
 });
 
 // Document generation API
-app.post('/api/generate/presentation', auth, (req, res) => {
+app.post('/api/generate/presentation', auth, async (req, res) => {
   const { topic, slides = 8, theme = 'jarvis' } = req.body;
-  const html = generatePresentation(topic, slides, theme);
+  const wikiData = await fetchWikiContent(topic);
+  const html = generatePresentation(topic, slides, theme, wikiData);
   const filename = `presentation_${Date.now()}.html`;
   fs.writeFileSync(path.join(filesDir, filename), html);
   res.json({ success: true, file: filename, url: `/files/${filename}` });
 });
 
-app.post('/api/generate/document', auth, (req, res) => {
+app.post('/api/generate/document', auth, async (req, res) => {
   const { topic, title } = req.body;
-  const html = generateDocument(topic || title || 'Untitled');
+  const t = topic || title || 'Untitled';
+  const wikiData = await fetchWikiContent(t);
+  const html = generateDocument(t, wikiData);
   const filename = `document_${Date.now()}.html`;
   fs.writeFileSync(path.join(filesDir, filename), html);
   res.json({ success: true, file: filename, url: `/files/${filename}` });
@@ -128,7 +131,7 @@ app.listen(port, '0.0.0.0', () => {
 });
 
 // Web action executor
-function executeWebAction(action, req) {
+async function executeWebAction(action, req) {
   const { type, params = {} } = action;
   const baseUrl = `${req.protocol}://${req.get('host')}`;
 
@@ -136,14 +139,16 @@ function executeWebAction(action, req) {
     case 'createPresentation': {
       const topic = params.topic || params.title || 'Untitled';
       const slides = params.slides || 8;
-      const html = generatePresentation(topic, slides);
+      const wikiData = await fetchWikiContent(topic);
+      const html = generatePresentation(topic, slides, 'jarvis', wikiData);
       const filename = `presentation_${Date.now()}.html`;
       fs.writeFileSync(path.join(filesDir, filename), html);
       return { type, success: true, message: `Presentation created`, url: `${baseUrl}/files/${filename}` };
     }
     case 'createDocument': {
       const topic = params.topic || params.title || 'Untitled';
-      const html = generateDocument(topic);
+      const wikiData = await fetchWikiContent(topic);
+      const html = generateDocument(topic, wikiData);
       const filename = `document_${Date.now()}.html`;
       fs.writeFileSync(path.join(filesDir, filename), html);
       return { type, success: true, message: `Document created`, url: `${baseUrl}/files/${filename}` };
@@ -182,20 +187,62 @@ function executeWebAction(action, req) {
   }
 }
 
+// Fetch Wikipedia content for real document/presentation generation
+async function fetchWikiContent(topic) {
+  try {
+    const searchUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(topic)}`;
+    const res = await fetch(searchUrl, { signal: AbortSignal.timeout(5000) });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.extract) {
+        const sectionsRes = await fetch(`https://en.wikipedia.org/api/rest_v1/page/mobile-sections/${encodeURIComponent(data.title || topic)}`, { signal: AbortSignal.timeout(5000) }).catch(() => null);
+        let sections = [];
+        if (sectionsRes?.ok) {
+          const sData = await sectionsRes.json();
+          if (sData.remaining?.sections) {
+            sections = sData.remaining.sections
+              .filter(s => s.toclevel === 1 && s.text && s.text.length > 50)
+              .slice(0, 10)
+              .map(s => ({
+                title: s.line.replace(/<[^>]+>/g, ''),
+                content: s.text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 400),
+              }));
+          }
+        }
+        return { summary: data.extract, title: data.title || topic, sections, url: data.content_urls?.desktop?.page };
+      }
+    }
+  } catch {}
+  return null;
+}
+
 // Presentation generator
-function generatePresentation(topic, slideCount = 8) {
+function generatePresentation(topic, slideCount = 8, theme = 'jarvis', wikiData = null) {
   const slides = [];
-  slides.push({ title: topic, content: 'An Interactive Presentation', isTitle: true });
+  const subtitle = wikiData ? wikiData.summary.split('.').slice(0, 2).join('.') + '.' : 'An Interactive Presentation';
+  slides.push({ title: wikiData?.title || topic, content: subtitle, isTitle: true });
 
-  const sections = [
-    'Introduction', 'Background & Context', 'Key Concepts',
-    'Analysis', 'Current Trends', 'Challenges',
-    'Solutions & Opportunities', 'Future Outlook', 'Conclusion',
-    'Key Takeaways', 'References', 'Q&A',
-  ];
-
-  for (let i = 0; i < Math.min(slideCount - 1, sections.length); i++) {
-    slides.push({ title: sections[i], content: `Key points about ${sections[i].toLowerCase()} regarding ${topic}.`, isTitle: false });
+  if (wikiData && wikiData.sections.length > 0) {
+    // Use real Wikipedia sections
+    const usable = wikiData.sections.slice(0, Math.min(slideCount - 1, wikiData.sections.length));
+    for (const sec of usable) {
+      const content = sec.content.split('.').slice(0, 3).join('.') + '.';
+      slides.push({ title: sec.title, content, isTitle: false });
+    }
+    // Fill remaining with overview slides if needed
+    if (slides.length < slideCount) {
+      slides.push({ title: 'Overview', content: wikiData.summary, isTitle: false });
+    }
+  } else {
+    const sections = [
+      'Introduction', 'Background & Context', 'Key Concepts',
+      'Analysis', 'Current Trends', 'Challenges',
+      'Solutions & Opportunities', 'Future Outlook', 'Conclusion',
+      'Key Takeaways', 'References', 'Q&A',
+    ];
+    for (let i = 0; i < Math.min(slideCount - 1, sections.length); i++) {
+      slides.push({ title: sections[i], content: `Key points about ${sections[i].toLowerCase()} regarding ${topic}.`, isTitle: false });
+    }
   }
 
   return `<!DOCTYPE html>
@@ -244,10 +291,27 @@ document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(1);if(e.key==
 }
 
 // Document generator
-function generateDocument(topic) {
+function generateDocument(topic, wikiData = null) {
+  const date = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  let body = '';
+
+  if (wikiData) {
+    body += `<h2>Overview</h2>\n<p>${escapeDocHtml(wikiData.summary)}</p>\n`;
+    for (const sec of wikiData.sections.slice(0, 6)) {
+      body += `<h2>${escapeDocHtml(sec.title)}</h2>\n<p>${escapeDocHtml(sec.content)}</p>\n`;
+    }
+    if (wikiData.url) body += `<h2>References</h2>\n<p>Source: <a href="${wikiData.url}" target="_blank">${wikiData.url}</a></p>\n`;
+  } else {
+    body += `<h2>Introduction</h2>\n<p>This document provides a comprehensive overview of ${escapeDocHtml(topic)}. The following sections cover key aspects, current developments, and important considerations.</p>\n`;
+    body += `<h2>Background</h2>\n<p>Understanding the context and history of ${escapeDocHtml(topic)} is essential for a complete picture. This section outlines the foundational concepts and their evolution over time.</p>\n`;
+    body += `<h2>Key Points</h2>\n<p>The most important aspects of ${escapeDocHtml(topic)} include its core principles, practical applications, and the factors that influence its development and adoption.</p>\n`;
+    body += `<h2>Analysis</h2>\n<p>A detailed analysis reveals important patterns and insights about ${escapeDocHtml(topic)}. These findings have implications for stakeholders and decision-makers alike.</p>\n`;
+    body += `<h2>Conclusion</h2>\n<p>${escapeDocHtml(topic)} remains a significant area of interest with ongoing developments. Continued attention and adaptation will be crucial moving forward.</p>\n`;
+  }
+
   return `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${topic}</title>
+<title>${escapeDocHtml(wikiData?.title || topic)}</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:Georgia,'Times New Roman',serif;background:#fafaf8;color:#1a1a1a;padding:40px 20px;max-width:800px;margin:0 auto;line-height:1.8}
@@ -255,25 +319,22 @@ h1{font-size:32px;font-weight:700;text-align:center;margin-bottom:8px;color:#111
 .meta{text-align:center;color:#666;font-size:14px;margin-bottom:40px;border-bottom:1px solid #ddd;padding-bottom:20px}
 h2{font-size:22px;margin:32px 0 12px;color:#222;border-bottom:2px solid #00b8d4;padding-bottom:6px;display:inline-block}
 p{font-size:16px;margin-bottom:16px;text-align:justify}
+a{color:#00b8d4}
 @media(prefers-color-scheme:dark){
 body{background:#1a1a1a;color:#ddd}
 h1{color:#eee}h2{color:#ccc}.meta{color:#888;border-color:#333}
 }
 @media print{body{padding:0;font-size:12pt}}
 </style></head><body>
-<h1>${topic}</h1>
-<div class="meta">Generated by J.A.R.V.I.S. — ${new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
-<h2>Introduction</h2>
-<p>This document provides a comprehensive overview of ${topic}. The following sections cover key aspects, current developments, and important considerations.</p>
-<h2>Background</h2>
-<p>Understanding the context and history of ${topic} is essential for a complete picture. This section outlines the foundational concepts and their evolution over time.</p>
-<h2>Key Points</h2>
-<p>The most important aspects of ${topic} include its core principles, practical applications, and the factors that influence its development and adoption.</p>
-<h2>Analysis</h2>
-<p>A detailed analysis reveals important patterns and insights about ${topic}. These findings have implications for stakeholders and decision-makers alike.</p>
-<h2>Conclusion</h2>
-<p>${topic} remains a significant area of interest with ongoing developments. Continued attention and adaptation will be crucial moving forward.</p>
+<h1>${escapeDocHtml(wikiData?.title || topic)}</h1>
+<div class="meta">Generated by J.A.R.V.I.S. — ${date}</div>
+${body}
 </body></html>`;
+}
+
+function escapeDocHtml(s) {
+  if (!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 // Spreadsheet generator
