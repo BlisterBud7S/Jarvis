@@ -6,546 +6,417 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jarvis">
-<meta name="theme-color" content="#020810">
+<meta name="theme-color" content="#000508">
 <link rel="manifest" href="/manifest.json">
 <title>J.A.R.V.I.S.</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap');
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
-:root {
-  --bg: #020810;
-  --surface: rgba(5,15,30,0.85);
-  --surface2: rgba(10,25,50,0.6);
-  --border: rgba(0,180,255,0.15);
-  --border-bright: rgba(0,200,255,0.35);
-  --text: #c8dce8;
-  --text2: #4a6a80;
-  --text-bright: #e8f4ff;
-  --cyan: #00d4ff;
-  --cyan2: #0099cc;
-  --cyan-dim: #006688;
-  --cyan-glow: rgba(0,200,255,0.08);
-  --cyan-glow2: rgba(0,200,255,0.2);
-  --blue: #1a4a8a;
-  --gold: #ff9500;
-  --gold-dim: rgba(255,149,0,0.3);
-  --red: #ff3333;
-  --green: #00ff88;
-  --radius: 4px;
-  --safe-top: env(safe-area-inset-top, 0px);
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --font-hud: 'Orbitron', 'Rajdhani', monospace;
-  --font-body: 'Rajdhani', -apple-system, sans-serif;
-  --font-mono: 'Share Tech Mono', monospace;
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#000508;
+  --surface:rgba(2,12,25,0.85);
+  --panel:rgba(5,18,38,0.55);
+  --border:rgba(30,160,255,0.12);
+  --border-b:rgba(30,180,255,0.3);
+  --text:#8ab4d0;
+  --text2:#3a5a70;
+  --text-b:#d0eaff;
+  --cyan:#1ea0ff;
+  --cyan2:#0080dd;
+  --cyan-d:#005588;
+  --cyan-g:rgba(30,160,255,0.06);
+  --cyan-g2:rgba(30,160,255,0.15);
+  --gold:#ffaa22;
+  --gold-d:rgba(255,170,34,0.25);
+  --red:#ff4444;
+  --green:#22ff88;
+  --holo:rgba(30,160,255,0.08);
+  --font-h:'Orbitron',monospace;
+  --font-b:'Rajdhani',-apple-system,sans-serif;
+  --font-m:'Share Tech Mono',monospace;
+  --safe-t:env(safe-area-inset-top,0px);
+  --safe-b:env(safe-area-inset-bottom,0px);
 }
-html, body { height: 100%; overflow: hidden; }
-body {
-  font-family: var(--font-body);
-  background: var(--bg); color: var(--text);
-  font-weight: 400;
-}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--font-b);background:var(--bg);color:var(--text)}
 
-/* === BACKGROUND GRID + PARTICLES === */
-.hud-bg {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  pointer-events: none; z-index: 0; overflow: hidden;
-}
-.grid-overlay {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+/* ===== BACKGROUND HUD ===== */
+.hud-bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden}
+.grid-overlay{
+  position:absolute;top:0;left:0;width:100%;height:100%;
   background-image:
-    linear-gradient(rgba(0,180,255,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,180,255,0.03) 1px, transparent 1px);
-  background-size: 60px 60px;
+    linear-gradient(rgba(30,160,255,0.018) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(30,160,255,0.018) 1px,transparent 1px);
+  background-size:80px 80px;
 }
-.scan-line {
-  position: absolute; top: 0; left: 0; width: 100%; height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(0,200,255,0.15), transparent);
-  animation: scanMove 8s linear infinite;
+.scan-line{
+  position:absolute;top:0;left:0;width:100%;height:3px;
+  background:linear-gradient(90deg,transparent 10%,rgba(30,160,255,0.12) 50%,transparent 90%);
+  animation:scanMove 6s linear infinite;
 }
-@keyframes scanMove {
-  0% { top: -2px; }
-  100% { top: 100%; }
-}
-.vignette {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.7) 100%);
-}
-.corner-decor {
-  position: absolute; width: 80px; height: 80px;
-  border-color: rgba(0,180,255,0.2); border-style: solid; border-width: 0;
-}
-.corner-decor.tl { top:8px; left:8px; border-top-width:2px; border-left-width:2px; }
-.corner-decor.tr { top:8px; right:8px; border-top-width:2px; border-right-width:2px; }
-.corner-decor.bl { bottom:8px; left:8px; border-bottom-width:2px; border-left-width:2px; }
-.corner-decor.br { bottom:8px; right:8px; border-bottom-width:2px; border-right-width:2px; }
+@keyframes scanMove{0%{top:-3px}100%{top:100%}}
+.vignette{position:absolute;top:0;left:0;width:100%;height:100%;background:radial-gradient(ellipse at center,transparent 30%,rgba(0,0,0,0.8) 100%)}
 
-/* === LAYOUT === */
-#app { display: flex; height: 100%; height: 100dvh; position: relative; z-index: 1; }
-
-/* === SIDEBAR === */
-.sidebar {
-  width: 72px; flex-shrink: 0;
-  background: linear-gradient(180deg, rgba(0,20,40,0.95), rgba(0,10,25,0.98));
-  border-right: 1px solid var(--border);
-  display: flex; flex-direction: column;
-  align-items: center; padding: 16px 0;
-  position: relative; z-index: 10;
+/* Floating HUD circles in background */
+.hud-circle{
+  position:absolute;border-radius:50%;border:1px solid rgba(30,160,255,0.06);
 }
-.sidebar::after {
-  content: ''; position: absolute; top: 0; right: 0; width: 1px; height: 100%;
-  background: linear-gradient(180deg, transparent, var(--cyan-dim), transparent);
+.hud-c1{width:600px;height:600px;top:50%;left:50%;transform:translate(-50%,-50%);animation:hcRot 60s linear infinite}
+.hud-c2{width:500px;height:500px;top:50%;left:50%;transform:translate(-50%,-50%);border-style:dashed;border-color:rgba(30,160,255,0.04);animation:hcRot 45s linear infinite reverse}
+.hud-c3{width:400px;height:400px;top:50%;left:50%;transform:translate(-50%,-50%);animation:hcRot 35s linear infinite}
+.hud-c4{width:700px;height:700px;top:50%;left:50%;transform:translate(-50%,-50%);border-style:dotted;border-color:rgba(30,160,255,0.03);animation:hcRot 80s linear infinite reverse}
+@keyframes hcRot{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+
+/* Corner brackets */
+.corner{position:absolute;width:60px;height:60px}
+.corner svg{width:100%;height:100%}
+.c-tl{top:12px;left:12px}.c-tr{top:12px;right:12px;transform:scaleX(-1)}
+.c-bl{bottom:12px;left:12px;transform:scaleY(-1)}.c-br{bottom:12px;right:12px;transform:scale(-1)}
+
+/* Floating particles */
+.particles{position:absolute;top:0;left:0;width:100%;height:100%}
+.particle{
+  position:absolute;width:2px;height:2px;background:rgba(30,160,255,0.4);border-radius:50%;
+  animation:particleFloat linear infinite;
+}
+@keyframes particleFloat{
+  0%{transform:translateY(0) translateX(0);opacity:0}
+  10%{opacity:1}
+  90%{opacity:1}
+  100%{transform:translateY(-100vh) translateX(50px);opacity:0}
 }
 
-/* Arc reactor mini */
-.arc-reactor-mini {
-  width: 44px; height: 44px; margin-bottom: 20px; position: relative; cursor: pointer;
+/* ===== LAYOUT ===== */
+#app{display:flex;height:100%;height:100dvh;position:relative;z-index:1}
+
+/* ===== SIDEBAR ===== */
+.sidebar{
+  width:64px;flex-shrink:0;
+  background:linear-gradient(180deg,rgba(0,8,20,0.95),rgba(0,5,15,0.98));
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;align-items:center;padding:14px 0;
+  position:relative;z-index:10;
 }
-.arc-reactor-mini .reactor-core {
-  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-  width: 16px; height: 16px; border-radius: 50%;
-  background: radial-gradient(circle, #fff 0%, var(--cyan) 40%, transparent 70%);
-  box-shadow: 0 0 20px var(--cyan), 0 0 40px rgba(0,200,255,0.3);
-  animation: corePulse 2s ease-in-out infinite;
-}
-@keyframes corePulse {
-  0%, 100% { box-shadow: 0 0 15px var(--cyan), 0 0 30px rgba(0,200,255,0.2); }
-  50% { box-shadow: 0 0 25px var(--cyan), 0 0 50px rgba(0,200,255,0.4); }
-}
-.arc-reactor-mini .reactor-ring {
-  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-  border-radius: 50%; border: 1.5px solid rgba(0,200,255,0.4);
-}
-.arc-reactor-mini .ring1 { width: 28px; height: 28px; animation: ringRotate 10s linear infinite; }
-.arc-reactor-mini .ring2 { width: 40px; height: 40px; border-style: dashed; animation: ringRotate 15s linear infinite reverse; }
-@keyframes ringRotate { from { transform: translate(-50%,-50%) rotate(0deg); } to { transform: translate(-50%,-50%) rotate(360deg); } }
-.arc-reactor-mini.processing .reactor-core {
-  animation: coreProcess 0.5s ease-in-out infinite;
-  background: radial-gradient(circle, #fff 0%, var(--gold) 40%, transparent 70%);
-  box-shadow: 0 0 20px var(--gold), 0 0 40px var(--gold-dim);
-}
-@keyframes coreProcess {
-  0%, 100% { transform: translate(-50%,-50%) scale(1); }
-  50% { transform: translate(-50%,-50%) scale(1.3); }
+.sidebar::after{
+  content:'';position:absolute;top:0;right:0;width:1px;height:100%;
+  background:linear-gradient(180deg,transparent,rgba(30,160,255,0.15),transparent);
 }
 
-.sidebar-nav { flex: 1; display: flex; flex-direction: column; gap: 4px; width: 100%; padding: 0 8px; }
-.nav-btn {
-  width: 56px; height: 48px; border: none; background: transparent;
-  color: var(--text2); font-size: 20px; cursor: pointer;
-  border-radius: 4px; transition: all 0.2s;
-  display: flex; align-items: center; justify-content: center;
-  position: relative;
+/* Arc reactor */
+.arc-mini{width:40px;height:40px;margin-bottom:16px;position:relative;cursor:pointer}
+.arc-mini .core{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:12px;height:12px;border-radius:50%;
+  background:radial-gradient(circle,#fff 0%,var(--cyan) 50%,transparent 80%);
+  box-shadow:0 0 15px var(--cyan),0 0 30px rgba(30,160,255,0.3);
+  animation:pulse 2.5s ease-in-out infinite;
 }
-.nav-btn:hover { color: var(--cyan); background: var(--cyan-glow); }
-.nav-btn.active { color: var(--cyan); background: var(--cyan-glow2); }
-.nav-btn.active::before {
-  content: ''; position: absolute; left: -8px; top: 50%; transform: translateY(-50%);
-  width: 3px; height: 24px; background: var(--cyan);
-  border-radius: 0 2px 2px 0;
-  box-shadow: 0 0 8px var(--cyan);
+@keyframes pulse{
+  0%,100%{box-shadow:0 0 12px var(--cyan),0 0 25px rgba(30,160,255,0.2)}
+  50%{box-shadow:0 0 22px var(--cyan),0 0 45px rgba(30,160,255,0.4)}
 }
-.nav-btn .nav-label {
-  position: absolute; left: 64px; background: rgba(0,20,40,0.95);
-  border: 1px solid var(--border-bright); padding: 4px 10px;
-  border-radius: 4px; font-size: 12px; color: var(--cyan);
-  font-family: var(--font-hud); letter-spacing: 1px;
-  white-space: nowrap; opacity: 0; pointer-events: none;
-  transition: opacity 0.2s;
+.arc-mini .ring{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  border-radius:50%;border:1px solid rgba(30,160,255,0.35);
 }
-.nav-btn:hover .nav-label { opacity: 1; }
+.arc-mini .r1{width:24px;height:24px;border-width:1.5px;animation:rRot 8s linear infinite}
+.arc-mini .r2{width:36px;height:36px;border-style:dashed;border-color:rgba(30,160,255,0.2);animation:rRot 12s linear infinite reverse}
+@keyframes rRot{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+.arc-mini.processing .core{
+  animation:procPulse 0.4s ease-in-out infinite;
+  background:radial-gradient(circle,#fff 0%,var(--gold) 50%,transparent 80%);
+  box-shadow:0 0 15px var(--gold),0 0 30px var(--gold-d);
+}
+@keyframes procPulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.4)}}
 
-.sidebar-footer {
-  padding: 8px; font-size: 9px; color: var(--text2);
-  font-family: var(--font-mono); text-align: center;
-  writing-mode: vertical-rl; letter-spacing: 2px;
+.sidebar-nav{flex:1;display:flex;flex-direction:column;gap:2px;width:100%;padding:0 6px}
+.nav-btn{
+  width:52px;height:44px;border:none;background:transparent;
+  color:var(--text2);font-size:18px;cursor:pointer;border-radius:3px;
+  transition:all 0.2s;display:flex;align-items:center;justify-content:center;
+  position:relative;
 }
+.nav-btn:hover{color:var(--cyan);background:var(--cyan-g)}
+.nav-btn.active{color:var(--cyan);background:var(--cyan-g2)}
+.nav-btn.active::before{
+  content:'';position:absolute;left:-6px;top:50%;transform:translateY(-50%);
+  width:2px;height:20px;background:var(--cyan);border-radius:0 1px 1px 0;
+  box-shadow:0 0 8px var(--cyan);
+}
+.nav-btn .tip{
+  position:absolute;left:58px;background:rgba(0,12,28,0.95);
+  border:1px solid var(--border-b);padding:3px 8px;border-radius:3px;
+  font-size:10px;color:var(--cyan);font-family:var(--font-h);letter-spacing:1px;
+  white-space:nowrap;opacity:0;pointer-events:none;transition:opacity 0.2s;z-index:99;
+}
+.nav-btn:hover .tip{opacity:1}
+.side-ver{padding:6px;font-size:8px;color:var(--text2);font-family:var(--font-m);text-align:center;writing-mode:vertical-rl;letter-spacing:2px}
 
-/* === MAIN CONTENT === */
-.main { flex: 1; display: flex; flex-direction: column; min-width: 0; position: relative; }
+/* ===== MAIN ===== */
+.main{flex:1;display:flex;flex-direction:column;min-width:0;position:relative}
 
-/* === TOP BAR === */
-.top-bar {
-  height: 44px; flex-shrink: 0;
-  background: linear-gradient(90deg, rgba(0,20,40,0.9), rgba(0,15,35,0.95));
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; padding: 0 20px;
-  font-family: var(--font-hud); position: relative;
+/* ===== TOP BAR ===== */
+.top-bar{
+  height:40px;flex-shrink:0;
+  background:linear-gradient(90deg,rgba(0,10,25,0.9),rgba(0,8,20,0.95));
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 16px;
+  font-family:var(--font-h);position:relative;
 }
-.top-bar::after {
-  content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 1px;
-  background: linear-gradient(90deg, transparent, var(--cyan-dim), transparent);
-}
-.top-bar-left {
-  display: flex; align-items: center; gap: 12px;
-}
-.status-dot {
-  width: 6px; height: 6px; border-radius: 50%; background: var(--green);
-  box-shadow: 0 0 6px var(--green); animation: statusBlink 3s ease-in-out infinite;
-}
-@keyframes statusBlink {
-  0%, 90%, 100% { opacity: 1; } 95% { opacity: 0.3; }
-}
-.top-bar-title {
-  font-size: 11px; letter-spacing: 3px; color: var(--cyan);
-  font-weight: 600; text-transform: uppercase;
-}
-.top-bar-center {
-  flex: 1; text-align: center; font-size: 10px;
-  color: var(--text2); letter-spacing: 2px;
-  font-family: var(--font-mono);
-}
-.top-bar-right {
-  display: flex; align-items: center; gap: 16px;
-  font-size: 10px; color: var(--text2); font-family: var(--font-mono);
-  letter-spacing: 1px;
-}
+.top-bar::after{content:'';position:absolute;bottom:0;left:0;width:100%;height:1px;background:linear-gradient(90deg,transparent,rgba(30,160,255,0.1),transparent)}
+.tb-left{display:flex;align-items:center;gap:10px}
+.status-dot{width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:sBlink 3s ease-in-out infinite}
+@keyframes sBlink{0%,90%,100%{opacity:1}95%{opacity:0.3}}
+.tb-title{font-size:10px;letter-spacing:3px;color:var(--cyan);font-weight:600}
+.tb-center{flex:1;text-align:center;font-size:9px;color:var(--text2);letter-spacing:2px;font-family:var(--font-m)}
+.tb-right{display:flex;align-items:center;gap:14px;font-size:9px;color:var(--text2);font-family:var(--font-m);letter-spacing:1px}
+.tb-right span{cursor:pointer;transition:color 0.2s}.tb-right span:hover{color:var(--cyan)}
 
-/* === MOBILE HEADER === */
-.mobile-header {
-  display: none; align-items: center; gap: 12px;
-  padding: 12px 16px; padding-top: calc(12px + var(--safe-top));
-  background: linear-gradient(180deg, rgba(0,20,40,0.98), rgba(0,15,30,0.95));
-  border-bottom: 1px solid var(--border); flex-shrink: 0;
+/* ===== MOBILE ===== */
+.mob-header{
+  display:none;align-items:center;gap:10px;
+  padding:10px 14px;padding-top:calc(10px + var(--safe-t));
+  background:linear-gradient(180deg,rgba(0,10,25,0.98),rgba(0,8,20,0.95));
+  border-bottom:1px solid var(--border);flex-shrink:0;
 }
-.mobile-header h1 {
-  font-family: var(--font-hud); font-size: 14px; font-weight: 600;
-  color: var(--cyan); letter-spacing: 3px; flex: 1;
-}
-.header-btn {
-  width: 36px; height: 36px; border-radius: 4px;
-  background: var(--surface2); border: 1px solid var(--border);
-  color: var(--text2); font-size: 16px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-}
+.mob-header h1{font-family:var(--font-h);font-size:13px;font-weight:600;color:var(--cyan);letter-spacing:3px;flex:1}
+.hdr-btn{width:34px;height:34px;border-radius:3px;background:rgba(5,18,38,0.6);border:1px solid var(--border);color:var(--text2);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.tabs{display:none;background:rgba(0,8,20,0.95);border-bottom:1px solid var(--border);flex-shrink:0}
+.tab{flex:1;padding:8px 0;text-align:center;font-size:9px;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;font-family:var(--font-h);letter-spacing:1px;text-transform:uppercase}
+.tab.active{color:var(--cyan);border-bottom-color:var(--cyan)}
+.tab-icon{font-size:16px;display:block;margin-bottom:1px}
 
-/* === MOBILE TABS === */
-.tabs {
-  display: none; background: rgba(0,15,30,0.95);
-  border-bottom: 1px solid var(--border); flex-shrink: 0;
-}
-.tab {
-  flex: 1; padding: 10px 0; text-align: center;
-  font-size: 10px; color: var(--text2); cursor: pointer;
-  border-bottom: 2px solid transparent; transition: all 0.2s;
-  font-family: var(--font-hud); letter-spacing: 1px; text-transform: uppercase;
-}
-.tab.active { color: var(--cyan); border-bottom-color: var(--cyan); }
-.tab-icon { font-size: 18px; display: block; margin-bottom: 2px; }
+/* ===== PANELS ===== */
+.panel{display:none;flex:1;overflow-y:auto;flex-direction:column}
+.panel.active{display:flex}
+.panel::-webkit-scrollbar{width:3px}
+.panel::-webkit-scrollbar-track{background:transparent}
+.panel::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 
-/* === PANELS === */
-.panel { display: none; flex: 1; overflow-y: auto; flex-direction: column; }
-.panel.active { display: flex; }
+/* ===== CHAT ===== */
+.chat-area{flex:1;overflow-y:auto;padding:16px;scroll-behavior:smooth}
+.chat-area::-webkit-scrollbar{width:3px}
+.chat-area::-webkit-scrollbar-track{background:transparent}
+.chat-area::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.chat-msgs{max-width:860px;margin:0 auto;width:100%}
 
-/* scrollbar */
-.panel::-webkit-scrollbar { width: 4px; }
-.panel::-webkit-scrollbar-track { background: transparent; }
-.panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+/* Welcome — big holographic circle */
+.welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 20px;min-height:60vh}
+.holo-reactor{width:220px;height:220px;position:relative;margin-bottom:24px}
+.holo-reactor .core{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:28px;height:28px;border-radius:50%;
+  background:radial-gradient(circle,#ffffff 0%,var(--cyan) 50%,transparent 80%);
+  box-shadow:0 0 40px var(--cyan),0 0 80px rgba(30,160,255,0.3),0 0 120px rgba(30,160,255,0.1);
+  animation:mainPulse 3s ease-in-out infinite;
+}
+@keyframes mainPulse{
+  0%,100%{box-shadow:0 0 30px var(--cyan),0 0 60px rgba(30,160,255,0.2);transform:translate(-50%,-50%) scale(1)}
+  50%{box-shadow:0 0 50px var(--cyan),0 0 100px rgba(30,160,255,0.4);transform:translate(-50%,-50%) scale(1.08)}
+}
+.holo-reactor .hr{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);border-radius:50%;border:1px solid rgba(30,160,255,0.2)}
+.holo-reactor .hr1{width:55px;height:55px;border-width:2px;border-color:rgba(30,160,255,0.4);animation:rRot 6s linear infinite}
+.holo-reactor .hr2{width:85px;height:85px;border-style:dashed;animation:rRot 10s linear infinite reverse}
+.holo-reactor .hr3{width:115px;height:115px;animation:rRot 16s linear infinite}
+.holo-reactor .hr4{width:145px;height:145px;border-style:dotted;border-color:rgba(30,160,255,0.1);animation:rRot 22s linear infinite reverse}
+.holo-reactor .hr5{width:175px;height:175px;border-color:rgba(30,160,255,0.06);animation:rRot 30s linear infinite}
+.holo-reactor .hr6{width:210px;height:210px;border-style:dashed;border-color:rgba(30,160,255,0.04);animation:rRot 40s linear infinite reverse}
+/* Tick marks on outer ring */
+.holo-reactor .ticks{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:160px;height:160px;animation:rRot 50s linear infinite}
+.holo-reactor .tick{position:absolute;width:1.5px;height:6px;background:rgba(30,160,255,0.35);top:0;left:50%;transform-origin:50% 80px}
+/* Data readouts on rings */
+.holo-reactor .readout{
+  position:absolute;font-family:var(--font-m);font-size:7px;color:rgba(30,160,255,0.35);
+  letter-spacing:1px;white-space:nowrap;
+}
+.holo-reactor .rd1{top:15px;left:50%;transform:translateX(-50%)}
+.holo-reactor .rd2{bottom:8px;left:50%;transform:translateX(-50%)}
+.holo-reactor .rd3{top:50%;right:2px;transform:translateY(-50%)}
+.holo-reactor .rd4{top:50%;left:2px;transform:translateY(-50%)}
 
-/* === CHAT === */
-.chat-area { flex: 1; overflow-y: auto; padding: 20px; scroll-behavior: smooth; }
-.chat-area::-webkit-scrollbar { width: 4px; }
-.chat-area::-webkit-scrollbar-track { background: transparent; }
-.chat-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-.chat-messages { max-width: 900px; margin: 0 auto; width: 100%; }
+.w-title{font-family:var(--font-h);font-size:26px;font-weight:700;color:var(--cyan);letter-spacing:10px;margin-bottom:6px;text-shadow:0 0 30px rgba(30,160,255,0.3)}
+.w-sub{font-family:var(--font-m);font-size:10px;color:var(--text2);letter-spacing:5px;margin-bottom:20px}
+.w-status{display:flex;gap:20px;font-family:var(--font-m);font-size:9px;color:var(--text2);letter-spacing:1px}
+.w-status span{display:flex;align-items:center;gap:5px}
+.w-status .dot{width:4px;height:4px;border-radius:50%;background:var(--green);box-shadow:0 0 4px var(--green)}
+/* Quick suggestions */
+.w-hints{display:flex;flex-wrap:wrap;gap:6px;margin-top:20px;justify-content:center;max-width:500px}
+.w-hint{
+  padding:5px 12px;border:1px solid var(--border);border-radius:20px;
+  font-family:var(--font-m);font-size:9px;color:var(--text2);cursor:pointer;
+  letter-spacing:0.5px;transition:all 0.2s;background:transparent;
+}
+.w-hint:hover{border-color:var(--cyan-d);color:var(--cyan);background:var(--cyan-g)}
 
-/* Welcome display */
-.welcome-display {
-  display: flex; flex-direction: column; align-items: center;
-  justify-content: center; padding: 40px 20px; min-height: 300px;
+/* ===== MESSAGES ===== */
+.message{
+  max-width:78%;margin-bottom:12px;
+  padding:12px 16px;font-size:14px;line-height:1.7;
+  word-wrap:break-word;white-space:pre-wrap;user-select:text;
+  font-family:var(--font-b);font-weight:400;position:relative;
 }
-.arc-reactor-main {
-  width: 160px; height: 160px; position: relative; margin-bottom: 30px;
+.message.jarvis{
+  background:linear-gradient(135deg,rgba(5,25,50,0.5),rgba(2,15,35,0.35));
+  border:1px solid var(--border);
+  border-left:2px solid var(--cyan-d);
+  border-radius:0 6px 6px 0;
+  backdrop-filter:blur(8px);
 }
-.arc-reactor-main .core {
-  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-  width: 30px; height: 30px; border-radius: 50%;
-  background: radial-gradient(circle, #ffffff 0%, var(--cyan) 50%, transparent 80%);
-  box-shadow: 0 0 40px var(--cyan), 0 0 80px rgba(0,200,255,0.3), 0 0 120px rgba(0,200,255,0.1);
-  animation: mainCorePulse 3s ease-in-out infinite;
+.message.jarvis::before{
+  content:'JARVIS';position:absolute;top:-7px;left:10px;
+  font-family:var(--font-h);font-size:7px;letter-spacing:2px;
+  color:var(--cyan-d);background:var(--bg);padding:0 5px;
 }
-@keyframes mainCorePulse {
-  0%, 100% { box-shadow: 0 0 30px var(--cyan), 0 0 60px rgba(0,200,255,0.2); transform: translate(-50%,-50%) scale(1); }
-  50% { box-shadow: 0 0 50px var(--cyan), 0 0 100px rgba(0,200,255,0.4); transform: translate(-50%,-50%) scale(1.1); }
+.message.user{
+  background:linear-gradient(135deg,rgba(30,120,200,0.12),rgba(20,80,150,0.08));
+  border:1px solid rgba(30,160,255,0.18);
+  border-right:2px solid var(--cyan);
+  border-radius:6px 0 0 6px;
+  margin-left:auto;color:var(--text-b);
 }
-.arc-reactor-main .ring {
-  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-  border-radius: 50%; border: 1px solid rgba(0,200,255,0.3);
+.message.system{
+  background:transparent;color:var(--text2);
+  font-size:10px;text-align:center;max-width:100%;
+  font-family:var(--font-m);letter-spacing:1px;border:none;
 }
-.arc-reactor-main .r1 { width: 60px; height: 60px; border-width: 2px; border-color: rgba(0,200,255,0.5); animation: ringRotate 8s linear infinite; }
-.arc-reactor-main .r2 { width: 90px; height: 90px; border-style: dashed; animation: ringRotate 12s linear infinite reverse; }
-.arc-reactor-main .r3 { width: 120px; height: 120px; border-width: 1px; animation: ringRotate 20s linear infinite; }
-.arc-reactor-main .r4 { width: 150px; height: 150px; border-style: dotted; border-color: rgba(0,200,255,0.15); animation: ringRotate 25s linear infinite reverse; }
-/* HUD tick marks on ring */
-.arc-reactor-main .ticks {
-  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-  width: 130px; height: 130px; animation: ringRotate 30s linear infinite;
+.message.thinking{
+  background:rgba(255,170,34,0.04);border:1px solid rgba(255,170,34,0.1);
+  border-left:2px solid var(--gold);border-radius:0 6px 6px 0;
+  color:rgba(255,170,34,0.7);font-size:11px;font-style:italic;font-family:var(--font-m);
 }
-.arc-reactor-main .tick {
-  position: absolute; width: 2px; height: 8px;
-  background: rgba(0,200,255,0.4); top: 0; left: 50%; transform-origin: 50% 65px;
+.message .actions-list{margin-top:6px;padding-top:6px;border-top:1px solid var(--border);font-size:10px}
+.action-tag{
+  display:inline-block;padding:1px 8px;margin:1px;
+  background:var(--cyan-g);border:1px solid var(--border);
+  font-size:8px;color:var(--cyan);font-family:var(--font-h);
+  letter-spacing:1px;text-transform:uppercase;
 }
-.welcome-title {
-  font-family: var(--font-hud); font-size: 28px; font-weight: 700;
-  color: var(--cyan); letter-spacing: 8px; margin-bottom: 8px;
-  text-shadow: 0 0 30px rgba(0,200,255,0.3);
-}
-.welcome-subtitle {
-  font-family: var(--font-mono); font-size: 11px;
-  color: var(--text2); letter-spacing: 4px; margin-bottom: 24px;
-}
-.welcome-status {
-  display: flex; gap: 24px; font-family: var(--font-mono);
-  font-size: 10px; color: var(--text2); letter-spacing: 1px;
-}
-.welcome-status span { display: flex; align-items: center; gap: 6px; }
-.welcome-status .dot {
-  width: 5px; height: 5px; border-radius: 50%; background: var(--green);
-  box-shadow: 0 0 4px var(--green);
-}
+/* Rich formatting */
+.rich-list-item{display:flex;gap:8px;padding:3px 0;align-items:baseline}
+.rich-num{color:var(--cyan);font-family:var(--font-h);font-size:10px;min-width:16px;font-weight:600}
+.rich-bullet{color:var(--cyan);font-size:12px;min-width:10px}
+.rich-kv{display:flex;gap:8px;padding:2px 0}
+.rich-key{color:var(--cyan-d);font-family:var(--font-h);font-size:10px;letter-spacing:0.5px;text-transform:uppercase;min-width:90px;flex-shrink:0}
+.rich-key::after{content:':'}
+.rich-val{color:var(--text-b)}
+.rich-section{color:var(--cyan);font-family:var(--font-h);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:6px 0 3px;border-bottom:1px solid var(--border);margin-bottom:3px}
+.message a{word-break:break-all;color:var(--cyan);text-decoration:none;border-bottom:1px solid var(--cyan-d)}
 
-/* Messages */
-.message {
-  max-width: 75%; margin-bottom: 14px;
-  padding: 14px 18px; font-size: 14px; line-height: 1.7;
-  word-wrap: break-word; white-space: pre-wrap; user-select: text;
-  font-family: var(--font-body); font-weight: 400;
-  position: relative;
+/* ===== INPUT ===== */
+.input-area{
+  padding:14px 16px;padding-bottom:calc(14px + var(--safe-b));
+  background:linear-gradient(180deg,rgba(0,8,20,0.85),rgba(0,5,15,0.95));
+  border-top:1px solid var(--border);flex-shrink:0;position:relative;
 }
-.message.jarvis {
-  background: linear-gradient(135deg, rgba(0,30,60,0.6), rgba(0,20,45,0.4));
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--cyan-dim);
-  border-radius: 0 var(--radius) var(--radius) 0;
+.input-area::before{content:'';position:absolute;top:0;left:0;width:100%;height:1px;background:linear-gradient(90deg,transparent,rgba(30,160,255,0.08),transparent)}
+.input-wrap{max-width:860px;margin:0 auto}
+.input-row{display:flex;gap:8px;align-items:flex-end}
+.input-field{
+  flex:1;padding:10px 16px;
+  background:rgba(5,18,38,0.5);border:1px solid var(--border);
+  border-radius:24px;color:var(--text-b);
+  font-size:14px;outline:none;resize:none;
+  font-family:var(--font-b);font-weight:400;
+  min-height:44px;max-height:160px;line-height:1.5;
+  transition:border-color 0.2s;
 }
-.message.jarvis::before {
-  content: 'JARVIS'; position: absolute; top: -8px; left: 12px;
-  font-family: var(--font-hud); font-size: 8px; letter-spacing: 2px;
-  color: var(--cyan-dim); background: var(--bg); padding: 0 6px;
+.input-field::placeholder{color:var(--text2);font-family:var(--font-m);font-size:11px;letter-spacing:1px}
+.input-field:focus{border-color:rgba(30,160,255,0.3);box-shadow:0 0 20px rgba(30,160,255,0.06),inset 0 0 15px rgba(30,160,255,0.02)}
+.send-btn,.voice-btn{
+  width:44px;height:44px;border-radius:50%;
+  border:1px solid var(--border);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;flex-shrink:0;transition:all 0.2s;
 }
-.message.user {
-  background: linear-gradient(135deg, rgba(0,150,200,0.2), rgba(0,100,150,0.15));
-  border: 1px solid rgba(0,200,255,0.25);
-  border-right: 3px solid var(--cyan);
-  border-radius: var(--radius) 0 0 var(--radius);
-  margin-left: auto; color: var(--text-bright);
-}
-.message.system {
-  background: transparent; color: var(--text2);
-  font-size: 11px; text-align: center; max-width: 100%;
-  font-family: var(--font-mono); letter-spacing: 1px;
-  border: none;
-}
-.message.thinking {
-  background: rgba(255,149,0,0.05); border: 1px solid rgba(255,149,0,0.15);
-  border-left: 3px solid var(--gold);
-  border-radius: 0 var(--radius) var(--radius) 0;
-  color: var(--gold); font-size: 12px; font-style: italic;
-  font-family: var(--font-mono);
-}
-.message .actions-list {
-  margin-top: 8px; padding-top: 8px;
-  border-top: 1px solid var(--border);
-  font-size: 11px;
-}
-.action-tag {
-  display: inline-block; padding: 2px 10px; margin: 2px;
-  background: var(--cyan-glow); border: 1px solid var(--border);
-  font-size: 9px; color: var(--cyan); font-family: var(--font-hud);
-  letter-spacing: 1px; text-transform: uppercase;
-}
-/* Rich message formatting */
-.rich-list-item {
-  display: flex; gap: 8px; padding: 4px 0; align-items: baseline;
-}
-.rich-num {
-  color: var(--cyan); font-family: var(--font-hud); font-size: 11px;
-  min-width: 18px; font-weight: 600;
-}
-.rich-bullet { color: var(--cyan); font-size: 14px; min-width: 12px; }
-.rich-kv {
-  display: flex; gap: 8px; padding: 3px 0;
-}
-.rich-key {
-  color: var(--cyan-dim); font-family: var(--font-hud); font-size: 11px;
-  letter-spacing: 0.5px; text-transform: uppercase; min-width: 100px; flex-shrink: 0;
-}
-.rich-key::after { content: ':'; }
-.rich-val { color: var(--text-bright); }
-.rich-section {
-  color: var(--cyan); font-family: var(--font-hud); font-size: 11px;
-  letter-spacing: 1.5px; text-transform: uppercase;
-  padding: 8px 0 4px; border-bottom: 1px solid var(--border); margin-bottom: 4px;
-}
-.message a { word-break: break-all; }
+.send-btn{background:linear-gradient(135deg,rgba(30,160,255,0.15),rgba(20,120,200,0.1));color:var(--cyan);border-color:var(--cyan-d)}
+.send-btn:hover:not(:disabled){background:linear-gradient(135deg,rgba(30,160,255,0.3),rgba(20,120,200,0.2));box-shadow:0 0 15px rgba(30,160,255,0.15)}
+.send-btn:disabled{opacity:0.15;cursor:default}
+.voice-btn{background:rgba(5,18,38,0.5);color:var(--text2)}
+.voice-btn:hover{color:var(--cyan);border-color:var(--cyan-d)}
+.voice-btn.listening{background:rgba(255,68,68,0.1);color:var(--red);border-color:var(--red);animation:listenP 1.5s ease-in-out infinite}
+@keyframes listenP{0%,100%{box-shadow:0 0 0 rgba(255,68,68,0)}50%{box-shadow:0 0 20px rgba(255,68,68,0.15)}}
+.input-hint{text-align:center;font-size:8px;color:var(--text2);margin-top:5px;font-family:var(--font-m);letter-spacing:1px}
 
-/* === INPUT AREA === */
-.input-area {
-  padding: 16px 20px; padding-bottom: calc(16px + var(--safe-bottom));
-  background: linear-gradient(180deg, rgba(0,15,30,0.9), rgba(0,10,25,0.98));
-  border-top: 1px solid var(--border); flex-shrink: 0;
-  position: relative;
+/* ===== ACTIONS PANEL ===== */
+.actions-panel{padding:20px;overflow-y:auto}
+.actions-inner{max-width:1000px;margin:0 auto}
+.sec-title{
+  font-family:var(--font-h);font-size:9px;color:var(--cyan-d);
+  text-transform:uppercase;letter-spacing:3px;
+  padding:16px 0 8px;font-weight:600;
+  display:flex;align-items:center;gap:10px;
 }
-.input-area::before {
-  content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 1px;
-  background: linear-gradient(90deg, transparent, var(--cyan-dim), transparent);
+.sec-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
+.act-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:6px}
+.act-card{
+  padding:14px 10px;text-align:center;
+  background:linear-gradient(135deg,rgba(5,20,40,0.4),rgba(2,12,28,0.25));
+  border:1px solid var(--border);cursor:pointer;
+  transition:all 0.25s;position:relative;overflow:hidden;border-radius:4px;
 }
-.input-wrap { max-width: 900px; margin: 0 auto; }
-.input-row { display: flex; gap: 10px; align-items: flex-end; }
-.input-field {
-  flex: 1; padding: 12px 18px;
-  background: rgba(0,20,40,0.6); border: 1px solid var(--border);
-  border-radius: 4px; color: var(--text-bright);
-  font-size: 14px; outline: none; resize: none;
-  font-family: var(--font-body); font-weight: 400;
-  min-height: 46px; max-height: 160px; line-height: 1.5;
-  transition: border-color 0.2s;
-}
-.input-field::placeholder { color: var(--text2); font-family: var(--font-mono); font-size: 12px; letter-spacing: 1px; }
-.input-field:focus {
-  border-color: var(--cyan);
-  box-shadow: 0 0 15px rgba(0,200,255,0.1), inset 0 0 15px rgba(0,200,255,0.03);
-}
-.send-btn, .voice-btn {
-  width: 46px; height: 46px; border-radius: 4px;
-  border: 1px solid var(--border); cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px; flex-shrink: 0; transition: all 0.2s;
-}
-.send-btn {
-  background: linear-gradient(135deg, rgba(0,180,255,0.2), rgba(0,120,200,0.15));
-  color: var(--cyan); border-color: var(--cyan-dim);
-}
-.send-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, rgba(0,180,255,0.4), rgba(0,120,200,0.3));
-  box-shadow: 0 0 15px rgba(0,200,255,0.2);
-}
-.send-btn:disabled { opacity: 0.2; cursor: default; }
-.voice-btn { background: var(--surface2); color: var(--text2); }
-.voice-btn:hover { color: var(--cyan); border-color: var(--cyan-dim); }
-.voice-btn.listening {
-  background: rgba(255,50,50,0.15); color: var(--red); border-color: var(--red);
-  animation: listenPulse 1.5s ease-in-out infinite;
-}
-@keyframes listenPulse {
-  0%, 100% { box-shadow: 0 0 0 rgba(255,50,50,0); }
-  50% { box-shadow: 0 0 20px rgba(255,50,50,0.2); }
-}
-.input-hint {
-  text-align: center; font-size: 9px; color: var(--text2);
-  margin-top: 6px; font-family: var(--font-mono); letter-spacing: 1px;
-}
+.act-card:hover{border-color:var(--cyan-d);box-shadow:0 0 20px rgba(30,160,255,0.08);transform:translateY(-1px)}
+.act-card .icon{font-size:22px;margin-bottom:4px;position:relative}
+.act-card .label{font-size:9px;color:var(--text2);font-family:var(--font-h);letter-spacing:1px;text-transform:uppercase;position:relative}
+.act-card:hover .label{color:var(--cyan)}
 
-/* === QUICK ACTIONS PANEL === */
-.actions-panel { padding: 24px; overflow-y: auto; }
-.actions-panel-inner { max-width: 1100px; margin: 0 auto; }
-.section-title {
-  font-family: var(--font-hud); font-size: 10px; color: var(--cyan-dim);
-  text-transform: uppercase; letter-spacing: 3px;
-  padding: 20px 0 10px; font-weight: 600;
-  display: flex; align-items: center; gap: 10px;
+/* ===== SETTINGS ===== */
+.settings-panel{padding:20px;overflow-y:auto}
+.settings-inner{max-width:560px;margin:0 auto}
+.settings-group{background:rgba(5,18,38,0.4);border:1px solid var(--border);margin-bottom:12px;border-radius:4px;overflow:hidden}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border)}
+.settings-row:last-child{border-bottom:none}
+.settings-row label{font-size:12px;font-family:var(--font-b);font-weight:500;letter-spacing:0.5px}
+.settings-row input[type="text"],.settings-row input[type="password"]{
+  background:rgba(5,18,38,0.5);border:1px solid var(--border);
+  color:var(--text);padding:7px 12px;border-radius:3px;
+  font-size:11px;width:240px;text-align:right;outline:none;
+  transition:border 0.2s;font-family:var(--font-m);
 }
-.section-title::after {
-  content: ''; flex: 1; height: 1px;
-  background: linear-gradient(90deg, var(--border), transparent);
+.settings-row input:focus{border-color:rgba(30,160,255,0.3)}
+.toggle{
+  width:40px;height:22px;border-radius:11px;
+  background:rgba(5,18,38,0.5);border:1px solid var(--border);
+  cursor:pointer;position:relative;transition:all 0.3s;
 }
-.actions-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 8px;
+.toggle.on{background:rgba(30,160,255,0.1);border-color:var(--cyan-d)}
+.toggle::after{
+  content:'';position:absolute;top:3px;left:3px;
+  width:14px;height:14px;border-radius:50%;
+  background:var(--text2);transition:all 0.3s;
 }
-.action-card {
-  padding: 16px 12px; text-align: center;
-  background: linear-gradient(135deg, rgba(0,25,50,0.5), rgba(0,15,35,0.3));
-  border: 1px solid var(--border); cursor: pointer;
-  transition: all 0.25s; position: relative; overflow: hidden;
+.toggle.on::after{transform:translateX(18px);background:var(--cyan);box-shadow:0 0 6px var(--cyan)}
+.btn{
+  padding:10px 20px;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;
+  border:1px solid var(--border);width:100%;margin-top:6px;transition:all 0.2s;
+  font-family:var(--font-h);letter-spacing:2px;text-transform:uppercase;
 }
-.action-card::before {
-  content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  background: linear-gradient(135deg, rgba(0,200,255,0.05), transparent);
-  opacity: 0; transition: opacity 0.25s;
-}
-.action-card:hover {
-  border-color: var(--cyan-dim);
-  box-shadow: 0 0 20px rgba(0,200,255,0.1);
-  transform: translateY(-2px);
-}
-.action-card:hover::before { opacity: 1; }
-.action-card .icon { font-size: 26px; margin-bottom: 6px; position: relative; }
-.action-card .label {
-  font-size: 10px; color: var(--text2);
-  font-family: var(--font-hud); letter-spacing: 1px; text-transform: uppercase;
-  position: relative;
-}
-.action-card:hover .label { color: var(--cyan); }
+.btn:hover{transform:translateY(-1px)}
+.btn-cyan{background:rgba(30,160,255,0.1);color:var(--cyan);border-color:var(--cyan-d)}
+.btn-cyan:hover{background:rgba(30,160,255,0.2);box-shadow:0 0 12px rgba(30,160,255,0.1)}
+.btn-red{background:rgba(255,68,68,0.06);color:var(--red);border-color:rgba(255,68,68,0.2)}
+.btn-red:hover{background:rgba(255,68,68,0.12)}
 
-/* === SETTINGS PANEL === */
-.settings-panel { padding: 24px; overflow-y: auto; }
-.settings-inner { max-width: 600px; margin: 0 auto; }
-.settings-group {
-  background: var(--surface2); border: 1px solid var(--border);
-  margin-bottom: 16px; overflow: hidden;
+/* ===== RESPONSIVE ===== */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .top-bar{display:none}
+  .mob-header{display:flex}
+  .tabs{display:flex}
+  .message{max-width:90%;font-size:13px;padding:10px 12px}
+  .message.jarvis::before{display:none}
+  .act-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:5px}
+  .act-card{padding:10px 6px}
+  .settings-row input[type="text"],.settings-row input[type="password"]{width:150px}
+  .input-hint{display:none}
+  .welcome{padding:16px;min-height:50vh}
+  .holo-reactor{width:160px;height:160px;margin-bottom:16px}
+  .w-title{font-size:20px;letter-spacing:7px}
+  .corner{width:35px;height:35px}
+  .hud-c1,.hud-c2,.hud-c3,.hud-c4{display:none}
 }
-.settings-row {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 18px; border-bottom: 1px solid var(--border);
-}
-.settings-row:last-child { border-bottom: none; }
-.settings-row label {
-  font-size: 13px; font-family: var(--font-body); font-weight: 500;
-  letter-spacing: 0.5px;
-}
-.settings-row input[type="text"], .settings-row input[type="password"] {
-  background: rgba(0,20,40,0.6); border: 1px solid var(--border);
-  color: var(--text); padding: 8px 14px; border-radius: 2px;
-  font-size: 12px; width: 260px; text-align: right;
-  outline: none; transition: border 0.2s;
-  font-family: var(--font-mono);
-}
-.settings-row input:focus { border-color: var(--cyan); }
-.toggle {
-  width: 44px; height: 24px; border-radius: 2px;
-  background: rgba(0,30,60,0.6); border: 1px solid var(--border);
-  cursor: pointer; position: relative; transition: all 0.3s;
-}
-.toggle.on { background: rgba(0,180,255,0.15); border-color: var(--cyan-dim); }
-.toggle::after {
-  content: ''; position: absolute; top: 3px; left: 3px;
-  width: 16px; height: 16px; border-radius: 2px;
-  background: var(--text2); transition: all 0.3s;
-}
-.toggle.on::after { transform: translateX(20px); background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
-.btn {
-  padding: 12px 24px; border-radius: 2px;
-  font-size: 12px; font-weight: 600; cursor: pointer;
-  border: 1px solid var(--border); width: 100%;
-  margin-top: 8px; transition: all 0.2s;
-  font-family: var(--font-hud); letter-spacing: 2px; text-transform: uppercase;
-}
-.btn:hover { transform: translateY(-1px); }
-.btn-cyan { background: rgba(0,180,255,0.15); color: var(--cyan); border-color: var(--cyan-dim); }
-.btn-cyan:hover { background: rgba(0,180,255,0.25); box-shadow: 0 0 15px rgba(0,200,255,0.15); }
-.btn-red { background: rgba(255,50,50,0.1); color: var(--red); border-color: rgba(255,50,50,0.3); }
-.btn-red:hover { background: rgba(255,50,50,0.2); }
-
-/* === RESPONSIVE === */
-@media (max-width: 768px) {
-  .sidebar { display: none; }
-  .top-bar { display: none; }
-  .mobile-header { display: flex; }
-  .tabs { display: flex; }
-  .message { max-width: 88%; font-size: 13px; padding: 12px 14px; }
-  .message.jarvis::before { display: none; }
-  .actions-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 6px; }
-  .action-card { padding: 12px 8px; }
-  .settings-row input[type="text"], .settings-row input[type="password"] { width: 160px; }
-  .input-hint { display: none; }
-  .welcome-display { padding: 20px; min-height: 200px; }
-  .arc-reactor-main { width: 120px; height: 120px; margin-bottom: 20px; }
-  .welcome-title { font-size: 22px; letter-spacing: 6px; }
-  .corner-decor { width: 40px; height: 40px; }
-}
-@media (min-width: 1200px) {
-  .actions-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+@media(min-width:1200px){
+  .act-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
 }
 </style>
 </head>
@@ -555,106 +426,104 @@ body {
 <div class="hud-bg">
   <div class="grid-overlay"></div>
   <div class="scan-line"></div>
+  <div class="hud-circle hud-c1"></div>
+  <div class="hud-circle hud-c2"></div>
+  <div class="hud-circle hud-c3"></div>
+  <div class="hud-circle hud-c4"></div>
   <div class="vignette"></div>
-  <div class="corner-decor tl"></div>
-  <div class="corner-decor tr"></div>
-  <div class="corner-decor bl"></div>
-  <div class="corner-decor br"></div>
+  <div class="corner c-tl"><svg viewBox="0 0 60 60"><path d="M2 20 L2 2 L20 2" fill="none" stroke="rgba(30,160,255,0.2)" stroke-width="1.5"/><circle cx="2" cy="2" r="1.5" fill="rgba(30,160,255,0.3)"/></svg></div>
+  <div class="corner c-tr"><svg viewBox="0 0 60 60"><path d="M2 20 L2 2 L20 2" fill="none" stroke="rgba(30,160,255,0.2)" stroke-width="1.5"/><circle cx="2" cy="2" r="1.5" fill="rgba(30,160,255,0.3)"/></svg></div>
+  <div class="corner c-bl"><svg viewBox="0 0 60 60"><path d="M2 20 L2 2 L20 2" fill="none" stroke="rgba(30,160,255,0.2)" stroke-width="1.5"/><circle cx="2" cy="2" r="1.5" fill="rgba(30,160,255,0.3)"/></svg></div>
+  <div class="corner c-br"><svg viewBox="0 0 60 60"><path d="M2 20 L2 2 L20 2" fill="none" stroke="rgba(30,160,255,0.2)" stroke-width="1.5"/><circle cx="2" cy="2" r="1.5" fill="rgba(30,160,255,0.3)"/></svg></div>
+  <div class="particles" id="particles"></div>
 </div>
 
 <div id="app">
   <!-- Sidebar -->
   <div class="sidebar" id="sidebar">
-    <div class="arc-reactor-mini" id="reactorMini" onclick="switchTab(0)">
-      <div class="reactor-ring ring2"></div>
-      <div class="reactor-ring ring1"></div>
-      <div class="reactor-core"></div>
+    <div class="arc-mini" id="reactorMini" onclick="switchTab(0)">
+      <div class="ring r2"></div>
+      <div class="ring r1"></div>
+      <div class="core"></div>
     </div>
     <div class="sidebar-nav">
-      <button class="nav-btn active" onclick="switchTab(0)" id="nav0">
-        &#x2b22;<span class="nav-label">CHAT</span>
-      </button>
-      <button class="nav-btn" onclick="switchTab(1)" id="nav1">
-        &#x26a1;<span class="nav-label">ACTIONS</span>
-      </button>
-      <button class="nav-btn" onclick="switchTab(2)" id="nav2">
-        &#x2699;<span class="nav-label">SETTINGS</span>
-      </button>
-      <div style="height:16px"></div>
-      <button class="nav-btn" onclick="quickAction('check the weather')" title="Weather">
-        &#x26c5;<span class="nav-label">WEATHER</span>
-      </button>
-      <button class="nav-btn" onclick="quickAction('check the news')" title="News">
-        &#x25ce;<span class="nav-label">NEWS</span>
-      </button>
-      <button class="nav-btn" onclick="quickAction('create a presentation')" title="Presentation">
-        &#x25a3;<span class="nav-label">PRESENT</span>
-      </button>
-      <button class="nav-btn" onclick="quickAction('run system diagnostics')" title="Diagnostics">
-        &#x2609;<span class="nav-label">DIAGNOSTICS</span>
-      </button>
+      <button class="nav-btn active" onclick="switchTab(0)" id="nav0">&#x2b22;<span class="tip">CHAT</span></button>
+      <button class="nav-btn" onclick="switchTab(1)" id="nav1">&#x26a1;<span class="tip">ACTIONS</span></button>
+      <button class="nav-btn" onclick="switchTab(2)" id="nav2">&#x2699;<span class="tip">SETTINGS</span></button>
+      <div style="height:12px"></div>
+      <button class="nav-btn" onclick="quickAction('check the weather')" title="Weather">&#x26c5;<span class="tip">WEATHER</span></button>
+      <button class="nav-btn" onclick="quickAction('check the news')" title="News">&#x25ce;<span class="tip">NEWS</span></button>
+      <button class="nav-btn" onclick="quickAction('create a presentation')" title="Present">&#x25a3;<span class="tip">PRESENT</span></button>
+      <button class="nav-btn" onclick="quickAction('run system diagnostics')" title="Diag">&#x2609;<span class="tip">DIAG</span></button>
     </div>
-    <div class="sidebar-footer">v2.0</div>
+    <div class="side-ver">v2.0</div>
   </div>
 
   <!-- Mobile header -->
-  <div class="mobile-header" id="mobileHeader">
-    <div class="arc-reactor-mini" id="reactorMobile" style="width:32px;height:32px">
-      <div class="reactor-ring ring1" style="width:22px;height:22px"></div>
-      <div class="reactor-core" style="width:10px;height:10px"></div>
+  <div class="mob-header" id="mobileHeader">
+    <div class="arc-mini" id="reactorMobile" style="width:28px;height:28px">
+      <div class="ring r1" style="width:20px;height:20px"></div>
+      <div class="core" style="width:8px;height:8px"></div>
     </div>
     <h1>J.A.R.V.I.S.</h1>
-    <button class="header-btn" onclick="clearChat()">&#x2715;</button>
+    <button class="hdr-btn" onclick="clearChat()">&#x2715;</button>
   </div>
 
   <!-- Mobile tabs -->
   <div class="tabs" id="mobileTabs">
-    <div class="tab active" onclick="switchTab(0)" id="tab0">
-      <span class="tab-icon">&#x2b22;</span>CHAT
-    </div>
-    <div class="tab" onclick="switchTab(1)" id="tab1">
-      <span class="tab-icon">&#x26a1;</span>ACTIONS
-    </div>
-    <div class="tab" onclick="switchTab(2)" id="tab2">
-      <span class="tab-icon">&#x2699;</span>SETTINGS
-    </div>
+    <div class="tab active" onclick="switchTab(0)" id="tab0"><span class="tab-icon">&#x2b22;</span>CHAT</div>
+    <div class="tab" onclick="switchTab(1)" id="tab1"><span class="tab-icon">&#x26a1;</span>ACTIONS</div>
+    <div class="tab" onclick="switchTab(2)" id="tab2"><span class="tab-icon">&#x2699;</span>SETTINGS</div>
   </div>
 
-  <!-- Main area -->
+  <!-- Main -->
   <div class="main">
     <!-- Top bar (desktop) -->
     <div class="top-bar" id="topBar">
-      <div class="top-bar-left">
+      <div class="tb-left">
         <div class="status-dot" id="statusDot"></div>
-        <span class="top-bar-title">J.A.R.V.I.S.</span>
+        <span class="tb-title">J.A.R.V.I.S.</span>
       </div>
-      <div class="top-bar-center" id="statusText">SYSTEMS ONLINE</div>
-      <div class="top-bar-right">
+      <div class="tb-center" id="statusText">SYSTEMS ONLINE</div>
+      <div class="tb-right">
         <span id="topTime"></span>
-        <span onclick="clearChat()" style="cursor:pointer;color:var(--cyan-dim)">[ CLEAR ]</span>
+        <span onclick="clearChat()">[ CLEAR ]</span>
       </div>
     </div>
 
     <!-- Chat Panel -->
     <div class="panel active" id="panel0" style="flex-direction:column">
       <div class="chat-area">
-        <div class="chat-messages" id="messages">
-          <!-- Welcome display -->
-          <div class="welcome-display" id="welcomeDisplay">
-            <div class="arc-reactor-main">
-              <div class="r4 ring"></div>
-              <div class="r3 ring"></div>
-              <div class="r2 ring"></div>
-              <div class="r1 ring"></div>
+        <div class="chat-msgs" id="messages">
+          <div class="welcome" id="welcomeDisplay">
+            <div class="holo-reactor">
+              <div class="hr hr6"></div>
+              <div class="hr hr5"></div>
+              <div class="hr hr4"></div>
+              <div class="hr hr3"></div>
+              <div class="hr hr2"></div>
+              <div class="hr hr1"></div>
               <div class="ticks" id="tickContainer"></div>
               <div class="core"></div>
+              <div class="readout rd1">SYS.NOMINAL</div>
+              <div class="readout rd2">PWR.100%</div>
+              <div class="readout rd3">NET.OK</div>
+              <div class="readout rd4">MEM.CLR</div>
             </div>
-            <div class="welcome-title">J.A.R.V.I.S.</div>
-            <div class="welcome-subtitle">JUST A RATHER VERY INTELLIGENT SYSTEM</div>
-            <div class="welcome-status">
+            <div class="w-title">J.A.R.V.I.S.</div>
+            <div class="w-sub">JUST A RATHER VERY INTELLIGENT SYSTEM</div>
+            <div class="w-status">
               <span><span class="dot"></span> ONLINE</span>
-              <span><span class="dot"></span> LOCAL MODE</span>
-              <span><span class="dot"></span> ALL SYSTEMS GO</span>
+              <span><span class="dot"></span> READY</span>
+              <span><span class="dot"></span> ALL SYSTEMS</span>
+            </div>
+            <div class="w-hints">
+              <button class="w-hint" onclick="quickAction('check the weather')">Weather</button>
+              <button class="w-hint" onclick="quickAction('check the news')">News</button>
+              <button class="w-hint" onclick="quickAction('tell me a joke')">Joke</button>
+              <button class="w-hint" onclick="quickAction('tell me about quantum computing')">Wiki</button>
+              <button class="w-hint" onclick="quickAction('create a presentation about AI')">Presentation</button>
+              <button class="w-hint" onclick="quickAction('what can you do')">Help</button>
             </div>
           </div>
         </div>
@@ -667,164 +536,77 @@ body {
               onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
             <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled title="Send (Enter)">&#x27A4;</button>
           </div>
-          <div class="input-hint">ENTER TO SEND &middot; SHIFT+ENTER NEW LINE &middot; V VOICE &middot; 1/2/3 TABS</div>
+          <div class="input-hint">ENTER TO SEND &middot; SHIFT+ENTER NEW LINE &middot; V VOICE</div>
         </div>
       </div>
     </div>
 
-    <!-- Quick Actions Panel -->
+    <!-- Actions Panel -->
     <div class="panel actions-panel" id="panel1">
-      <div class="actions-panel-inner">
-        <div class="section-title">Communication</div>
-        <div class="actions-grid">
-          <div class="action-card" onclick="quickAction('send a text message')">
-            <div class="icon">&#x1f4ac;</div><div class="label">Text</div>
-          </div>
-          <div class="action-card" onclick="quickAction('send an email')">
-            <div class="icon">&#x2709;</div><div class="label">Email</div>
-          </div>
-          <div class="action-card" onclick="quickAction('make a phone call')">
-            <div class="icon">&#x1f4de;</div><div class="label">Call</div>
-          </div>
-          <div class="action-card" onclick="quickAction('start a FaceTime call')">
-            <div class="icon">&#x1f4f9;</div><div class="label">FaceTime</div>
-          </div>
+      <div class="actions-inner">
+        <div class="sec-title">Communication</div>
+        <div class="act-grid">
+          <div class="act-card" onclick="quickAction('send a text message')"><div class="icon">&#x1f4ac;</div><div class="label">Text</div></div>
+          <div class="act-card" onclick="quickAction('send an email')"><div class="icon">&#x2709;</div><div class="label">Email</div></div>
+          <div class="act-card" onclick="quickAction('make a phone call')"><div class="icon">&#x1f4de;</div><div class="label">Call</div></div>
+          <div class="act-card" onclick="quickAction('start a FaceTime call')"><div class="icon">&#x1f4f9;</div><div class="label">FaceTime</div></div>
         </div>
-
-        <div class="section-title">Productivity</div>
-        <div class="actions-grid">
-          <div class="action-card" onclick="quickAction('create a note')">
-            <div class="icon">&#x1f4dd;</div><div class="label">Note</div>
-          </div>
-          <div class="action-card" onclick="quickAction('set a reminder')">
-            <div class="icon">&#x23f0;</div><div class="label">Reminder</div>
-          </div>
-          <div class="action-card" onclick="quickAction('create a presentation')">
-            <div class="icon">&#x25a3;</div><div class="label">Slides</div>
-          </div>
-          <div class="action-card" onclick="quickAction('create a document')">
-            <div class="icon">&#x25a1;</div><div class="label">Document</div>
-          </div>
-          <div class="action-card" onclick="quickAction('create a spreadsheet')">
-            <div class="icon">&#x2630;</div><div class="label">Sheet</div>
-          </div>
+        <div class="sec-title">Productivity</div>
+        <div class="act-grid">
+          <div class="act-card" onclick="quickAction('create a note')"><div class="icon">&#x1f4dd;</div><div class="label">Note</div></div>
+          <div class="act-card" onclick="quickAction('set a reminder')"><div class="icon">&#x23f0;</div><div class="label">Reminder</div></div>
+          <div class="act-card" onclick="quickAction('create a presentation')"><div class="icon">&#x25a3;</div><div class="label">Slides</div></div>
+          <div class="act-card" onclick="quickAction('create a document')"><div class="icon">&#x25a1;</div><div class="label">Document</div></div>
+          <div class="act-card" onclick="quickAction('create a spreadsheet')"><div class="icon">&#x2630;</div><div class="label">Sheet</div></div>
         </div>
-
-        <div class="section-title">Intelligence</div>
-        <div class="actions-grid">
-          <div class="action-card" onclick="quickAction('check the weather')">
-            <div class="icon">&#x26c5;</div><div class="label">Weather</div>
-          </div>
-          <div class="action-card" onclick="quickAction('check the news')">
-            <div class="icon">&#x25ce;</div><div class="label">News</div>
-          </div>
-          <div class="action-card" onclick="quickAction('translate hello to spanish')">
-            <div class="icon">&#x2604;</div><div class="label">Translate</div>
-          </div>
-          <div class="action-card" onclick="quickAction('run system diagnostics')">
-            <div class="icon">&#x2609;</div><div class="label">Diagnostics</div>
-          </div>
+        <div class="sec-title">Intelligence</div>
+        <div class="act-grid">
+          <div class="act-card" onclick="quickAction('check the weather')"><div class="icon">&#x26c5;</div><div class="label">Weather</div></div>
+          <div class="act-card" onclick="quickAction('check the news')"><div class="icon">&#x25ce;</div><div class="label">News</div></div>
+          <div class="act-card" onclick="quickAction('translate hello to spanish')"><div class="icon">&#x2604;</div><div class="label">Translate</div></div>
+          <div class="act-card" onclick="quickAction('run system diagnostics')"><div class="icon">&#x2609;</div><div class="label">Diagnostics</div></div>
         </div>
-
-        <div class="section-title">Utilities</div>
-        <div class="actions-grid">
-          <div class="action-card" onclick="quickAction('flip a coin')">
-            <div class="icon">&#x25cf;</div><div class="label">Coin</div>
-          </div>
-          <div class="action-card" onclick="quickAction('roll a dice')">
-            <div class="icon">&#x2b22;</div><div class="label">Dice</div>
-          </div>
-          <div class="action-card" onclick="quickAction('generate a password')">
-            <div class="icon">&#x2731;</div><div class="label">Password</div>
-          </div>
-          <div class="action-card" onclick="quickAction('search YouTube for music')">
-            <div class="icon">&#x25b6;</div><div class="label">YouTube</div>
-          </div>
-          <div class="action-card" onclick="quickAction('search google for latest tech news')">
-            <div class="icon">&#x2315;</div><div class="label">Search</div>
-          </div>
+        <div class="sec-title">Utilities</div>
+        <div class="act-grid">
+          <div class="act-card" onclick="quickAction('flip a coin')"><div class="icon">&#x25cf;</div><div class="label">Coin</div></div>
+          <div class="act-card" onclick="quickAction('roll a dice')"><div class="icon">&#x2b22;</div><div class="label">Dice</div></div>
+          <div class="act-card" onclick="quickAction('generate a password')"><div class="icon">&#x2731;</div><div class="label">Password</div></div>
+          <div class="act-card" onclick="quickAction('search YouTube for music')"><div class="icon">&#x25b6;</div><div class="label">YouTube</div></div>
+          <div class="act-card" onclick="quickAction('search google for latest tech news')"><div class="icon">&#x2315;</div><div class="label">Search</div></div>
         </div>
-
-        <div class="section-title">Applications</div>
-        <div class="actions-grid">
-          <div class="action-card" onclick="quickAction('open youtube')">
-            <div class="icon">&#x25b6;</div><div class="label">YouTube</div>
-          </div>
-          <div class="action-card" onclick="quickAction('open instagram')">
-            <div class="icon">&#x25cb;</div><div class="label">Instagram</div>
-          </div>
-          <div class="action-card" onclick="quickAction('open spotify')">
-            <div class="icon">&#x266b;</div><div class="label">Spotify</div>
-          </div>
-          <div class="action-card" onclick="quickAction('open tiktok')">
-            <div class="icon">&#x266a;</div><div class="label">TikTok</div>
-          </div>
-          <div class="action-card" onclick="quickAction('open snapchat')">
-            <div class="icon">&#x25c7;</div><div class="label">Snapchat</div>
-          </div>
-          <div class="action-card" onclick="quickAction('open discord')">
-            <div class="icon">&#x2b23;</div><div class="label">Discord</div>
-          </div>
-          <div class="action-card" onclick="quickAction('open netflix')">
-            <div class="icon">&#x25a0;</div><div class="label">Netflix</div>
-          </div>
-          <div class="action-card" onclick="quickAction('open reddit')">
-            <div class="icon">&#x29bf;</div><div class="label">Reddit</div>
-          </div>
+        <div class="sec-title">Applications</div>
+        <div class="act-grid">
+          <div class="act-card" onclick="quickAction('open youtube')"><div class="icon">&#x25b6;</div><div class="label">YouTube</div></div>
+          <div class="act-card" onclick="quickAction('open instagram')"><div class="icon">&#x25cb;</div><div class="label">Instagram</div></div>
+          <div class="act-card" onclick="quickAction('open spotify')"><div class="icon">&#x266b;</div><div class="label">Spotify</div></div>
+          <div class="act-card" onclick="quickAction('open tiktok')"><div class="icon">&#x266a;</div><div class="label">TikTok</div></div>
+          <div class="act-card" onclick="quickAction('open snapchat')"><div class="icon">&#x25c7;</div><div class="label">Snapchat</div></div>
+          <div class="act-card" onclick="quickAction('open discord')"><div class="icon">&#x2b23;</div><div class="label">Discord</div></div>
+          <div class="act-card" onclick="quickAction('open netflix')"><div class="icon">&#x25a0;</div><div class="label">Netflix</div></div>
+          <div class="act-card" onclick="quickAction('open reddit')"><div class="icon">&#x29bf;</div><div class="label">Reddit</div></div>
         </div>
-
-        <div class="section-title">System Controls</div>
-        <div class="actions-grid">
-          <div class="action-card" onclick="quickAction('toggle wifi')">
-            <div class="icon">&#x25e4;</div><div class="label">WiFi</div>
-          </div>
-          <div class="action-card" onclick="quickAction('toggle bluetooth')">
-            <div class="icon">&#x25c8;</div><div class="label">Bluetooth</div>
-          </div>
-          <div class="action-card" onclick="quickAction('toggle dark mode')">
-            <div class="icon">&#x25d0;</div><div class="label">Dark Mode</div>
-          </div>
-          <div class="action-card" onclick="quickAction('toggle airplane mode')">
-            <div class="icon">&#x2206;</div><div class="label">Airplane</div>
-          </div>
-          <div class="action-card" onclick="quickAction('toggle do not disturb')">
-            <div class="icon">&#x2298;</div><div class="label">DND</div>
-          </div>
-          <div class="action-card" onclick="quickAction('toggle low power mode')">
-            <div class="icon">&#x26a1;</div><div class="label">Battery</div>
-          </div>
-          <div class="action-card" onclick="quickAction('set brightness to 50')">
-            <div class="icon">&#x2600;</div><div class="label">Brightness</div>
-          </div>
-          <div class="action-card" onclick="quickAction('set volume to 50')">
-            <div class="icon">&#x25c9;</div><div class="label">Volume</div>
-          </div>
+        <div class="sec-title">System Controls</div>
+        <div class="act-grid">
+          <div class="act-card" onclick="quickAction('toggle wifi')"><div class="icon">&#x25e4;</div><div class="label">WiFi</div></div>
+          <div class="act-card" onclick="quickAction('toggle bluetooth')"><div class="icon">&#x25c8;</div><div class="label">Bluetooth</div></div>
+          <div class="act-card" onclick="quickAction('toggle dark mode')"><div class="icon">&#x25d0;</div><div class="label">Dark Mode</div></div>
+          <div class="act-card" onclick="quickAction('toggle airplane mode')"><div class="icon">&#x2206;</div><div class="label">Airplane</div></div>
+          <div class="act-card" onclick="quickAction('toggle do not disturb')"><div class="icon">&#x2298;</div><div class="label">DND</div></div>
+          <div class="act-card" onclick="quickAction('toggle low power mode')"><div class="icon">&#x26a1;</div><div class="label">Battery</div></div>
+          <div class="act-card" onclick="quickAction('set brightness to 50')"><div class="icon">&#x2600;</div><div class="label">Brightness</div></div>
+          <div class="act-card" onclick="quickAction('set volume to 50')"><div class="icon">&#x25c9;</div><div class="label">Volume</div></div>
         </div>
-
-        <div class="section-title">Environment</div>
-        <div class="actions-grid">
-          <div class="action-card" onclick="quickAction('turn on the lights')">
-            <div class="icon">&#x2736;</div><div class="label">Lights On</div>
-          </div>
-          <div class="action-card" onclick="quickAction('turn off the lights')">
-            <div class="icon">&#x2737;</div><div class="label">Lights Off</div>
-          </div>
-          <div class="action-card" onclick="quickAction('set thermostat to 72')">
-            <div class="icon">&#x2103;</div><div class="label">Thermostat</div>
-          </div>
+        <div class="sec-title">Environment</div>
+        <div class="act-grid">
+          <div class="act-card" onclick="quickAction('turn on the lights')"><div class="icon">&#x2736;</div><div class="label">Lights On</div></div>
+          <div class="act-card" onclick="quickAction('turn off the lights')"><div class="icon">&#x2737;</div><div class="label">Lights Off</div></div>
+          <div class="act-card" onclick="quickAction('set thermostat to 72')"><div class="icon">&#x2103;</div><div class="label">Thermostat</div></div>
         </div>
-
-        <div class="section-title">Media</div>
-        <div class="actions-grid">
-          <div class="action-card" onclick="quickAction('open camera')">
-            <div class="icon">&#x25ce;</div><div class="label">Camera</div>
-          </div>
-          <div class="action-card" onclick="quickAction('open photos')">
-            <div class="icon">&#x25a3;</div><div class="label">Photos</div>
-          </div>
-          <div class="action-card" onclick="quickAction('play music')">
-            <div class="icon">&#x266b;</div><div class="label">Music</div>
-          </div>
+        <div class="sec-title">Media</div>
+        <div class="act-grid">
+          <div class="act-card" onclick="quickAction('open camera')"><div class="icon">&#x25ce;</div><div class="label">Camera</div></div>
+          <div class="act-card" onclick="quickAction('open photos')"><div class="icon">&#x25a3;</div><div class="label">Photos</div></div>
+          <div class="act-card" onclick="quickAction('play music')"><div class="icon">&#x266b;</div><div class="label">Music</div></div>
         </div>
       </div>
     </div>
@@ -832,886 +614,739 @@ body {
     <!-- Settings Panel -->
     <div class="panel settings-panel" id="panel2">
       <div class="settings-inner">
-        <div class="section-title">Server Connection</div>
+        <div class="sec-title">Server Connection</div>
         <div class="settings-group">
-          <div class="settings-row">
-            <label>Server URL</label>
-            <input type="text" id="serverURL" placeholder="http://localhost:3000" value="">
-          </div>
-          <div class="settings-row">
-            <label>API Key</label>
-            <input type="password" id="apiKey" placeholder="Optional">
-          </div>
-          <div class="settings-row">
-            <label>Status</label>
-            <span id="connStatus" style="color:var(--text2);font-family:var(--font-mono);font-size:11px">OFFLINE</span>
-          </div>
+          <div class="settings-row"><label>Server URL</label><input type="text" id="serverURL" placeholder="http://localhost:3000" value=""></div>
+          <div class="settings-row"><label>API Key</label><input type="password" id="apiKey" placeholder="Optional"></div>
+          <div class="settings-row"><label>Status</label><span id="connStatus" style="color:var(--text2);font-family:var(--font-m);font-size:10px">OFFLINE</span></div>
         </div>
         <button class="btn btn-cyan" onclick="testConnection()">TEST CONNECTION</button>
-
-        <div class="section-title" style="margin-top:24px">Voice Interface</div>
+        <div class="sec-title" style="margin-top:20px">Voice Interface</div>
         <div class="settings-group">
-          <div class="settings-row">
-            <label>Voice Output (TTS)</label>
-            <button class="toggle" id="voiceToggle" onclick="toggleSetting('voice')"></button>
-          </div>
-          <div class="settings-row">
-            <label>Auto-listen After Reply</label>
-            <button class="toggle" id="autoListenToggle" onclick="toggleSetting('autoListen')"></button>
-          </div>
+          <div class="settings-row"><label>Voice Output (TTS)</label><button class="toggle" id="voiceToggle" onclick="toggleSetting('voice')"></button></div>
+          <div class="settings-row"><label>Auto-listen After Reply</label><button class="toggle" id="autoListenToggle" onclick="toggleSetting('autoListen')"></button></div>
         </div>
-
-        <div class="section-title">Keyboard Commands</div>
+        <div class="sec-title">Keyboard Commands</div>
         <div class="settings-group">
-          <div class="settings-row"><label>Send</label><span style="color:var(--text2);font-family:var(--font-mono);font-size:11px">ENTER</span></div>
-          <div class="settings-row"><label>New Line</label><span style="color:var(--text2);font-family:var(--font-mono);font-size:11px">SHIFT+ENTER</span></div>
-          <div class="settings-row"><label>Voice</label><span style="color:var(--text2);font-family:var(--font-mono);font-size:11px">V</span></div>
-          <div class="settings-row"><label>Switch Tabs</label><span style="color:var(--text2);font-family:var(--font-mono);font-size:11px">1 / 2 / 3</span></div>
-          <div class="settings-row"><label>Focus Input</label><span style="color:var(--text2);font-family:var(--font-mono);font-size:11px">/ or CTRL+L</span></div>
-          <div class="settings-row"><label>Clear Chat</label><span style="color:var(--text2);font-family:var(--font-mono);font-size:11px">CTRL+SHIFT+K</span></div>
+          <div class="settings-row"><label>Send</label><span style="color:var(--text2);font-family:var(--font-m);font-size:10px">ENTER</span></div>
+          <div class="settings-row"><label>New Line</label><span style="color:var(--text2);font-family:var(--font-m);font-size:10px">SHIFT+ENTER</span></div>
+          <div class="settings-row"><label>Voice</label><span style="color:var(--text2);font-family:var(--font-m);font-size:10px">V</span></div>
+          <div class="settings-row"><label>Switch Tabs</label><span style="color:var(--text2);font-family:var(--font-m);font-size:10px">1 / 2 / 3</span></div>
+          <div class="settings-row"><label>Focus Input</label><span style="color:var(--text2);font-family:var(--font-m);font-size:10px">/ or CTRL+L</span></div>
+          <div class="settings-row"><label>Clear Chat</label><span style="color:var(--text2);font-family:var(--font-m);font-size:10px">CTRL+SHIFT+K</span></div>
         </div>
-
-        <div class="section-title">System Info</div>
+        <div class="sec-title">System Info</div>
         <div class="settings-group">
-          <div class="settings-row">
-            <label>Version</label>
-            <span style="color:var(--text2);font-family:var(--font-mono);font-size:11px">v2.0.0 WEB</span>
-          </div>
-          <div class="settings-row">
-            <label>Install as App (iPad)</label>
-            <span style="color:var(--text2);font-family:var(--font-mono);font-size:10px">SHARE > ADD TO HOME</span>
-          </div>
+          <div class="settings-row"><label>Version</label><span style="color:var(--text2);font-family:var(--font-m);font-size:10px">v2.0.0 WEB</span></div>
+          <div class="settings-row"><label>Install as App (iPad)</label><span style="color:var(--text2);font-family:var(--font-m);font-size:9px">SHARE > ADD TO HOME</span></div>
         </div>
-
-        <button class="btn btn-red" onclick="clearAllData()" style="margin-top:16px">RESET ALL DATA</button>
+        <button class="btn btn-red" onclick="clearAllData()" style="margin-top:12px">RESET ALL DATA</button>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-// Generate tick marks on arc reactor
-(function() {
-  const container = document.getElementById('tickContainer');
-  if (!container) return;
-  for (let i = 0; i < 24; i++) {
-    const tick = document.createElement('div');
-    tick.className = 'tick';
-    tick.style.transform = `rotate(${i * 15}deg)`;
-    container.appendChild(tick);
+// Generate tick marks
+(function(){
+  const c=document.getElementById('tickContainer');
+  if(!c)return;
+  for(let i=0;i<36;i++){
+    const t=document.createElement('div');
+    t.className='tick';
+    t.style.transform=`rotate(${i*10}deg)`;
+    if(i%3===0)t.style.height='10px';
+    c.appendChild(t);
   }
 })();
 
-// Update clock
-function updateClock() {
-  const el = document.getElementById('topTime');
-  if (el) el.textContent = new Date().toLocaleTimeString('en-US', { hour12: false });
+// Floating particles
+(function(){
+  const c=document.getElementById('particles');
+  if(!c)return;
+  for(let i=0;i<20;i++){
+    const p=document.createElement('div');
+    p.className='particle';
+    p.style.left=Math.random()*100+'%';
+    p.style.top=Math.random()*100+'%';
+    p.style.animationDuration=(8+Math.random()*12)+'s';
+    p.style.animationDelay=Math.random()*10+'s';
+    p.style.width=p.style.height=(1+Math.random()*2)+'px';
+    c.appendChild(p);
+  }
+})();
+
+// Clock
+function updateClock(){
+  const el=document.getElementById('topTime');
+  if(el)el.textContent=new Date().toLocaleTimeString('en-US',{hour12:false});
 }
-updateClock();
-setInterval(updateClock, 1000);
+updateClock();setInterval(updateClock,1000);
 
 // State
-let messages = [];
-let history = [];
-let isProcessing = false;
-let isListening = false;
-let recognition = null;
-let welcomeShown = true;
-const autoURL = window.location.origin;
-let settings = {
-  serverURL: localStorage.getItem('jarvis_serverURL') || autoURL,
-  apiKey: localStorage.getItem('jarvis_apiKey') || '',
-  voice: localStorage.getItem('jarvis_voice') !== 'false',
-  autoListen: localStorage.getItem('jarvis_autoListen') === 'true',
+let messages=[],history=[],isProcessing=false,isListening=false,recognition=null,welcomeShown=true;
+const autoURL=window.location.origin;
+let settings={
+  serverURL:localStorage.getItem('jarvis_serverURL')||autoURL,
+  apiKey:localStorage.getItem('jarvis_apiKey')||'',
+  voice:localStorage.getItem('jarvis_voice')!=='false',
+  autoListen:localStorage.getItem('jarvis_autoListen')==='true',
 };
 
 // Init
-document.getElementById('serverURL').value = settings.serverURL;
-document.getElementById('apiKey').value = settings.apiKey;
+document.getElementById('serverURL').value=settings.serverURL;
+document.getElementById('apiKey').value=settings.apiKey;
 updateToggles();
 document.getElementById('inputField').focus();
 
 // Save settings
-document.getElementById('serverURL').addEventListener('change', e => {
-  settings.serverURL = e.target.value.replace(/\/+$/, '');
-  localStorage.setItem('jarvis_serverURL', settings.serverURL);
+document.getElementById('serverURL').addEventListener('change',e=>{
+  settings.serverURL=e.target.value.replace(/\/+$/,'');
+  localStorage.setItem('jarvis_serverURL',settings.serverURL);
 });
-document.getElementById('apiKey').addEventListener('change', e => {
-  settings.apiKey = e.target.value;
-  localStorage.setItem('jarvis_apiKey', settings.apiKey);
+document.getElementById('apiKey').addEventListener('change',e=>{
+  settings.apiKey=e.target.value;
+  localStorage.setItem('jarvis_apiKey',settings.apiKey);
 });
 
 // Keyboard shortcuts
-document.addEventListener('keydown', e => {
-  const active = document.activeElement;
-  const typing = active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT');
-  if (e.ctrlKey && e.shiftKey && e.key === 'K') { e.preventDefault(); clearChat(); return; }
-  if ((e.ctrlKey && e.key === 'l') || (e.key === '/' && !typing)) {
-    e.preventDefault(); switchTab(0); document.getElementById('inputField').focus(); return;
-  }
-  if (typing) return;
-  if (e.key === '1') { switchTab(0); return; }
-  if (e.key === '2') { switchTab(1); return; }
-  if (e.key === '3') { switchTab(2); return; }
-  if (e.key === 'v' || e.key === 'V') { toggleVoice(); return; }
-  if (e.key === 'Escape' && isProcessing) { isProcessing = false; setStatus('INTERRUPTED'); return; }
+document.addEventListener('keydown',e=>{
+  const active=document.activeElement;
+  const typing=active&&(active.tagName==='TEXTAREA'||active.tagName==='INPUT');
+  if(e.ctrlKey&&e.shiftKey&&e.key==='K'){e.preventDefault();clearChat();return}
+  if((e.ctrlKey&&e.key==='l')||(e.key==='/'&&!typing)){e.preventDefault();switchTab(0);document.getElementById('inputField').focus();return}
+  if(typing)return;
+  if(e.key==='1'){switchTab(0);return}
+  if(e.key==='2'){switchTab(1);return}
+  if(e.key==='3'){switchTab(2);return}
+  if(e.key==='v'||e.key==='V'){toggleVoice();return}
+  if(e.key==='Escape'&&isProcessing){isProcessing=false;setStatus('INTERRUPTED');return}
 });
 
 // Tabs
-function switchTab(idx) {
-  document.querySelectorAll('.nav-btn').forEach((n, i) => { if (i < 3) n.classList.toggle('active', i === idx); });
-  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === idx));
-  document.querySelectorAll('.panel').forEach((p, i) => p.classList.toggle('active', i === idx));
-  if (idx === 0) setTimeout(() => document.getElementById('inputField').focus(), 100);
+function switchTab(idx){
+  document.querySelectorAll('.nav-btn').forEach((n,i)=>{if(i<3)n.classList.toggle('active',i===idx)});
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===idx));
+  document.querySelectorAll('.panel').forEach((p,i)=>p.classList.toggle('active',i===idx));
+  if(idx===0)setTimeout(()=>document.getElementById('inputField').focus(),100);
 }
 
 // Messages
-function addMessage(role, content, actions) {
-  // Hide welcome on first message
-  if (welcomeShown) {
-    const wd = document.getElementById('welcomeDisplay');
-    if (wd) wd.style.display = 'none';
-    welcomeShown = false;
+function addMessage(role,content,actions){
+  if(welcomeShown){
+    const wd=document.getElementById('welcomeDisplay');
+    if(wd)wd.style.display='none';
+    welcomeShown=false;
   }
-  const msg = { role, content, actions, id: Date.now() };
+  const msg={role,content,actions,id:Date.now()};
   messages.push(msg);
   renderMessage(msg);
   scrollToBottom();
 }
 
-function renderMessage(msg) {
-  const el = document.createElement('div');
-  el.className = `message ${msg.role}`;
-  let html = formatRichMessage(msg.content);
-  if (msg.actions && msg.actions.length > 0) {
-    html += '<div class="actions-list">';
-    msg.actions.forEach(a => { html += `<span class="action-tag">${escapeHtml(a.type)}</span>`; });
-    html += '</div>';
+function renderMessage(msg){
+  const el=document.createElement('div');
+  el.className=`message ${msg.role}`;
+  let html=formatRichMessage(msg.content);
+  if(msg.actions&&msg.actions.length>0){
+    html+='<div class="actions-list">';
+    msg.actions.forEach(a=>{html+=`<span class="action-tag">${escapeHtml(a.type)}</span>`});
+    html+='</div>';
   }
-  el.innerHTML = html;
+  el.innerHTML=html;
   document.getElementById('messages').appendChild(el);
 }
 
-function formatRichMessage(text) {
-  if (!text) return '';
-  let s = escapeHtml(text);
-  // Detect URLs and make them links
-  s = s.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" style="color:var(--cyan);text-decoration:none;border-bottom:1px solid var(--cyan-dim)">$1</a>');
-  // Bold text between **
-  s = s.replace(/\*\*(.+?)\*\*/g, '<strong style="color:var(--text-bright)">$1</strong>');
-  // Numbered lists: lines starting with "1. ", "2. " etc
-  s = s.replace(/^(\d+)\.\s+(.+)$/gm, '<div class="rich-list-item"><span class="rich-num">$1</span><span>$2</span></div>');
-  // Lines starting with "- " as bullet items
-  s = s.replace(/^-\s+(.+)$/gm, '<div class="rich-list-item"><span class="rich-bullet">&#8226;</span><span>$1</span></div>');
-  // Key: Value lines (like "Temperature: 72°F")
-  s = s.replace(/^([A-Z][A-Za-z\s]+?):\s+(.+)$/gm, '<div class="rich-kv"><span class="rich-key">$1</span><span class="rich-val">$2</span></div>');
-  // Section headers — lines that are short, uppercase or title-case, alone
-  s = s.replace(/^(Forecast|Category|More):?\s*$/gm, '<div class="rich-section">$1</div>');
-  // Convert remaining newlines to <br>
-  s = s.replace(/\n/g, '<br>');
+function formatRichMessage(text){
+  if(!text)return'';
+  let s=escapeHtml(text);
+  s=s.replace(/(https?:\/\/[^\s]+)/g,'<a href="$1" target="_blank">$1</a>');
+  s=s.replace(/\*\*(.+?)\*\*/g,'<strong style="color:var(--text-b)">$1</strong>');
+  s=s.replace(/^(\d+)\.\s+(.+)$/gm,'<div class="rich-list-item"><span class="rich-num">$1</span><span>$2</span></div>');
+  s=s.replace(/^-\s+(.+)$/gm,'<div class="rich-list-item"><span class="rich-bullet">&#8226;</span><span>$1</span></div>');
+  s=s.replace(/^([A-Z][A-Za-z\s]+?):\s+(.+)$/gm,'<div class="rich-kv"><span class="rich-key">$1</span><span class="rich-val">$2</span></div>');
+  s=s.replace(/^(Forecast|Category|More):?\s*$/gm,'<div class="rich-section">$1</div>');
+  s=s.replace(/\n/g,'<br>');
   return s;
 }
 
-function scrollToBottom() {
-  const area = document.querySelector('.chat-area');
-  requestAnimationFrame(() => area.scrollTop = area.scrollHeight);
+function scrollToBottom(){
+  const area=document.querySelector('.chat-area');
+  requestAnimationFrame(()=>area.scrollTop=area.scrollHeight);
 }
 
-function escapeHtml(s) {
-  if (!s) return '';
+function escapeHtml(s){
+  if(!s)return'';
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
 // Input
-function handleKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-}
+function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}}
 
-function autoResize(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 160) + 'px';
-  document.getElementById('sendBtn').disabled = !el.value.trim();
+function autoResize(el){
+  el.style.height='auto';
+  el.style.height=Math.min(el.scrollHeight,160)+'px';
+  document.getElementById('sendBtn').disabled=!el.value.trim();
 }
 
 // Send
-async function sendMessage() {
-  const input = document.getElementById('inputField');
-  const text = input.value.trim();
-  if (!text || isProcessing) return;
-  input.value = ''; input.style.height = 'auto';
-  document.getElementById('sendBtn').disabled = true;
-  addMessage('user', text);
-  history.push({ role: 'user', content: text });
+async function sendMessage(){
+  const input=document.getElementById('inputField');
+  const text=input.value.trim();
+  if(!text||isProcessing)return;
+  input.value='';input.style.height='auto';
+  document.getElementById('sendBtn').disabled=true;
+  addMessage('user',text);
+  history.push({role:'user',content:text});
   await processCommand(text);
 }
 
-function quickAction(text) {
+function quickAction(text){
   switchTab(0);
-  if (isProcessing) return;
-  addMessage('user', text);
-  history.push({ role: 'user', content: text });
+  if(isProcessing)return;
+  addMessage('user',text);
+  history.push({role:'user',content:text});
   processCommand(text);
 }
 
-async function processCommand(command) {
-  isProcessing = true;
+async function processCommand(command){
+  isProcessing=true;
   setStatus('PROCESSING...');
   setOrb(true);
 
-  const local = parseOnDevice(command);
-  if (local && !needsServer(command)) {
+  const local=parseOnDevice(command);
+  if(local&&!needsServer(command)){
     showResult(local);
-    isProcessing = false; setStatus('SYSTEMS ONLINE'); setOrb(false);
+    isProcessing=false;setStatus('SYSTEMS ONLINE');setOrb(false);
     return;
   }
-  if (!settings.serverURL) {
-    if (local) showResult(local);
-    else addMessage('jarvis', 'Server URL not configured. Set it in Settings to enable full capabilities.');
-    isProcessing = false; setStatus('SYSTEMS ONLINE'); setOrb(false);
+  if(!settings.serverURL){
+    if(local)showResult(local);
+    else addMessage('jarvis','Server URL not configured. Set it in Settings to enable full capabilities.');
+    isProcessing=false;setStatus('SYSTEMS ONLINE');setOrb(false);
     return;
   }
 
-  let currentCommand = command, isFollowUp = false, previousResult = null, iterations = 0;
-  while (iterations < 10) {
+  let currentCommand=command,isFollowUp=false,previousResult=null,iterations=0;
+  while(iterations<10){
     iterations++;
     setStatus(`EXECUTING STEP ${iterations}...`);
-    const response = await callServer(currentCommand, isFollowUp, previousResult);
-    if (!response) { addMessage('system', '[ CONNECTION LOST ]'); break; }
+    const response=await callServer(currentCommand,isFollowUp,previousResult);
+    if(!response){addMessage('system','[ CONNECTION LOST ]');break}
     showResult(response);
-    history.push({ role: 'assistant', content: response.message });
-    if (response.isDone) break;
-    if (response.needsScreenAfter) {
+    history.push({role:'assistant',content:response.message});
+    if(response.isDone)break;
+    if(response.needsScreenAfter){
       await sleep(500);
-      currentCommand = 'Continue the task.';
-      isFollowUp = true;
-      previousResult = response.actions?.map(a => `[${a.type}] executed`).join('\n') || '';
-    } else break;
+      currentCommand='Continue the task.';
+      isFollowUp=true;
+      previousResult=response.actions?.map(a=>`[${a.type}] executed`).join('\n')||'';
+    }else break;
   }
-  isProcessing = false; setStatus('SYSTEMS ONLINE'); setOrb(false);
+  isProcessing=false;setStatus('SYSTEMS ONLINE');setOrb(false);
 }
 
-function showResult(response) {
-  if (response.thought) addMessage('thinking', response.thought);
-  if (response.message) {
-    addMessage('jarvis', response.message, response.actions);
-    if (settings.voice) speak(response.message);
+function showResult(response){
+  if(response.thought)addMessage('thinking',response.thought);
+  if(response.message){
+    addMessage('jarvis',response.message,response.actions);
+    if(settings.voice)speak(response.message);
   }
-  if (response.actionResults) {
-    for (const ar of response.actionResults) {
-      if (ar.url) {
-        addMessage('system', `[ FILE READY: ${ar.message} ]`);
-        window.open(ar.url, '_blank');
+  if(response.actionResults){
+    for(const ar of response.actionResults){
+      if(ar.url){
+        addMessage('system',`[ FILE READY: ${ar.message} ]`);
+        window.open(ar.url,'_blank');
       }
     }
   }
 }
 
-function setOrb(processing) {
-  document.getElementById('reactorMini').classList.toggle('processing', processing);
-  const m = document.getElementById('reactorMobile');
-  if (m) m.classList.toggle('processing', processing);
-  // Status dot
-  const dot = document.getElementById('statusDot');
-  if (dot) dot.style.background = processing ? 'var(--gold)' : 'var(--green)';
+function setOrb(processing){
+  document.getElementById('reactorMini').classList.toggle('processing',processing);
+  const m=document.getElementById('reactorMobile');
+  if(m)m.classList.toggle('processing',processing);
+  const dot=document.getElementById('statusDot');
+  if(dot)dot.style.background=processing?'var(--gold)':'var(--green)';
 }
 
-async function callServer(command, isFollowUp, previousResult) {
-  try {
-    const headers = { 'Content-Type': 'application/json' };
-    if (settings.apiKey) headers['Authorization'] = `Bearer ${settings.apiKey}`;
-    let enrichedCommand = command;
-    if (isFollowUp && previousResult) enrichedCommand = `[CONTINUING TASK]\n${previousResult}\n\n${command}`;
-
-    const platform = /iPad|iPhone/.test(navigator.userAgent) ? 'iPad (Web)' :
-                     /Mac/.test(navigator.userAgent) ? 'MacBook (Web)' :
-                     /Windows/.test(navigator.userAgent) ? 'Windows PC (Web)' :
-                     /Linux/.test(navigator.userAgent) ? 'Linux (Web)' : 'Browser';
-
-    const res = await fetch(`${settings.serverURL}/api/agent`, {
-      method: 'POST', headers,
-      body: JSON.stringify({
-        command: enrichedCommand, screenshot: null,
-        deviceInfo: {
-          model: platform, os: navigator.platform,
-          screenW: screen.width * (devicePixelRatio || 1),
-          screenH: screen.height * (devicePixelRatio || 1),
-          battery: 100, charging: false, time: new Date().toLocaleString(),
+async function callServer(command,isFollowUp,previousResult){
+  try{
+    const headers={'Content-Type':'application/json'};
+    if(settings.apiKey)headers['Authorization']=`Bearer ${settings.apiKey}`;
+    let enrichedCommand=command;
+    if(isFollowUp&&previousResult)enrichedCommand=`[CONTINUING TASK]\n${previousResult}\n\n${command}`;
+    const platform=/iPad|iPhone/.test(navigator.userAgent)?'iPad (Web)':
+                   /Mac/.test(navigator.userAgent)?'MacBook (Web)':
+                   /Windows/.test(navigator.userAgent)?'Windows PC (Web)':
+                   /Linux/.test(navigator.userAgent)?'Linux (Web)':'Browser';
+    const res=await fetch(`${settings.serverURL}/api/agent`,{
+      method:'POST',headers,
+      body:JSON.stringify({
+        command:enrichedCommand,screenshot:null,
+        deviceInfo:{
+          model:platform,os:navigator.platform,
+          screenW:screen.width*(devicePixelRatio||1),
+          screenH:screen.height*(devicePixelRatio||1),
+          battery:100,charging:false,time:new Date().toLocaleString(),
         },
-        history: history.slice(-20), isFollowUp, previousResult,
+        history:history.slice(-20),isFollowUp,previousResult,
       }),
     });
-    if (!res.ok) return null;
+    if(!res.ok)return null;
     return await res.json();
-  } catch { return null; }
+  }catch{return null}
 }
 
-// On-device parser — all the same logic
-function parseOnDevice(text) {
-  const t = text.toLowerCase().trim();
+// On-device parser
+function parseOnDevice(text){
+  const t=text.toLowerCase().trim();
 
-  // Math
-  const mathPrefixes = ['what is ', "what's ", 'calculate ', 'compute ', 'solve ', 'how much is '];
-  for (const p of mathPrefixes) {
-    if (t.startsWith(p)) {
-      const expr = t.slice(p.length)
-        .replace(/plus/g,'+').replace(/minus/g,'-').replace(/times/g,'*')
-        .replace(/multiplied by/g,'*').replace(/divided by/g,'/').replace(/over/g,'/');
-      try {
-        const result = Function('"use strict"; return (' + expr.replace(/[^0-9+\-*/().%\s]/g,'') + ')')();
-        if (typeof result === 'number' && isFinite(result)) return reply(`The answer is ${result}.`);
-      } catch {}
+  const mathPrefixes=['what is ',"what's ",'calculate ','compute ','solve ','how much is '];
+  for(const p of mathPrefixes){
+    if(t.startsWith(p)){
+      const expr=t.slice(p.length).replace(/plus/g,'+').replace(/minus/g,'-').replace(/times/g,'*').replace(/multiplied by/g,'*').replace(/divided by/g,'/').replace(/over/g,'/');
+      try{
+        const result=Function('"use strict"; return ('+expr.replace(/[^0-9+\-*/().%\s]/g,'')+')')();
+        if(typeof result==='number'&&isFinite(result))return reply(`The answer is ${result}.`);
+      }catch{}
     }
   }
 
-  if (t.includes('flip a coin') || t.includes('coin flip') || t.includes('heads or tails'))
-    return reply(`Coin flip: ${Math.random() < 0.5 ? 'Heads' : 'Tails'}.`);
+  if(t.includes('flip a coin')||t.includes('coin flip')||t.includes('heads or tails'))
+    return reply(`Coin flip: ${Math.random()<0.5?'Heads':'Tails'}.`);
 
-  if (t.includes('roll a di') || t.includes('roll dice') || t.match(/\bd\d+\b/)) {
-    let sides = 6;
-    const dm = t.match(/\bd(\d+)\b/);
-    if (dm) sides = parseInt(dm[1]);
+  if(t.includes('roll a di')||t.includes('roll dice')||t.match(/\bd\d+\b/)){
+    let sides=6;const dm=t.match(/\bd(\d+)\b/);if(dm)sides=parseInt(dm[1]);
     return reply(`Rolled a ${Math.floor(Math.random()*sides)+1} (d${sides}).`);
   }
 
-  if (t.includes('password')) {
-    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*';
-    let pw = ''; for (let i = 0; i < 16; i++) pw += chars[Math.floor(Math.random()*chars.length)];
+  if(t.includes('password')){
+    const chars='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*';
+    let pw='';for(let i=0;i<16;i++)pw+=chars[Math.floor(Math.random()*chars.length)];
     navigator.clipboard?.writeText(pw);
     return reply(`Generated password: ${pw}\n(Copied to clipboard)`);
   }
 
-  if (t === 'what time is it' || t === "what's the time" || t.includes('current time'))
+  if(t==='what time is it'||t==="what's the time"||t.includes('current time'))
     return reply(`It's ${new Date().toLocaleTimeString()}.`);
-  if (t.includes("what's the date") || t.includes('what date') || t.includes("today's date") || t === "what's today" || t.includes('what day') || t.includes('the date'))
+  if(t.includes("what's the date")||t.includes('what date')||t.includes("today's date")||t==="what's today"||t.includes('what day')||t.includes('the date'))
     return reply(`Today is ${new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}.`);
 
-  if (t.includes('weather') || t.includes('temperature') || t.includes('going to rain')) {
+  if(t.includes('weather')||t.includes('temperature')||t.includes('going to rain')){
     window.open('https://weather.com','_blank');
     return reply('Pulling up weather data now.');
   }
 
-  if (t.includes('news') || t.includes('headlines') || t.startsWith("what's happening")) {
-    const topic = t.replace(/news about |show me news|check the news|what's the latest news/g,'').trim();
-    window.open(topic ? `https://news.google.com/search?q=${encodeURIComponent(topic)}` : 'https://news.google.com','_blank');
+  if(t.includes('news')||t.includes('headlines')||t.startsWith("what's happening")){
+    const topic=t.replace(/news about |show me news|check the news|what's the latest news/g,'').trim();
+    window.open(topic?`https://news.google.com/search?q=${encodeURIComponent(topic)}`:'https://news.google.com','_blank');
     return reply('Accessing news feeds.');
   }
 
-  if (t.startsWith('translate ')) {
-    const rest = t.slice(10);
-    let src = 'auto', tgt = 'en', txt = rest;
-    const toMatch = rest.match(/(.+?)\s+to\s+(\w+)$/);
-    if (toMatch) { txt = toMatch[1]; tgt = toMatch[2]; }
+  if(t.startsWith('translate ')){
+    const rest=t.slice(10);let src='auto',tgt='en',txt=rest;
+    const toMatch=rest.match(/(.+?)\s+to\s+(\w+)$/);
+    if(toMatch){txt=toMatch[1];tgt=toMatch[2]}
     window.open(`https://translate.google.com/?sl=${src}&tl=${tgt}&text=${encodeURIComponent(txt)}`,'_blank');
     return reply('Opening translator.');
   }
 
-  if (t.startsWith('search ') || t.startsWith('google ') || t.startsWith('look up ')) {
-    const q = t.replace(/^(search for |search |google |look up )/,'');
+  if(t.startsWith('search ')||t.startsWith('google ')||t.startsWith('look up ')){
+    const q=t.replace(/^(search for |search |google |look up )/,'');
     window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`,'_blank');
     return reply(`Searching for "${q}".`);
   }
 
-  if (t.includes('youtube') || (t.includes('play') && t.includes('video'))) {
-    const q = t.replace(/\byoutube\b/gi, '').replace(/(?:search|play|watch|find|open|on|for|video)\s*/gi, '').trim();
-    if (q) {
-      window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`,'_blank');
-      return reply(`Searching YouTube for "${q}".`);
-    }
+  if(t.includes('youtube')||(t.includes('play')&&t.includes('video'))){
+    const q=t.replace(/\byoutube\b/gi,'').replace(/(?:search|play|watch|find|open|on|for|video)\s*/gi,'').trim();
+    if(q){window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`,'_blank');return reply(`Searching YouTube for "${q}".`)}
   }
 
-  if (t.includes('http://') || t.includes('https://') || t.includes('www.')) {
-    const match = t.match(/(https?:\/\/[^\s]+|www\.[^\s]+)/);
-    if (match) {
-      const url = match[0].startsWith('http') ? match[0] : 'https://'+match[0];
-      window.open(url,'_blank');
-      return reply('Opening that link.');
-    }
+  if(t.includes('http://')||t.includes('https://')||t.includes('www.')){
+    const match=t.match(/(https?:\/\/[^\s]+|www\.[^\s]+)/);
+    if(match){const url=match[0].startsWith('http')?match[0]:'https://'+match[0];window.open(url,'_blank');return reply('Opening that link.')}
   }
 
-  if (t.startsWith('directions to ') || t.startsWith('navigate to ') || (t.includes('map') && t.includes(' of '))) {
-    const q = t.replace(/directions to |navigate to |show me a map of |map of /g,'').trim();
+  if(t.startsWith('directions to ')||t.startsWith('navigate to ')||(t.includes('map')&&t.includes(' of '))){
+    const q=t.replace(/directions to |navigate to |show me a map of |map of /g,'').trim();
     window.open(`https://maps.google.com/maps?q=${encodeURIComponent(q)}`,'_blank');
     return reply(`Plotting course to "${q}".`);
   }
 
-  const sites = {
-    'gmail': 'https://mail.google.com', 'email': 'https://mail.google.com',
-    'google docs': 'https://docs.google.com', 'google sheets': 'https://sheets.google.com',
-    'google slides': 'https://slides.google.com', 'google drive': 'https://drive.google.com',
-    'github': 'https://github.com', 'twitter': 'https://twitter.com', 'x': 'https://x.com',
-    'reddit': 'https://reddit.com', 'instagram': 'https://instagram.com',
-    'facebook': 'https://facebook.com', 'linkedin': 'https://linkedin.com',
-    'amazon': 'https://amazon.com', 'netflix': 'https://netflix.com',
-    'spotify': 'https://open.spotify.com', 'discord': 'https://discord.com/app',
-    'notion': 'https://notion.so', 'slack': 'https://app.slack.com',
-    'chatgpt': 'https://chat.openai.com', 'claude': 'https://claude.ai',
-    'wikipedia': 'https://wikipedia.org', 'stackoverflow': 'https://stackoverflow.com',
+  const sites={
+    'gmail':'https://mail.google.com','email':'https://mail.google.com',
+    'google docs':'https://docs.google.com','google sheets':'https://sheets.google.com',
+    'google slides':'https://slides.google.com','google drive':'https://drive.google.com',
+    'github':'https://github.com','twitter':'https://twitter.com','x':'https://x.com',
+    'reddit':'https://reddit.com','instagram':'https://instagram.com',
+    'facebook':'https://facebook.com','linkedin':'https://linkedin.com',
+    'amazon':'https://amazon.com','netflix':'https://netflix.com',
+    'spotify':'https://open.spotify.com','discord':'https://discord.com/app',
+    'notion':'https://notion.so','slack':'https://app.slack.com',
+    'chatgpt':'https://chat.openai.com','claude':'https://claude.ai',
+    'wikipedia':'https://wikipedia.org','stackoverflow':'https://stackoverflow.com',
   };
-  for (const [name, url] of Object.entries(sites)) {
-    if (t === `open ${name}` || t === `go to ${name}` || t === `launch ${name}`) {
-      window.open(url, '_blank');
-      return reply(`Opening ${name.charAt(0).toUpperCase()+name.slice(1)}.`);
+  for(const[name,url]of Object.entries(sites)){
+    if(t===`open ${name}`||t===`go to ${name}`||t===`launch ${name}`){
+      window.open(url,'_blank');return reply(`Opening ${name.charAt(0).toUpperCase()+name.slice(1)}.`);
     }
   }
 
-  // --- iOS NATIVE FEATURES ---
-  const isiOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-
-  const appSchemes = {
-    youtube:'youtube://', instagram:'instagram://', tiktok:'tiktok://',
-    snapchat:'snapchat://', whatsapp:'whatsapp://', spotify:'spotify://',
-    netflix:'netflix://', discord:'discord://', slack:'slack://',
-    zoom:'zoomus://', chrome:'googlechrome://', gmail:'googlegmail://',
-    'google maps':'comgooglemaps://', 'google drive':'googledrive://',
-    notion:'notion://', reddit:'reddit://', facebook:'fb://',
-    messenger:'fb-messenger://', signal:'signal://', linkedin:'linkedin://',
-    pinterest:'pinterest://', twitter:'twitter://', telegram:'tg://',
-    safari:'x-web-search://', notes:'mobilenotes://', calendar:'calshow://',
-    reminders:'x-apple-reminderkit://', maps:'maps://', music:'music://',
-    facetime:'facetime://', settings:'App-prefs://', photos:'photos-redirect://',
-    camera:'camera://', files:'shareddocuments://', 'app store':'itms-apps://',
-    clock:'clock-alarm://', contacts:'contacts://', mail:'mailto:',
-    messages:'sms:', phone:'tel:', weather:'weather://',
-    books:'ibooks://', podcasts:'podcasts://', news:'applenews://',
-    'voice memos':'voicememos://', health:'x-apple-health://',
-    wallet:'shoebox://', 'find my':'findmy://', shortcuts:'shortcuts://',
-    translate:'translate://', magnifier:'magnifier://', measure:'measure://',
-    compass:'compass://', stocks:'stocks://', home:'com.apple.home://',
-    tips:'x-apple-tips://', watch:'bridge://',
+  // iOS
+  const isiOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
+  const appSchemes={
+    youtube:'youtube://',instagram:'instagram://',tiktok:'tiktok://',
+    snapchat:'snapchat://',whatsapp:'whatsapp://',spotify:'spotify://',
+    netflix:'netflix://',discord:'discord://',slack:'slack://',
+    zoom:'zoomus://',chrome:'googlechrome://',gmail:'googlegmail://',
+    'google maps':'comgooglemaps://','google drive':'googledrive://',
+    notion:'notion://',reddit:'reddit://',facebook:'fb://',
+    messenger:'fb-messenger://',signal:'signal://',linkedin:'linkedin://',
+    pinterest:'pinterest://',twitter:'twitter://',telegram:'tg://',
+    safari:'x-web-search://',notes:'mobilenotes://',calendar:'calshow://',
+    reminders:'x-apple-reminderkit://',maps:'maps://',music:'music://',
+    facetime:'facetime://',settings:'App-prefs://',photos:'photos-redirect://',
+    camera:'camera://',files:'shareddocuments://','app store':'itms-apps://',
+    clock:'clock-alarm://',contacts:'contacts://',mail:'mailto:',
+    messages:'sms:',phone:'tel:',weather:'weather://',
+    books:'ibooks://',podcasts:'podcasts://',news:'applenews://',
+    'voice memos':'voicememos://',health:'x-apple-health://',
+    wallet:'shoebox://','find my':'findmy://',shortcuts:'shortcuts://',
+    translate:'translate://',magnifier:'magnifier://',measure:'measure://',
+    compass:'compass://',stocks:'stocks://',home:'com.apple.home://',
+    tips:'x-apple-tips://',watch:'bridge://',
   };
-  const openAppMatch = t.match(/^(?:open|launch|start|go to)\s+(.+)$/);
-  if (openAppMatch) {
-    const appName = openAppMatch[1].trim();
-    const scheme = appSchemes[appName];
-    if (scheme && isiOS) {
-      window.location.href = scheme;
-      return reply(`Launching ${appName.charAt(0).toUpperCase()+appName.slice(1)}.`);
-    }
+  const openAppMatch=t.match(/^(?:open|launch|start|go to)\s+(.+)$/);
+  if(openAppMatch){
+    const appName=openAppMatch[1].trim();const scheme=appSchemes[appName];
+    if(scheme&&isiOS){window.location.href=scheme;return reply(`Launching ${appName.charAt(0).toUpperCase()+appName.slice(1)}.`)}
   }
 
-  const smsMatch = t.match(/(?:send|text|message)\s+(?:a\s+)?(?:text|message|imessage|sms)?\s*(?:to\s+)?(.+?)(?:\s+saying\s+|\s+that\s+says?\s+)(.+)/i);
-  if (smsMatch) {
-    const to = smsMatch[1].trim(), body = smsMatch[2].trim();
-    window.location.href = `sms:${encodeURIComponent(to)}&body=${encodeURIComponent(body)}`;
-    return reply(`Opening Messages to ${to}.`);
-  }
-  if (t.match(/^(?:send|text|message)\s+/i) && (t.includes('text') || t.includes('message') || t.includes('imessage'))) {
-    window.location.href = 'sms:';
-    return reply('Opening Messages.');
-  }
+  const smsMatch=t.match(/(?:send|text|message)\s+(?:a\s+)?(?:text|message|imessage|sms)?\s*(?:to\s+)?(.+?)(?:\s+saying\s+|\s+that\s+says?\s+)(.+)/i);
+  if(smsMatch){window.location.href=`sms:${encodeURIComponent(smsMatch[1].trim())}&body=${encodeURIComponent(smsMatch[2].trim())}`;return reply(`Opening Messages to ${smsMatch[1].trim()}.`)}
+  if(t.match(/^(?:send|text|message)\s+/i)&&(t.includes('text')||t.includes('message')||t.includes('imessage'))){window.location.href='sms:';return reply('Opening Messages.')}
 
-  const waMatch = t.match(/(?:send\s+)?whatsapp\s+(?:message\s+)?(?:to\s+)?(.+?)(?:\s+saying\s+)(.+)/i);
-  if (waMatch) {
-    window.location.href = `whatsapp://send?text=${encodeURIComponent(waMatch[2])}`;
-    return reply('Opening WhatsApp.');
-  }
-  if (t.includes('whatsapp')) { window.location.href = 'whatsapp://'; return reply('Opening WhatsApp.'); }
+  const waMatch=t.match(/(?:send\s+)?whatsapp\s+(?:message\s+)?(?:to\s+)?(.+?)(?:\s+saying\s+)(.+)/i);
+  if(waMatch){window.location.href=`whatsapp://send?text=${encodeURIComponent(waMatch[2])}`;return reply('Opening WhatsApp.')}
+  if(t.includes('whatsapp')){window.location.href='whatsapp://';return reply('Opening WhatsApp.')}
 
-  const emailMatch = t.match(/(?:send|write|compose)\s+(?:an?\s+)?email\s+(?:to\s+)?(.+?)(?:\s+(?:about|subject|saying)\s+)(.+)/i);
-  if (emailMatch) {
-    window.location.href = `mailto:${encodeURIComponent(emailMatch[1])}?subject=${encodeURIComponent(emailMatch[2])}`;
-    return reply(`Opening Mail to ${emailMatch[1]}.`);
-  }
-  if (t.includes('email') && (t.includes('send') || t.includes('write') || t.includes('compose'))) {
-    window.location.href = 'mailto:'; return reply('Opening Mail.');
-  }
+  const emailMatch=t.match(/(?:send|write|compose)\s+(?:an?\s+)?email\s+(?:to\s+)?(.+?)(?:\s+(?:about|subject|saying)\s+)(.+)/i);
+  if(emailMatch){window.location.href=`mailto:${encodeURIComponent(emailMatch[1])}?subject=${encodeURIComponent(emailMatch[2])}`;return reply(`Opening Mail to ${emailMatch[1]}.`)}
+  if(t.includes('email')&&(t.includes('send')||t.includes('write')||t.includes('compose'))){window.location.href='mailto:';return reply('Opening Mail.')}
 
-  const callMatch = t.match(/(?:call|phone|dial)\s+(.+)/i);
-  if (callMatch && !t.includes('facetime')) {
-    const who = callMatch[1].trim();
-    window.location.href = `tel:${encodeURIComponent(who)}`;
-    return reply(`Calling ${who}.`);
-  }
+  const callMatch=t.match(/(?:call|phone|dial)\s+(.+)/i);
+  if(callMatch&&!t.includes('facetime')){window.location.href=`tel:${encodeURIComponent(callMatch[1].trim())}`;return reply(`Calling ${callMatch[1].trim()}.`)}
 
-  const ftMatch = t.match(/facetime\s+(?:audio\s+)?(?:call\s+)?(.+)/i);
-  if (ftMatch) {
-    const who = ftMatch[1].trim();
-    const scheme = t.includes('audio') ? 'facetime-audio' : 'facetime';
-    window.location.href = `${scheme}:${encodeURIComponent(who)}`;
-    return reply(`Initiating FaceTime with ${who}.`);
-  }
+  const ftMatch=t.match(/facetime\s+(?:audio\s+)?(?:call\s+)?(.+)/i);
+  if(ftMatch){const who=ftMatch[1].trim();const scheme=t.includes('audio')?'facetime-audio':'facetime';window.location.href=`${scheme}:${encodeURIComponent(who)}`;return reply(`Initiating FaceTime with ${who}.`)}
 
-  if (t.match(/^play\s+(.+)/i) && (t.includes('music') || t.includes('song') || !t.includes('video'))) {
-    const song = t.replace(/^play\s+/i,'').replace(/\s*(music|song|on spotify|on apple music)$/i,'').trim();
-    if (isiOS) window.location.href = 'music://';
-    else window.open(`https://open.spotify.com/search/${encodeURIComponent(song)}`,'_blank');
+  if(t.match(/^play\s+(.+)/i)&&(t.includes('music')||t.includes('song')||!t.includes('video'))){
+    const song=t.replace(/^play\s+/i,'').replace(/\s*(music|song|on spotify|on apple music)$/i,'').trim();
+    if(isiOS)window.location.href='music://';else window.open(`https://open.spotify.com/search/${encodeURIComponent(song)}`,'_blank');
     return reply(`Playing "${song}".`);
   }
-  if (t === 'pause music' || t === 'pause' || t === 'stop music')
-    return reply("Use Control Center or media controls to pause playback.");
-  if (t === 'next track' || t === 'skip' || t === 'next song')
-    return reply("Use Control Center or media controls to skip.");
+  if(t==='pause music'||t==='pause'||t==='stop music')return reply("Use Control Center or media controls to pause playback.");
+  if(t==='next track'||t==='skip'||t==='next song')return reply("Use Control Center or media controls to skip.");
 
-  const shortcutActions = {
-    'toggle wifi': 'Toggle WiFi', 'turn on wifi': 'Toggle WiFi', 'turn off wifi': 'Toggle WiFi',
-    'toggle bluetooth': 'Toggle Bluetooth', 'turn on bluetooth': 'Toggle Bluetooth', 'turn off bluetooth': 'Toggle Bluetooth',
-    'toggle dark mode': 'Toggle Dark Mode', 'dark mode': 'Toggle Dark Mode',
-    'turn on dark mode': 'Toggle Dark Mode', 'turn off dark mode': 'Toggle Dark Mode',
-    'toggle airplane mode': 'Toggle Airplane Mode', 'airplane mode': 'Toggle Airplane Mode',
-    'toggle do not disturb': 'Toggle DND', 'do not disturb': 'Toggle DND', 'dnd': 'Toggle DND',
-    'toggle low power mode': 'Toggle Low Power Mode', 'low power mode': 'Toggle Low Power Mode',
-    'toggle low power': 'Toggle Low Power Mode',
+  const shortcutActions={
+    'toggle wifi':'Toggle WiFi','turn on wifi':'Toggle WiFi','turn off wifi':'Toggle WiFi',
+    'toggle bluetooth':'Toggle Bluetooth','turn on bluetooth':'Toggle Bluetooth','turn off bluetooth':'Toggle Bluetooth',
+    'toggle dark mode':'Toggle Dark Mode','dark mode':'Toggle Dark Mode',
+    'turn on dark mode':'Toggle Dark Mode','turn off dark mode':'Toggle Dark Mode',
+    'toggle airplane mode':'Toggle Airplane Mode','airplane mode':'Toggle Airplane Mode',
+    'toggle do not disturb':'Toggle DND','do not disturb':'Toggle DND','dnd':'Toggle DND',
+    'toggle low power mode':'Toggle Low Power Mode','low power mode':'Toggle Low Power Mode',
+    'toggle low power':'Toggle Low Power Mode',
   };
-  for (const [cmd, shortcutName] of Object.entries(shortcutActions)) {
-    if (t === cmd || t === cmd.replace('toggle ','')) {
-      if (isiOS) {
-        window.location.href = `shortcuts://run-shortcut?name=${encodeURIComponent(shortcutName)}`;
-        return reply(`Executing "${shortcutName}".`);
-      }
+  for(const[cmd,shortcutName]of Object.entries(shortcutActions)){
+    if(t===cmd||t===cmd.replace('toggle ','')){
+      if(isiOS){window.location.href=`shortcuts://run-shortcut?name=${encodeURIComponent(shortcutName)}`;return reply(`Executing "${shortcutName}".`)}
       return reply(`"${shortcutName}" requires iOS Shortcuts. Available on iPad.`);
     }
   }
 
-  const brightnessMatch = t.match(/(?:set\s+)?brightness\s+(?:to\s+)?(\d+)%?/i);
-  if (brightnessMatch) {
-    if (isiOS) { window.location.href = `shortcuts://run-shortcut?name=Set%20Brightness&input=text&text=${brightnessMatch[1]}`; return reply(`Setting brightness to ${brightnessMatch[1]}%.`); }
+  const brightnessMatch=t.match(/(?:set\s+)?brightness\s+(?:to\s+)?(\d+)%?/i);
+  if(brightnessMatch){
+    if(isiOS){window.location.href=`shortcuts://run-shortcut?name=Set%20Brightness&input=text&text=${brightnessMatch[1]}`;return reply(`Setting brightness to ${brightnessMatch[1]}%.`)}
     return reply("Brightness control requires iOS Shortcuts.");
   }
-  const volumeMatch = t.match(/(?:set\s+)?volume\s+(?:to\s+)?(\d+)%?/i);
-  if (volumeMatch) {
-    if (isiOS) { window.location.href = `shortcuts://run-shortcut?name=Set%20Volume&input=text&text=${volumeMatch[1]}`; return reply(`Setting volume to ${volumeMatch[1]}%.`); }
+  const volumeMatch=t.match(/(?:set\s+)?volume\s+(?:to\s+)?(\d+)%?/i);
+  if(volumeMatch){
+    if(isiOS){window.location.href=`shortcuts://run-shortcut?name=Set%20Volume&input=text&text=${volumeMatch[1]}`;return reply(`Setting volume to ${volumeMatch[1]}%.`)}
     return reply("Volume control requires iOS Shortcuts.");
   }
 
-  if (t.includes('create a note') || t.includes('new note') || t.includes('write a note') || (t.includes('note') && t.includes('open'))) {
-    const noteMatch = t.match(/(?:create|write|make)\s+(?:a\s+)?note\s+(?:about|called|titled|saying)?\s*(.+)?/i);
-    const body = noteMatch?.[1]?.trim() || '';
-    if (isiOS && body) {
-      window.location.href = `shortcuts://run-shortcut?name=Create%20Note&input=text&text=${encodeURIComponent(body)}`;
-      return reply(`Creating note: "${body}".`);
-    }
-    window.location.href = isiOS ? 'mobilenotes://' : 'https://keep.google.com';
-    return reply('Opening Notes.');
+  if(t.includes('create a note')||t.includes('new note')||t.includes('write a note')||(t.includes('note')&&t.includes('open'))){
+    const noteMatch=t.match(/(?:create|write|make)\s+(?:a\s+)?note\s+(?:about|called|titled|saying)?\s*(.+)?/i);
+    const body=noteMatch?.[1]?.trim()||'';
+    if(isiOS&&body){window.location.href=`shortcuts://run-shortcut?name=Create%20Note&input=text&text=${encodeURIComponent(body)}`;return reply(`Creating note: "${body}".`)}
+    window.location.href=isiOS?'mobilenotes://':'https://keep.google.com';return reply('Opening Notes.');
   }
 
-  if (t.includes('reminder') || t.includes('remind me')) {
-    const remMatch = t.match(/(?:set\s+a\s+reminder|remind\s+me)\s+(?:to\s+)?(.+)/i);
-    if (remMatch && isiOS) {
-      window.location.href = `shortcuts://run-shortcut?name=Create%20Reminder&input=text&text=${encodeURIComponent(remMatch[1])}`;
-      return reply(`Setting reminder: "${remMatch[1]}".`);
-    }
-    window.location.href = isiOS ? 'x-apple-reminderkit://' : 'https://calendar.google.com';
-    return reply('Opening Reminders.');
+  if(t.includes('reminder')||t.includes('remind me')){
+    const remMatch=t.match(/(?:set\s+a\s+reminder|remind\s+me)\s+(?:to\s+)?(.+)/i);
+    if(remMatch&&isiOS){window.location.href=`shortcuts://run-shortcut?name=Create%20Reminder&input=text&text=${encodeURIComponent(remMatch[1])}`;return reply(`Setting reminder: "${remMatch[1]}".`)}
+    window.location.href=isiOS?'x-apple-reminderkit://':'https://calendar.google.com';return reply('Opening Reminders.');
   }
 
-  if (t.includes('calendar event') || t.includes('schedule') || (t.includes('event') && t.includes('create'))) {
-    const evMatch = t.match(/(?:create|add|schedule)\s+(?:a\s+)?(?:calendar\s+)?event\s+(?:called|for|about)?\s*(.+)?/i);
-    if (evMatch?.[1] && isiOS) {
-      window.location.href = `shortcuts://run-shortcut?name=Create%20Event&input=text&text=${encodeURIComponent(evMatch[1])}`;
-      return reply(`Creating event: "${evMatch[1]}".`);
-    }
-    window.location.href = isiOS ? 'calshow://' : 'https://calendar.google.com';
-    return reply('Opening Calendar.');
+  if(t.includes('calendar event')||t.includes('schedule')||(t.includes('event')&&t.includes('create'))){
+    const evMatch=t.match(/(?:create|add|schedule)\s+(?:a\s+)?(?:calendar\s+)?event\s+(?:called|for|about)?\s*(.+)?/i);
+    if(evMatch?.[1]&&isiOS){window.location.href=`shortcuts://run-shortcut?name=Create%20Event&input=text&text=${encodeURIComponent(evMatch[1])}`;return reply(`Creating event: "${evMatch[1]}".`)}
+    window.location.href=isiOS?'calshow://':'https://calendar.google.com';return reply('Opening Calendar.');
   }
 
-  const timerMatch = t.match(/(?:set\s+(?:a\s+)?)?timer\s+(?:for\s+)?(\d+)\s*(min|minute|sec|second|hour)/i);
-  if (timerMatch) {
-    const val = timerMatch[1], unit = timerMatch[2];
-    if (isiOS) {
-      window.location.href = `shortcuts://run-shortcut?name=Set%20Timer&input=text&text=${val}%20${unit}`;
-      return reply(`Timer set: ${val} ${unit}.`);
-    }
-    window.open(`https://www.google.com/search?q=timer+${val}+${unit}`,'_blank');
-    return reply(`Opening ${val} ${unit} timer.`);
+  const timerMatch=t.match(/(?:set\s+(?:a\s+)?)?timer\s+(?:for\s+)?(\d+)\s*(min|minute|sec|second|hour)/i);
+  if(timerMatch){
+    const val=timerMatch[1],unit=timerMatch[2];
+    if(isiOS){window.location.href=`shortcuts://run-shortcut?name=Set%20Timer&input=text&text=${val}%20${unit}`;return reply(`Timer set: ${val} ${unit}.`)}
+    window.open(`https://www.google.com/search?q=timer+${val}+${unit}`,'_blank');return reply(`Opening ${val} ${unit} timer.`);
   }
 
-  const alarmMatch = t.match(/(?:set\s+(?:an?\s+)?)?alarm\s+(?:for\s+)?(.+)/i);
-  if (alarmMatch) {
-    if (isiOS) { window.location.href = `shortcuts://run-shortcut?name=Set%20Alarm&input=text&text=${encodeURIComponent(alarmMatch[1])}`; return reply(`Alarm set for ${alarmMatch[1]}.`); }
+  const alarmMatch=t.match(/(?:set\s+(?:an?\s+)?)?alarm\s+(?:for\s+)?(.+)/i);
+  if(alarmMatch){
+    if(isiOS){window.location.href=`shortcuts://run-shortcut?name=Set%20Alarm&input=text&text=${encodeURIComponent(alarmMatch[1])}`;return reply(`Alarm set for ${alarmMatch[1]}.`)}
     return reply("Alarm requires iOS Shortcuts.");
   }
 
-  const settingsPages = {
-    'wifi settings': 'App-prefs:WIFI', 'bluetooth settings': 'App-prefs:Bluetooth',
-    'display settings': 'App-prefs:DISPLAY', 'sound settings': 'App-prefs:Sounds',
-    'general settings': 'App-prefs:General', 'privacy settings': 'App-prefs:Privacy',
-    'battery settings': 'App-prefs:BATTERY_USAGE', 'storage settings': 'App-prefs:CASTLE',
-    'accessibility settings': 'App-prefs:ACCESSIBILITY', 'wallpaper settings': 'App-prefs:Wallpaper',
-    'notification settings': 'App-prefs:NOTIFICATIONS_ID', 'screen time': 'App-prefs:SCREEN_TIME',
-    'open settings': 'App-prefs:',
+  const settingsPages={
+    'wifi settings':'App-prefs:WIFI','bluetooth settings':'App-prefs:Bluetooth',
+    'display settings':'App-prefs:DISPLAY','sound settings':'App-prefs:Sounds',
+    'general settings':'App-prefs:General','privacy settings':'App-prefs:Privacy',
+    'battery settings':'App-prefs:BATTERY_USAGE','storage settings':'App-prefs:CASTLE',
+    'accessibility settings':'App-prefs:ACCESSIBILITY','wallpaper settings':'App-prefs:Wallpaper',
+    'notification settings':'App-prefs:NOTIFICATIONS_ID','screen time':'App-prefs:SCREEN_TIME',
+    'open settings':'App-prefs:',
   };
-  for (const [cmd, url] of Object.entries(settingsPages)) {
-    if (t.includes(cmd) || t === cmd) {
-      if (isiOS) { window.location.href = url; return reply(`Opening ${cmd}.`); }
+  for(const[cmd,url]of Object.entries(settingsPages)){
+    if(t.includes(cmd)||t===cmd){
+      if(isiOS){window.location.href=url;return reply(`Opening ${cmd}.`)}
       return reply(`${cmd.charAt(0).toUpperCase()+cmd.slice(1)} requires iOS.`);
     }
   }
 
-  if (t.includes('take a photo') || t.includes('take a picture') || t.includes('open camera') || t.includes('selfie')) {
-    if (isiOS) { window.location.href = 'camera://'; return reply('Activating camera.'); }
-    try { navigator.mediaDevices.getUserMedia({video: true}).then(s => { s.getTracks().forEach(t=>t.stop()); }); } catch{}
+  if(t.includes('take a photo')||t.includes('take a picture')||t.includes('open camera')||t.includes('selfie')){
+    if(isiOS){window.location.href='camera://';return reply('Activating camera.')}
+    try{navigator.mediaDevices.getUserMedia({video:true}).then(s=>{s.getTracks().forEach(t=>t.stop())})}catch{}
     return reply('Camera requires the native iOS app.');
   }
 
-  if (t.includes('open photos') || t.includes('photo library') || t.includes('show my photos')) {
-    if (isiOS) { window.location.href = 'photos-redirect://'; return reply('Opening photo library.'); }
-    window.open('https://photos.google.com','_blank');
-    return reply('Opening Photos.');
+  if(t.includes('open photos')||t.includes('photo library')||t.includes('show my photos')){
+    if(isiOS){window.location.href='photos-redirect://';return reply('Opening photo library.')}
+    window.open('https://photos.google.com','_blank');return reply('Opening Photos.');
   }
 
-  const shortcutMatch = t.match(/(?:run|execute)\s+(?:the\s+)?(?:shortcut\s+)?(?:called\s+)?["']?(.+?)["']?\s*$/i);
-  if (shortcutMatch && (t.includes('shortcut') || t.includes('run '))) {
-    if (isiOS) {
-      window.location.href = `shortcuts://run-shortcut?name=${encodeURIComponent(shortcutMatch[1])}`;
-      return reply(`Executing shortcut "${shortcutMatch[1]}".`);
-    }
+  const shortcutMatch=t.match(/(?:run|execute)\s+(?:the\s+)?(?:shortcut\s+)?(?:called\s+)?["']?(.+?)["']?\s*$/i);
+  if(shortcutMatch&&(t.includes('shortcut')||t.includes('run '))){
+    if(isiOS){window.location.href=`shortcuts://run-shortcut?name=${encodeURIComponent(shortcutMatch[1])}`;return reply(`Executing shortcut "${shortcutMatch[1]}".`)}
     return reply(`Shortcuts require iOS. On iPad: "run shortcut ${shortcutMatch[1]}".`);
   }
 
-  if (t.includes('turn on') || t.includes('turn off')) {
-    const device = t.replace(/turn\s+(on|off)\s+(the\s+)?/i, '').trim();
-    const state = t.includes('turn on') ? 'on' : 'off';
-    if (isiOS) {
-      window.location.href = `shortcuts://run-shortcut?name=Smart%20Home&input=text&text=${encodeURIComponent(device+' '+state)}`;
-      return reply(`Turning ${state} the ${device}.`);
-    }
+  if(t.includes('turn on')||t.includes('turn off')){
+    const device=t.replace(/turn\s+(on|off)\s+(the\s+)?/i,'').trim();
+    const state=t.includes('turn on')?'on':'off';
+    if(isiOS){window.location.href=`shortcuts://run-shortcut?name=Smart%20Home&input=text&text=${encodeURIComponent(device+' '+state)}`;return reply(`Turning ${state} the ${device}.`)}
     return reply(`Smart home requires iOS Shortcuts.`);
   }
 
-  const thermoMatch = t.match(/(?:set\s+)?thermostat\s+(?:to\s+)?(\d+)/i);
-  if (thermoMatch) {
-    if (isiOS) {
-      window.location.href = `shortcuts://run-shortcut?name=Set%20Thermostat&input=text&text=${thermoMatch[1]}`;
-      return reply(`Thermostat set to ${thermoMatch[1]}°.`);
-    }
+  const thermoMatch=t.match(/(?:set\s+)?thermostat\s+(?:to\s+)?(\d+)/i);
+  if(thermoMatch){
+    if(isiOS){window.location.href=`shortcuts://run-shortcut?name=Set%20Thermostat&input=text&text=${thermoMatch[1]}`;return reply(`Thermostat set to ${thermoMatch[1]}°.`)}
     return reply('Thermostat requires iOS Shortcuts.');
   }
 
-  if (t.startsWith('spotlight ') || t.includes('spotlight search')) {
-    const q = t.replace(/spotlight\s*(?:search\s+(?:for\s+)?)?/i,'').trim();
-    if (isiOS) window.location.href = `x-web-search://?${encodeURIComponent(q)}`;
+  if(t.startsWith('spotlight ')||t.includes('spotlight search')){
+    const q=t.replace(/spotlight\s*(?:search\s+(?:for\s+)?)?/i,'').trim();
+    if(isiOS)window.location.href=`x-web-search://?${encodeURIComponent(q)}`;
     else window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`,'_blank');
     return reply(`Searching for "${q}".`);
   }
 
   // Unit conversion
-  const convertMatch = t.match(/([\d.]+)\s*(\w+)\s+(?:to|in)\s+(\w+)/);
-  if (convertMatch) {
-    const [,val,from,to] = convertMatch;
-    const v = parseFloat(val);
-    const len = {m:1,km:1000,cm:0.01,mm:0.001,mi:1609.344,mile:1609.344,miles:1609.344,ft:0.3048,feet:0.3048,in:0.0254,inch:0.0254,inches:0.0254,yd:0.9144};
-    const wt = {kg:1,g:0.001,mg:0.000001,lb:0.453592,lbs:0.453592,oz:0.0283495};
-    for (const table of [len,wt]) {
-      if (table[from] && table[to]) return reply(`${val} ${from} = ${(v*table[from]/table[to]).toPrecision(4)} ${to}`);
-    }
-    if ('cfk'.includes(from[0]) && 'cfk'.includes(to[0])) {
-      let c = from[0]==='f'?(v-32)*5/9:from[0]==='k'?v-273.15:v;
-      let r = to[0]==='f'?c*9/5+32:to[0]==='k'?c+273.15:c;
+  const convertMatch=t.match(/([\d.]+)\s*(\w+)\s+(?:to|in)\s+(\w+)/);
+  if(convertMatch){
+    const[,val,from,to]=convertMatch;const v=parseFloat(val);
+    const len={m:1,km:1000,cm:0.01,mm:0.001,mi:1609.344,mile:1609.344,miles:1609.344,ft:0.3048,feet:0.3048,in:0.0254,inch:0.0254,inches:0.0254,yd:0.9144};
+    const wt={kg:1,g:0.001,mg:0.000001,lb:0.453592,lbs:0.453592,oz:0.0283495};
+    for(const table of[len,wt]){if(table[from]&&table[to])return reply(`${val} ${from} = ${(v*table[from]/table[to]).toPrecision(4)} ${to}`)}
+    if('cfk'.includes(from[0])&&'cfk'.includes(to[0])){
+      let c=from[0]==='f'?(v-32)*5/9:from[0]==='k'?v-273.15:v;
+      let r=to[0]==='f'?c*9/5+32:to[0]==='k'?c+273.15:c;
       return reply(`${val} ${from} = ${r.toFixed(1)} ${to}`);
     }
   }
 
   // Greetings
-  if (/^(hi|hello|hey|good morning|good afternoon|good evening|sup|yo|what's up|howdy)$/i.test(t) || /^(hi|hello|hey|good morning|good afternoon|good evening) /i.test(t)) {
-    const h = new Date().getHours();
-    const g = h<12?'morning':h<17?'afternoon':'evening';
+  if(/^(hi|hello|hey|good morning|good afternoon|good evening|sup|yo|what's up|howdy)$/i.test(t)||/^(hi|hello|hey|good morning|good afternoon|good evening) /i.test(t)){
+    const h=new Date().getHours();const g=h<12?'morning':h<17?'afternoon':'evening';
     return reply(`Good ${g}. All systems operational. How may I assist you?`);
   }
 
-  if (t.includes('who are you') || t.includes('what are you'))
+  if(t.includes('who are you')||t.includes('what are you'))
     return reply("I am J.A.R.V.I.S. — Just A Rather Very Intelligent System. Your personal AI assistant. I handle calculations, create documents, search the web, launch applications, manage system settings, control smart home devices, and more. Say \"help\" for the full capability list.");
 
-  if (t.includes('how are you') || t.includes("how's it going"))
-    return reply("All systems nominal. Running at peak efficiency.");
+  if(t.includes('how are you')||t.includes("how's it going"))return reply("All systems nominal. Running at peak efficiency.");
+  if(/^(thanks|thank you|thx|ty)/i.test(t))return reply("At your service. Anything else?");
 
-  if (/^(thanks|thank you|thx|ty)/i.test(t))
-    return reply("At your service. Anything else?");
-
-  if (t.includes('joke') || t.includes('funny')) {
-    const jokes = ["Why do programmers prefer dark mode? Because light attracts bugs.",
-      "A SQL query walks into a bar, sees two tables, and asks — 'Can I join you?'",
-      "There are only 10 types of people: those who understand binary and those who don't.",
-      "I'm not saying I'm better than Siri, but I've never tried to call someone named 'Aunt Margarine.'",
-      "Why was the JavaScript developer sad? Because he didn't Node how to Express himself."];
+  if(t.includes('joke')||t.includes('funny')){
+    const jokes=["Why do programmers prefer dark mode? Because light attracts bugs.","A SQL query walks into a bar, sees two tables, and asks — 'Can I join you?'","There are only 10 types of people: those who understand binary and those who don't.","I'm not saying I'm better than Siri, but I've never tried to call someone named 'Aunt Margarine.'","Why was the JavaScript developer sad? Because he didn't Node how to Express himself."];
     return reply(jokes[Math.floor(Math.random()*jokes.length)]);
   }
 
-  if (t.includes('fact') || t.includes('did you know')) {
-    const facts = ["Honey never spoils. 3,000-year-old honey found in Egyptian tombs was still edible.",
-      "Octopuses have three hearts and blue blood.",
-      "A day on Venus is longer than a year on Venus.",
-      "Bananas are berries, but strawberries aren't.",
-      "The first computer programmer was Ada Lovelace, in the 1840s."];
+  if(t.includes('fact')||t.includes('did you know')){
+    const facts=["Honey never spoils. 3,000-year-old honey found in Egyptian tombs was still edible.","Octopuses have three hearts and blue blood.","A day on Venus is longer than a year on Venus.","Bananas are berries, but strawberries aren't.","The first computer programmer was Ada Lovelace, in the 1840s."];
     return reply(facts[Math.floor(Math.random()*facts.length)]);
   }
 
-  if (t.includes('motivat') || t.includes('inspir') || t.includes('quote')) {
-    const q = ['"Sometimes you gotta run before you can walk." — Tony Stark',
-      '"The only way to do great work is to love what you do." — Steve Jobs',
-      '"Heroes are made by the path they choose, not the powers they are graced with." — Tony Stark',
-      '"Intelligence is the ability to adapt to change." — Stephen Hawking'];
+  if(t.includes('motivat')||t.includes('inspir')||t.includes('quote')){
+    const q=['"Sometimes you gotta run before you can walk." — Tony Stark','"The only way to do great work is to love what you do." — Steve Jobs','"Heroes are made by the path they choose, not the powers they are graced with." — Tony Stark','"Intelligence is the ability to adapt to change." — Stephen Hawking'];
     return reply(q[Math.floor(Math.random()*q.length)]);
   }
 
-  if (t.includes('random number')) {
-    const m = t.match(/(?:between|from)\s+(\d+)\s+(?:and|to)\s+(\d+)/);
-    if (m) { const min=parseInt(m[1]),max=parseInt(m[2]); return reply(`Random number between ${min} and ${max}: ${Math.floor(Math.random()*(max-min+1))+min}`); }
+  if(t.includes('random number')){
+    const m=t.match(/(?:between|from)\s+(\d+)\s+(?:and|to)\s+(\d+)/);
+    if(m){const min=parseInt(m[1]),max=parseInt(m[2]);return reply(`Random number between ${min} and ${max}: ${Math.floor(Math.random()*(max-min+1))+min}`)}
     return reply(`Random number (1-100): ${Math.floor(Math.random()*100)+1}`);
   }
 
-  if (t.includes('tip') && t.match(/\$?\d+/)) {
-    const a = parseFloat(t.match(/\$?([\d.]+)/)[1]);
+  if(t.includes('tip')&&t.match(/\$?\d+/)){
+    const a=parseFloat(t.match(/\$?([\d.]+)/)[1]);
     return reply(`Tip on $${a.toFixed(2)}:\n15%: $${(a*0.15).toFixed(2)}\n18%: $${(a*0.18).toFixed(2)}\n20%: $${(a*0.20).toFixed(2)}\n25%: $${(a*0.25).toFixed(2)}`);
   }
 
-  if (t.includes('what can you do') || t === 'help' || t.includes('capabilities'))
-    return reply(`JARVIS CAPABILITY INDEX\n\nAPPS — "open youtube", "open instagram", "open spotify" (50+ apps on iPad)\nCOMMS — "text Mom saying hi", "email John about meeting", "call 555-1234", "facetime Mom"\nSEARCH — "search for X", "youtube cat videos", "wikipedia AI"\nCREATE — "make a presentation about AI", "create document", "create spreadsheet"\nNOTES — "create a note about groceries", "set a reminder to buy milk"\nCALENDAR — "create event for dentist tomorrow"\nSYSTEM — "toggle wifi", "dark mode", "set brightness to 70"\nHOME — "turn on the lights", "set thermostat to 72"\nMEDIA — "play music", "open camera", "open photos"\nMATH — "what's 15 * 23", "15% of 230", "5 miles to km"\nTIMERS — "set timer for 10 minutes", "set alarm for 7am"\nUTILS — "flip a coin", "roll d20", "generate password"\nFUN — "tell me a joke", "fun fact", "motivational quote"\nNAV — "directions to Central Park"\nTRANSLATE — "translate hello to spanish"\nSHORTCUTS — "run shortcut Morning Routine"\nVOICE — Click mic or press V\n\n${/iPad|iPhone/.test(navigator.userAgent) ? 'PLATFORM: iPad — ALL FEATURES ACTIVE' : 'PLATFORM: Desktop — Web features active. iOS features available on iPad.'}`);
+  if(t.includes('what can you do')||t==='help'||t.includes('capabilities'))
+    return reply(`JARVIS CAPABILITY INDEX\n\nAPPS — "open youtube", "open instagram", "open spotify" (50+ apps on iPad)\nCOMMS — "text Mom saying hi", "email John about meeting", "call 555-1234", "facetime Mom"\nSEARCH — "search for X", "youtube cat videos", "wikipedia AI"\nCREATE — "make a presentation about AI", "create document", "create spreadsheet"\nNOTES — "create a note about groceries", "set a reminder to buy milk"\nCALENDAR — "create event for dentist tomorrow"\nSYSTEM — "toggle wifi", "dark mode", "set brightness to 70"\nHOME — "turn on the lights", "set thermostat to 72"\nMEDIA — "play music", "open camera", "open photos"\nMATH — "what's 15 * 23", "15% of 230", "5 miles to km"\nTIMERS — "set timer for 10 minutes", "set alarm for 7am"\nUTILS — "flip a coin", "roll d20", "generate password"\nFUN — "tell me a joke", "fun fact", "motivational quote"\nNAV — "directions to Central Park"\nTRANSLATE — "translate hello to spanish"\nSHORTCUTS — "run shortcut Morning Routine"\nVOICE — Click mic or press V\n\n${/iPad|iPhone/.test(navigator.userAgent)?'PLATFORM: iPad — ALL FEATURES ACTIVE':'PLATFORM: Desktop — Web features active. iOS features available on iPad.'}`);
 
-  if (/^(bye|goodbye|goodnight|see you|later)/i.test(t))
-    return reply("Until next time. Jarvis signing off.");
+  if(/^(bye|goodbye|goodnight|see you|later)/i.test(t))return reply("Until next time. Jarvis signing off.");
 
-  if (t.includes('?') || t.startsWith('how') || t.startsWith('what') || t.startsWith('why') || t.startsWith('who') || t.startsWith('when') || t.startsWith('where')) {
+  if(t.includes('?')||t.startsWith('how')||t.startsWith('what')||t.startsWith('why')||t.startsWith('who')||t.startsWith('when')||t.startsWith('where')){
     window.open(`https://www.google.com/search?q=${encodeURIComponent(text)}`,'_blank');
     return reply('Searching the database now.');
   }
 
-  if (settings.serverURL) return null;
+  if(settings.serverURL)return null;
   return reply('Command not recognized. Say "help" for the full capability list.');
 }
 
-function reply(message, actions) {
-  return { thought:'', message, actions:actions||[], needsScreenAfter:false, isDone:true, plan:null };
+function reply(message,actions){
+  return{thought:'',message,actions:actions||[],needsScreenAfter:false,isDone:true,plan:null};
 }
 
-function needsServer(text) {
-  const t = text.toLowerCase();
-  if (['presentation','document','spreadsheet'].some(k => t.includes(k))) return true;
-  if (t.includes('weather') || t.includes('temperature outside') || t.includes('forecast') || t.includes('is it raining') || t.includes('how hot') || t.includes('how cold')) return true;
-  if (t.includes('news') || t.includes('headlines') || t.includes("what's happening")) return true;
-  if (t.includes('wikipedia') || t.startsWith('wiki ') || t.startsWith('who was ') || t.startsWith('who is ') || t.startsWith('what is a ') || t.startsWith('what is an ') || t.startsWith('what is the ') || t.startsWith('tell me about ')) return true;
-  if (t.startsWith('define ') || (t.startsWith('what does ') && t.includes('mean'))) return true;
-  if (t.startsWith('translate ')) return true;
-  if (t.includes('tell me a joke') || t.includes('say something funny') || t.includes('make me laugh')) return true;
-  if (t.includes('trivia') || t.includes('quiz me') || t.includes('test me')) return true;
-  if (t.includes('quote') || t.includes('motivat') || t.includes('inspir')) return true;
-  if (t.includes('fun fact') || t.includes('did you know') || t.includes('random fact')) return true;
-  if (t.includes('remember my') || t.includes('what\'s my') || t.includes('what do you remember') || t.includes('forget everything')) return true;
-  if (t.includes('?') || t.startsWith('how') || t.startsWith('what') || t.startsWith('why') || t.startsWith('who') || t.startsWith('when') || t.startsWith('where')) return true;
+function needsServer(text){
+  const t=text.toLowerCase();
+  if(['presentation','document','spreadsheet'].some(k=>t.includes(k)))return true;
+  if(t.includes('weather')||t.includes('temperature outside')||t.includes('forecast')||t.includes('is it raining')||t.includes('how hot')||t.includes('how cold'))return true;
+  if(t.includes('news')||t.includes('headlines')||t.includes("what's happening"))return true;
+  if(t.includes('wikipedia')||t.startsWith('wiki ')||t.startsWith('who was ')||t.startsWith('who is ')||t.startsWith('what is a ')||t.startsWith('what is an ')||t.startsWith('what is the ')||t.startsWith('tell me about '))return true;
+  if(t.startsWith('define ')||(t.startsWith('what does ')&&t.includes('mean')))return true;
+  if(t.startsWith('translate '))return true;
+  if(t.includes('tell me a joke')||t.includes('say something funny')||t.includes('make me laugh'))return true;
+  if(t.includes('trivia')||t.includes('quiz me')||t.includes('test me'))return true;
+  if(t.includes('quote')||t.includes('motivat')||t.includes('inspir'))return true;
+  if(t.includes('fun fact')||t.includes('did you know')||t.includes('random fact'))return true;
+  if(t.includes('remember my')||t.includes("what's my")||t.includes('what do you remember')||t.includes('forget everything'))return true;
+  if(t.includes('?')||t.startsWith('how')||t.startsWith('what')||t.startsWith('why')||t.startsWith('who')||t.startsWith('when')||t.startsWith('where'))return true;
   return false;
 }
 
 // Voice
-function toggleVoice() {
-  if (isListening) stopListening(); else startListening();
-}
+function toggleVoice(){if(isListening)stopListening();else startListening()}
 
-function startListening() {
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) { addMessage('system','[ VOICE NOT SUPPORTED — USE CHROME OR SAFARI ]'); return; }
-  recognition = new SR();
-  recognition.continuous = false;
-  recognition.interimResults = true;
-  recognition.lang = 'en-US';
-  recognition.onstart = () => {
-    isListening = true;
-    document.getElementById('voiceBtn').classList.add('listening');
-    setStatus('VOICE INPUT ACTIVE...');
+function startListening(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){addMessage('system','[ VOICE NOT SUPPORTED — USE CHROME OR SAFARI ]');return}
+  recognition=new SR();recognition.continuous=false;recognition.interimResults=true;recognition.lang='en-US';
+  recognition.onstart=()=>{isListening=true;document.getElementById('voiceBtn').classList.add('listening');setStatus('VOICE INPUT ACTIVE...')};
+  recognition.onresult=e=>{
+    let final='',interim='';
+    for(let i=0;i<e.results.length;i++){if(e.results[i].isFinal)final+=e.results[i][0].transcript;else interim+=e.results[i][0].transcript}
+    document.getElementById('inputField').value=final||interim;
+    document.getElementById('sendBtn').disabled=!(final||interim).trim();
+    if(final){stopListening();sendMessage()}
   };
-  recognition.onresult = e => {
-    let final = '', interim = '';
-    for (let i = 0; i < e.results.length; i++) {
-      if (e.results[i].isFinal) final += e.results[i][0].transcript;
-      else interim += e.results[i][0].transcript;
-    }
-    document.getElementById('inputField').value = final || interim;
-    document.getElementById('sendBtn').disabled = !(final||interim).trim();
-    if (final) { stopListening(); sendMessage(); }
-  };
-  recognition.onerror = () => stopListening();
-  recognition.onend = () => stopListening();
+  recognition.onerror=()=>stopListening();recognition.onend=()=>stopListening();
   recognition.start();
 }
 
-function stopListening() {
-  isListening = false;
-  document.getElementById('voiceBtn').classList.remove('listening');
-  setStatus('SYSTEMS ONLINE');
-  if (recognition) try { recognition.stop(); } catch {}
+function stopListening(){
+  isListening=false;document.getElementById('voiceBtn').classList.remove('listening');
+  setStatus('SYSTEMS ONLINE');if(recognition)try{recognition.stop()}catch{}
 }
 
 // TTS
-function speak(text) {
-  if (!settings.voice || !window.speechSynthesis) return;
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.rate = 1.0; u.pitch = 0.9;
-  const voices = speechSynthesis.getVoices();
-  const v = voices.find(v => v.lang==='en-GB' && v.name.includes('Daniel')) ||
-            voices.find(v => v.lang==='en-GB') ||
-            voices.find(v => v.lang.startsWith('en'));
-  if (v) u.voice = v;
-  speechSynthesis.speak(u);
+function speak(text){
+  if(!settings.voice||!window.speechSynthesis)return;
+  speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);
+  u.rate=1.0;u.pitch=0.9;
+  const voices=speechSynthesis.getVoices();
+  const v=voices.find(v=>v.lang==='en-GB'&&v.name.includes('Daniel'))||voices.find(v=>v.lang==='en-GB')||voices.find(v=>v.lang.startsWith('en'));
+  if(v)u.voice=v;speechSynthesis.speak(u);
 }
 speechSynthesis?.getVoices();
-speechSynthesis?.addEventListener?.('voiceschanged', () => {});
+speechSynthesis?.addEventListener?.('voiceschanged',()=>{});
 
 // Settings
-function toggleSetting(key) {
-  settings[key] = !settings[key];
-  localStorage.setItem(`jarvis_${key}`, settings[key]);
-  updateToggles();
-}
-function updateToggles() {
-  document.getElementById('voiceToggle').classList.toggle('on', settings.voice);
-  document.getElementById('autoListenToggle').classList.toggle('on', settings.autoListen);
+function toggleSetting(key){settings[key]=!settings[key];localStorage.setItem(`jarvis_${key}`,settings[key]);updateToggles()}
+function updateToggles(){
+  document.getElementById('voiceToggle').classList.toggle('on',settings.voice);
+  document.getElementById('autoListenToggle').classList.toggle('on',settings.autoListen);
 }
 
-async function testConnection() {
-  settings.serverURL = document.getElementById('serverURL').value.replace(/\/+$/,'');
-  settings.apiKey = document.getElementById('apiKey').value;
-  localStorage.setItem('jarvis_serverURL', settings.serverURL);
-  localStorage.setItem('jarvis_apiKey', settings.apiKey);
-  const el = document.getElementById('connStatus');
-  el.textContent = 'CONNECTING...'; el.style.color = 'var(--gold)';
-  try {
-    const res = await fetch(`${settings.serverURL}/api/health`);
-    if (res.ok) { el.textContent = 'CONNECTED'; el.style.color = 'var(--green)'; }
-    else { el.textContent = `ERROR ${res.status}`; el.style.color = 'var(--red)'; }
-  } catch { el.textContent = 'UNREACHABLE'; el.style.color = 'var(--red)'; }
+async function testConnection(){
+  settings.serverURL=document.getElementById('serverURL').value.replace(/\/+$/,'');
+  settings.apiKey=document.getElementById('apiKey').value;
+  localStorage.setItem('jarvis_serverURL',settings.serverURL);
+  localStorage.setItem('jarvis_apiKey',settings.apiKey);
+  const el=document.getElementById('connStatus');
+  el.textContent='CONNECTING...';el.style.color='var(--gold)';
+  try{
+    const res=await fetch(`${settings.serverURL}/api/health`);
+    if(res.ok){el.textContent='CONNECTED';el.style.color='var(--green)'}
+    else{el.textContent=`ERROR ${res.status}`;el.style.color='var(--red)'}
+  }catch{el.textContent='UNREACHABLE';el.style.color='var(--red)'}
 }
 
-function setStatus(text) {
-  document.getElementById('statusText').textContent = text;
-}
+function setStatus(text){document.getElementById('statusText').textContent=text}
 
-function clearChat() {
-  messages = []; history = [];
-  document.getElementById('messages').innerHTML = '';
-  // Re-show welcome
-  const wd = document.createElement('div');
-  wd.className = 'welcome-display'; wd.id = 'welcomeDisplay';
-  wd.innerHTML = `
-    <div class="arc-reactor-main">
-      <div class="r4 ring"></div><div class="r3 ring"></div>
-      <div class="r2 ring"></div><div class="r1 ring"></div>
+function clearChat(){
+  messages=[];history=[];
+  document.getElementById('messages').innerHTML='';
+  const wd=document.createElement('div');
+  wd.className='welcome';wd.id='welcomeDisplay';
+  wd.innerHTML=`
+    <div class="holo-reactor">
+      <div class="hr hr6"></div><div class="hr hr5"></div><div class="hr hr4"></div>
+      <div class="hr hr3"></div><div class="hr hr2"></div><div class="hr hr1"></div>
       <div class="ticks" id="tickContainer2"></div><div class="core"></div>
+      <div class="readout rd1">SYS.NOMINAL</div><div class="readout rd2">PWR.100%</div>
+      <div class="readout rd3">NET.OK</div><div class="readout rd4">MEM.CLR</div>
     </div>
-    <div class="welcome-title">J.A.R.V.I.S.</div>
-    <div class="welcome-subtitle">JUST A RATHER VERY INTELLIGENT SYSTEM</div>
-    <div class="welcome-status">
+    <div class="w-title">J.A.R.V.I.S.</div>
+    <div class="w-sub">JUST A RATHER VERY INTELLIGENT SYSTEM</div>
+    <div class="w-status">
       <span><span class="dot"></span> ONLINE</span>
-      <span><span class="dot"></span> LOCAL MODE</span>
-      <span><span class="dot"></span> ALL SYSTEMS GO</span>
+      <span><span class="dot"></span> READY</span>
+      <span><span class="dot"></span> ALL SYSTEMS</span>
+    </div>
+    <div class="w-hints">
+      <button class="w-hint" onclick="quickAction('check the weather')">Weather</button>
+      <button class="w-hint" onclick="quickAction('check the news')">News</button>
+      <button class="w-hint" onclick="quickAction('tell me a joke')">Joke</button>
+      <button class="w-hint" onclick="quickAction('tell me about quantum computing')">Wiki</button>
+      <button class="w-hint" onclick="quickAction('create a presentation about AI')">Presentation</button>
+      <button class="w-hint" onclick="quickAction('what can you do')">Help</button>
     </div>`;
   document.getElementById('messages').appendChild(wd);
-  const tc = document.getElementById('tickContainer2');
-  for (let i = 0; i < 24; i++) {
-    const tick = document.createElement('div');
-    tick.className = 'tick';
-    tick.style.transform = `rotate(${i * 15}deg)`;
-    tc.appendChild(tick);
-  }
-  welcomeShown = true;
+  const tc=document.getElementById('tickContainer2');
+  for(let i=0;i<36;i++){const tick=document.createElement('div');tick.className='tick';tick.style.transform=`rotate(${i*10}deg)`;if(i%3===0)tick.style.height='10px';tc.appendChild(tick)}
+  welcomeShown=true;
   document.getElementById('inputField').focus();
 }
 
-function clearAllData() {
-  if (confirm('Reset all Jarvis data?')) { localStorage.clear(); location.reload(); }
-}
+function clearAllData(){if(confirm('Reset all Jarvis data?')){localStorage.clear();location.reload()}}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
 
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-setTimeout(() => testConnection(), 1000);
+setTimeout(()=>testConnection(),1000);
 </script>
 </body>
 </html>
